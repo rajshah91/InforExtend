@@ -25,7 +25,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
  * @Title: Entity
  * @Description: 出货刷单
  * @author onlineGenerator
- * @date 2019-03-26 10:24:31
+ * @date 2019-03-26 15:47:11
  * @version V1.0   
  *
  */
