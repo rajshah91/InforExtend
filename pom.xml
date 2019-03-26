@@ -104,6 +104,9 @@
 		<jetty.version>7.6.14.v20131031</jetty.version>
 		<webserver.port>8080</webserver.port>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<!-- axis2 -->
+		<axis2.version>1.7.8</axis2.version>
 	</properties>
 
 	<!-- 设定主仓库，按设定顺序进行查找  -->
@@ -621,6 +624,28 @@
 		    <version>1.0.6</version>
 		</dependency>
 		<!-- update-end-author:taoYan date:20180828 for:jxls导出excel -->
+		
+		<!--axis2 begin -->
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-spring</artifactId>
+			<version>${axis2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-transport-http</artifactId>
+			<version>${axis2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-transport-local</artifactId>
+			<version>${axis2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-xmlbeans</artifactId>
+			<version>${axis2.version}</version>
+		</dependency>
 		
 	</dependencies>
 
