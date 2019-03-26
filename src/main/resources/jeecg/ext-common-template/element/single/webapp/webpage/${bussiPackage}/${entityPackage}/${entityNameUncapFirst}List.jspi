@@ -163,7 +163,7 @@
 		
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
-			<el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
+			<!--<el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>-->
 			 <el-pagination small background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10, 20, 50, 100]"
       			:page-size="pageSize" :total="total" layout="sizes, prev, pager, next"  style="float:right;"></el-pagination>
 		</el-col>
@@ -260,7 +260,7 @@
 	</#if>
 	var vue = new Vue({			
 		el:"#${entityName?uncap_first}List",
-		data() {
+		data:function() {
 			return {
 				filters: {
 					<#list columns as po>
@@ -363,7 +363,7 @@
 						isdel:'1',
 						path:file.url
 					}
-				}).then((res) => {
+				}).then(function(res)  {
 				});
 			},
 			</#if>
@@ -391,14 +391,14 @@
 			</#if>
 			</#list>
 			</#if>
-			handleSortChange(sort){
+			handleSortChange:function(sort){
 				this.sort={
 					sort:sort.prop,
 					order:sort.order=='ascending'?'asc':'desc'
 				};
 				this.get${entityName?cap_first}s();
 			},
-			handleDownFile(type,filePath){
+			handleDownFile:function(type,filePath){
 				var downUrl=this.url.downFile+ filePath +"?down=true";
 				window.open(downUrl);
 			},
@@ -434,21 +434,21 @@
     	 	</#if>
     	 	</#if>
     	 	</#list>
-			handleCurrentChange(val) {
+			handleCurrentChange:function(val) {
 				this.page = val;
 				this.get${entityName?cap_first}s();
 			},
-			handleSizeChange(val) {
+			handleSizeChange:function(val) {
 				this.pageSize = val;
 				this.page = 1;
 				this.get${entityName?cap_first}s();
 			},
-			resetForm(formName) {
+			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
 		        this.get${entityName?cap_first}s();
 		    },
 			//获取用户列表
-			get${entityName?cap_first}s() {
+			get${entityName?cap_first}s:function() {
 				var fields=[];
 				fields.push('id');
 				<#list columns as po>
@@ -491,7 +491,7 @@
 					}
 				};
 				this.listLoading = true;
-				this.${'$'}http.get(this.url.list,para).then((res) => {
+				this.${'$'}http.get(this.url.list,para).then(function(res)  {
 					this.total = res.data.total;
 					var datas=res.data.rows;
 					for (var i = 0; i < datas.length; i++) {
@@ -513,10 +513,10 @@
 			handleDel: function (index, row) {
 				this.${'$'}confirm('确认删除该记录吗?', '提示', {
 					type: 'warning'
-				}).then(() => {
+				}).then(function()  {
 					this.listLoading = true;
 					let para = { id: row.id };
-					this.${'$'}http.post(this.url.del,para,{emulateJSON: true}).then((res) => {
+					this.${'$'}http.post(this.url.del,para,{emulateJSON: true}).then(function(res)  {
 						this.listLoading = false;
 						this.${'$'}message({
 							message: '删除成功',
@@ -525,7 +525,7 @@
 						});
 						this.get${entityName?cap_first}s();
 					});
-				}).catch(() => {
+				}).catch(function()  {
 
 				});
 			},
@@ -612,9 +612,9 @@
 			},
 			//新增
 			formSubmit: function () {
-				this.${'$'}refs.form.validate((valid) => {
+				this.${'$'}refs.form.validate(function(valid)  {
 					if (valid) {
-						this.${'$'}confirm('确认提交吗？', '提示', {}).then(() => {
+						this.${'$'}confirm('确认提交吗？', '提示', {}).then(function()  {
 							this.formLoading = true;
 							let para = Object.assign({}, this.form);
 							
@@ -636,7 +636,7 @@
 							</#list>
 							</#if>
 							
-							this.${'$'}http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then((res) => {
+							this.${'$'}http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then(function(res)  {
 								this.formLoading = false;
 								this.${'$'}message({
 									message: '提交成功',
@@ -656,13 +656,13 @@
 			},
 			//批量删除
 			batchRemove: function () {
-				var ids = this.sels.map(item => item.id).toString();
+				var ids = '';
 				this.${'$'}confirm('确认删除选中记录吗？', '提示', {
 					type: 'warning'
-				}).then(() => {
+				}).then(function()  {
 					this.listLoading = true;
 					let para = { ids: ids };
-					this.${'$'}http.post(this.url.batchDel,para,{emulateJSON: true}).then((res) => {
+					this.${'$'}http.post(this.url.batchDel,para,{emulateJSON: true}).then(function(res)  {
 						this.listLoading = false;
 						this.${'$'}message({
 							message: '删除成功',
@@ -671,13 +671,13 @@
 						});
 						this.get${entityName?cap_first}s();
 					});
-				}).catch(() => {
+				}).catch(function()  {
 				});
 			},
 			<#-- update--begin-- Author:gj_shaojc  Date:20180606 for：TASK #2767 【专题任务】element-ui 代码生成器遗留问题改造(问题9)-->
 			//导出
 			ExportXls: function() {
-					var ids = this.sels.map(item => item.id).toString();
+					var ids = '';
 					window.location.href = this.url.exportXls+ids;
 			},
 			//导入
@@ -701,7 +701,7 @@
 	        initDictByCode:function(code,_this,dictOptionsName){
 	        	if(!code || !_this[dictOptionsName] || _this[dictOptionsName].length>0)
 	        		return;
-	        	this.${'$'}http.get(this.url.queryDict,{params: {typeGroupName:code}}).then((res) => {
+	        	this.${'$'}http.get(this.url.queryDict,{params: {typeGroupName:code}}).then(function(res)  {
 	        		var data=res.data;
 					if(data.success){
 					  _this[dictOptionsName] = data.obj;
@@ -710,7 +710,7 @@
 				});
 	        }
 		},
-		mounted() {
+		mounted:function() {
 			this.initDictsData();
 			this.get${entityName?cap_first}s();
 		}
