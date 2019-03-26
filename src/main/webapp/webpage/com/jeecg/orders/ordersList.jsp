@@ -17,6 +17,8 @@
 	<script type="text/javascript" src="${webRoot}/plug-in/mutiLang/zh-cn.js"></script>
 	<script type="text/javascript" src="${webRoot}/plug-in/lhgDialog/lhgdialog.min.js?skin=metrole"></script>
 	<script type="text/javascript" src="${webRoot}/plug-in/tools/curdtools.js"></script>
+	<script  src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+	
 	<style>
 	.toolbar {
 	    padding: 10px;
@@ -90,7 +92,7 @@
 		
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
-			<el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
+			<!-- <el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button> -->
 			 <el-pagination small background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10, 20, 50, 100]"
       			:page-size="pageSize" :total="total" layout="sizes, prev, pager, next"  style="float:right;"></el-pagination>
 		</el-col>
@@ -197,15 +199,15 @@
 				//数据字典 
 			}
 		},
-		methods: {
-			handleSortChange(sort){
+		methods:{
+			handleSortChange:function(sort){
 				this.sort={
 					sort:sort.prop,
 					order:sort.order=='ascending'?'asc':'desc'
 				};
 				this.getOrderss();
 			},
-			handleDownFile(type,filePath){
+			handleDownFile:function(type,filePath){
 				var downUrl=this.url.downFile+ filePath +"?down=true";
 				window.open(downUrl);
 			},
@@ -215,21 +217,21 @@
 			formatDateTime: function(row,column,cellValue, index){
 				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
 			},
-			handleCurrentChange(val) {
+			handleCurrentChange:function(val) {
 				this.page = val;
 				this.getOrderss();
 			},
-			handleSizeChange(val) {
+			handleSizeChange:function(val) {
 				this.pageSize = val;
 				this.page = 1;
 				this.getOrderss();
 			},
-			resetForm(formName) {
+			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
 		        this.getOrderss();
 		    },
 			//获取用户列表
-			getOrderss() {
+			getOrderss:function() {
 				var fields=[];
 				fields.push('id');
 				fields.push('id');
@@ -270,7 +272,7 @@
 					}
 				};
 				this.listLoading = true;
-				this.$http.get(this.url.list,para).then((res) => {
+				this.$http.get(this.url.list,para).then(function(res) {
 					this.total = res.data.total;
 					var datas=res.data.rows;
 					for (var i = 0; i < datas.length; i++) {
@@ -284,10 +286,10 @@
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {
 					type: 'warning'
-				}).then(() => {
+				}).then(function()  {
 					this.listLoading = true;
 					let para = { id: row.id };
-					this.$http.post(this.url.del,para,{emulateJSON: true}).then((res) => {
+					this.$http.post(this.url.del,para,{emulateJSON: true}).then(function(res)  {
 						this.listLoading = false;
 						this.$message({
 							message: '删除成功',
@@ -296,7 +298,7 @@
 						});
 						this.getOrderss();
 					});
-				}).catch(() => {
+				}).catch(function()  {
 
 				});
 			},
@@ -331,9 +333,9 @@
 			},
 			//新增
 			formSubmit: function () {
-				this.$refs.form.validate((valid) => {
+				this.$refs.form.validate(function(valid)  {
 					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
+						this.$confirm('确认提交吗？', '提示', {}).then(function()  {
 							this.formLoading = true;
 							let para = Object.assign({}, this.form);
 							
@@ -347,7 +349,7 @@
 							para.reagentenddate = !para.reagentenddate ? '' : utilFormatDate(new Date(para.reagentenddate), 'yyyy-MM-dd hh:mm:ss');
 							
 							
-							this.$http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then((res) => {
+							this.$http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then(function(res)  {
 								this.formLoading = false;
 								this.$message({
 									message: '提交成功',
@@ -367,13 +369,13 @@
 			},
 			//批量删除
 			batchRemove: function () {
-				var ids = this.sels.map(item => item.id).toString();
+				var ids ='';
 				this.$confirm('确认删除选中记录吗？', '提示', {
 					type: 'warning'
-				}).then(() => {
+				}).then(function()  {
 					this.listLoading = true;
 					let para = { ids: ids };
-					this.$http.post(this.url.batchDel,para,{emulateJSON: true}).then((res) => {
+					this.$http.post(this.url.batchDel,para,{emulateJSON: true}).then(function(res)  {
 						this.listLoading = false;
 						this.$message({
 							message: '删除成功',
@@ -382,12 +384,12 @@
 						});
 						this.getOrderss();
 					});
-				}).catch(() => {
+				}).catch(function()  {
 				});
 			},
 			//导出
 			ExportXls: function() {
-					var ids = this.sels.map(item => item.id).toString();
+					var ids = '';
 					window.location.href = this.url.exportXls+ids;
 			},
 			//导入
@@ -401,7 +403,7 @@
 	        initDictByCode:function(code,_this,dictOptionsName){
 	        	if(!code || !_this[dictOptionsName] || _this[dictOptionsName].length>0)
 	        		return;
-	        	this.$http.get(this.url.queryDict,{params: {typeGroupName:code}}).then((res) => {
+	        	this.$http.get(this.url.queryDict,{params: {typeGroupName:code}}).then(function(res)  {
 	        		var data=res.data;
 					if(data.success){
 					  _this[dictOptionsName] = data.obj;
@@ -410,7 +412,7 @@
 				});
 	        }
 		},
-		mounted() {
+		mounted:function() {
 			this.initDictsData();
 			this.getOrderss();
 		}
