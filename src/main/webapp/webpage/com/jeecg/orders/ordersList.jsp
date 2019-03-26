@@ -17,8 +17,6 @@
 	<script type="text/javascript" src="${webRoot}/plug-in/mutiLang/zh-cn.js"></script>
 	<script type="text/javascript" src="${webRoot}/plug-in/lhgDialog/lhgdialog.min.js?skin=metrole"></script>
 	<script type="text/javascript" src="${webRoot}/plug-in/tools/curdtools.js"></script>
-	<script  src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
-	
 	<style>
 	.toolbar {
 	    padding: 10px;
@@ -38,9 +36,6 @@
 		<!--工具条-->
 		<el-row style="margin-top: 15px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
-			   <el-form-item style="margin-bottom: 8px;" prop="orderkey">
-					<el-input v-model="filters.warehouse" auto-complete="off" placeholder="请选择仓库"></el-input>
-				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
 					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input>
 				</el-form-item>
@@ -82,17 +77,17 @@
 			<el-table-column prop="reagentenddate" label="复检完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
 			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<!-- <el-table-column label="操作" width="150">
+			<el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
-			</el-table-column> -->
+			</el-table-column>
 		</el-table>
 		
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
-			<!-- <el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button> -->
+			<!--<el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>-->
 			 <el-pagination small background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10, 20, 50, 100]"
       			:page-size="pageSize" :total="total" layout="sizes, prev, pager, next"  style="float:right;"></el-pagination>
 		</el-col>
@@ -159,7 +154,7 @@
 <script>
 	var vue = new Vue({			
 		el:"#ordersList",
-		data:function(){
+		data:function() {
 			return {
 				filters: {
 					orderkey:'',
@@ -199,7 +194,7 @@
 				//数据字典 
 			}
 		},
-		methods:{
+		methods: {
 			handleSortChange:function(sort){
 				this.sort={
 					sort:sort.prop,
@@ -272,7 +267,7 @@
 					}
 				};
 				this.listLoading = true;
-				this.$http.get(this.url.list,para).then(function(res) {
+				this.$http.get(this.url.list,para).then(function(res)  {
 					this.total = res.data.total;
 					var datas=res.data.rows;
 					for (var i = 0; i < datas.length; i++) {
@@ -369,7 +364,7 @@
 			},
 			//批量删除
 			batchRemove: function () {
-				var ids ='';
+				var ids = '';
 				this.$confirm('确认删除选中记录吗？', '提示', {
 					type: 'warning'
 				}).then(function()  {
