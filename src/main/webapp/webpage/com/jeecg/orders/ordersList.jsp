@@ -34,7 +34,7 @@
 <body style="background-color: #FFFFFF;">
 	<div id="ordersList" v-cloak>
 		<!--工具条-->
-		<el-row style="margin-top: 15px;">
+		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
 					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input>
@@ -45,44 +45,40 @@
 			    <el-form-item>
 			    	<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button>
 			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
-			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="ExportXls">导出</el-button>
-			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="ImportXls">导入</el-button>
-			    </el-form-item>
+			   
 			</el-form>
 		</el-row>
-		
+		<el-row style="padding: 10px;" size="mini">
+			  <el-button type="primary" icon="el-icon-tickets" @click="PickFormVisible=true">刷单</el-button>
+			  <el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
+			  <el-button type="primary" icon="el-icon-edit" @click="ExportXls">导出</el-button>
+			  <el-button type="primary" icon="el-icon-edit" @click="ImportXls">导入</el-button>
+		</el-row>
 		<!--列表-->
 		<el-table :data="orderss" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
-			<el-table-column type="selection" width="55"></el-table-column>
 			<el-table-column type="index" width="60"></el-table-column>
-			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip v-if="show"></el-table-column>
 			<el-table-column prop="storerkey" label="货主代码" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="vendor" label="收货人代码" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
-			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
+			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"	></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<el-table-column prop="picker" label="拣货员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="pickstartdate" label="拣货开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
-			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
+			<el-table-column prop="pickstartdate" label="拣货开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<el-table-column prop="labeler" label="贴标员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="labelstartdate" label="贴标开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
-			<el-table-column prop="labelenddate" label="贴标完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
+			<el-table-column prop="labelstartdate" label="贴标开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="labelenddate" label="贴标完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<el-table-column prop="reagents" label="复检员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="reagentstartdate" label="复检开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
-			<el-table-column prop="reagentenddate" label="复检完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
-			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="reagentstartdate" label="复检开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="reagentenddate" label="复检完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatOstatusDict"></el-table-column>
 			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column label="操作" width="150">
+			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
-			</el-table-column>
+			</el-table-column> -->
 		</el-table>
 		
 		<!--工具条-->
@@ -92,9 +88,10 @@
       			:page-size="pageSize" :total="total" layout="sizes, prev, pager, next"  style="float:right;"></el-pagination>
 		</el-col>
 		
+		
 		<!--新增界面-->
-		<el-dialog :title="formTitle" fullscreen z-index="800" :visible.sync="formVisible" :close-on-click-modal="false">
-			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini">
+		<el-dialog :title="formTitle" fullscreen z-index="800" :visible.sync="formVisible" :close-on-click-modal="false" type="expand">
+			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline="true">
 					<el-form-item label="出货单号" prop="orderkey">
 						<el-input v-model="form.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input>
 					</el-form-item>
@@ -137,8 +134,10 @@
 					<el-form-item label="复检完成时间">
 						 <el-date-picker type="datetime" placeholder="选择复检完成时间" v-model="form.reagentenddate"></el-date-picker>
 					</el-form-item>
-					<el-form-item label="状态" prop="orderstatus">
-						<el-input v-model="form.orderstatus" auto-complete="off" placeholder="请输入状态"></el-input>
+					<el-form-item label="状态">
+						<el-select v-model="form.orderstatus" placeholder="请选择状态">
+					      <el-option :label="option.typename" :value="option.typecode" v-for="option in ostatusOptions"></el-option>
+					    </el-select>
 					</el-form-item>
 					<el-form-item label="仓库" prop="warehouse">
 						<el-input v-model="form.warehouse" auto-complete="off" placeholder="请输入仓库"></el-input>
@@ -149,6 +148,67 @@
 				<el-button type="primary" @click.native="formSubmit" :loading="formLoading">提交</el-button>
 			</div>
 		</el-dialog>
+		<el-dialog :visible.sync="PickFormVisible" fullscreen>
+             <el-form :model="form" :label-width="formLabelWidth" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;">
+	             <el-form-item label="操作">
+		             <template>
+					    <el-radio-group v-model="radio1">
+					    <el-radio :label="1">拣货</el-radio>
+					    <el-radio :label="2">贴标</el-radio>
+					    <el-radio :label="3">复检</el-radio>
+	                    </el-radio-group>
+                 </template>
+                 </el-form-item>
+                 <br>
+	             <el-form-item label="仓库"  inline="ture">
+	             <el-select v-model="form.region" placeholder="请选择仓库" clearable style="width:175px">
+	                 <el-option label="WH1飞仓" value="wh1"></el-option>
+	                 <el-option label="WH2飞仓品牌" value="wh2"></el-option>
+	                 <el-option label="WH5飞仓VMI" value="wh5"></el-option>
+	                 <el-option label="WH10飞仓昆山外租仓" value="wh10"></el-option>
+	             </el-select>
+	             </el-form-item>
+	             <el-form-item label="操作部">
+                    <el-input v-model="form.operate" autocomplete="off"></el-input>
+                 </el-form-item>
+	             <el-form-item label="姓名">
+                    <el-input v-model="form.operator" autocomplete="off"></el-input>
+                 </el-form-item>
+                  <el-form-item label="出货单号">
+                    <el-input v-model="form.orderkey" autocomplete="off"></el-input>
+                 </el-form-item>
+                 <br>
+                 <el-form-item label="功能">
+                 <template>
+				    <el-radio-group v-model="radio2">
+				    <el-radio :label="3">刷单</el-radio>
+                    </el-radio-group>
+                 </template>
+                 </el-form-item>
+                 <el-form-item label="">
+                     <el-button @click="">执行</el-button>
+                 </el-form-item>
+            </el-form>
+            
+            <el-table :data="pickorderss" border stripe size="mini" highlight-current-row v-loading="listLoading"   @selection-change="selsChange" style="width: 100%;margin-top: 3px;">
+			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="storerkey" label="货主代码" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="vendor" label="收货人代码" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
+			<el-table-column prop="picker" label="拣货员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="pickstartdate" label="拣货开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
+			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
+			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatOstatusDict"></el-table-column>
+			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+		   </el-table>
+            
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="PickFormVisible = false">取 消</el-button>
+              <el-button type="primary" @click="PickFormVisible = false">确 定</el-button>
+            </div>
+            
+        </el-dialog>
 	</div>
 </body>
 <script>
@@ -189,9 +249,14 @@
 				},
 				//表单界面数据
 				form: {},
-				
-				
+				//拣货界面
+				pickorderss:[],
+				PickFormVisible:false,
+				formLabelWidth:'70px',
+				radio1:1,
+				radio2:3,
 				//数据字典 
+		   		ostatusOptions:[],
 			}
 		},
 		methods: {
@@ -211,6 +276,22 @@
 			},
 			formatDateTime: function(row,column,cellValue, index){
 				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
+			},
+			formatOstatusDict: function(row,column,cellValue, index){
+				var names="";
+				var values=cellValue;
+				if(!Array.isArray(cellValue))values=cellValue.split(',');
+				for (var i = 0; i < values.length; i++) {
+					var value = values[i];
+					if(i>0)names+=",";
+					for(var j in this.ostatusOptions){
+						var option=this.ostatusOptions[j];
+						if(value==option.typecode){
+							names+=option.typename;
+						}
+					}
+				}
+				return names;
 			},
 			handleCurrentChange:function(val) {
 				this.page = val;
@@ -394,6 +475,7 @@
 			//初始化数据字典
 			initDictsData:function(){
 	        	var _this = this;
+		   		_this.initDictByCode('ostatus',_this,'ostatusOptions');
 	        },
 	        initDictByCode:function(code,_this,dictOptionsName){
 	        	if(!code || !_this[dictOptionsName] || _this[dictOptionsName].length>0)
