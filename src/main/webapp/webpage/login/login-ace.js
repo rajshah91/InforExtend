@@ -178,9 +178,9 @@ function reloadRandCodeImage() {
       return false;
     }
 
-    if($.trim($("#randCode").val()).length==0){
-      showErrorMsg("请输入验证码");
-      return false;
-    }
+//    if($.trim($("#randCode").val()).length==0){
+//      showErrorMsg("请输入验证码");
+//      return false;
+//    }
     return true;
   }

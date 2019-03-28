@@ -112,16 +112,17 @@ public class LoginController extends BaseController {
 		}
 
 		// 验证码
-		String randCode = req.getParameter("randCode");
-		if (StringUtils.isEmpty(randCode)) {
-			j.setMsg(mutiLangService.getLang("common.enter.verifycode"));
-			j.setSuccess(false);
-		} else if (!randCode.equalsIgnoreCase(String.valueOf(session.getAttribute("randCode")))) {
-			j.setMsg(mutiLangService.getLang("common.verifycode.error"));
-			log.info("Username:{} ,验证码: {} 错误!", user.getUserName(), randCode);
-			j.setSuccess(false);
-			// IP黑名单 check
-		} else if (userService.isInBlackList(IpUtil.getIpAddr(req))) {
+//		String randCode = req.getParameter("randCode");
+//		if (StringUtils.isEmpty(randCode)) {
+//			j.setMsg(mutiLangService.getLang("common.enter.verifycode"));
+//			j.setSuccess(false);
+//		} else if (!randCode.equalsIgnoreCase(String.valueOf(session.getAttribute("randCode")))) {
+//			j.setMsg(mutiLangService.getLang("common.verifycode.error"));
+//			log.info("Username:{} ,验证码: {} 错误!", user.getUserName(), randCode);
+//			j.setSuccess(false);
+//			// IP黑名单 check
+//		} else 
+		if (userService.isInBlackList(IpUtil.getIpAddr(req))) {
 			log.info("Username:{} ,IP: {} 进入黑名单!", user.getUserName(), IpUtil.getIpAddr(req));
 			j.setMsg(mutiLangService.getLang("common.blacklist.error"));
 			j.setSuccess(false);

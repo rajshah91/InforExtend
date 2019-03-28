@@ -1996,9 +1996,9 @@ pre.prettyprint {
   line-height: 17px;
   padding-left: 7px;
   text-shadow: none !important;
-  /*update-begin--Author:jg_renjie  Date:20150613 for����������Сģʽ�²˵��Ŀ�ȣ��Ӷ�ʹ�ò�������������ֲ˵�����*/
+  /*update-begin--Author:jg_renjie  Date:20150613 for锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷小模式锟铰菜碉拷锟侥匡拷龋锟斤拷佣锟绞癸拷貌锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟街菜碉拷锟斤拷锟斤拷*/
   /*font-size: 13px;*/
-  /*update-end--Author:jg_renjie  Date:20150613 for����������Сģʽ�²˵��Ŀ�ȣ��Ӷ�ʹ�ò�������������ֲ˵�����*/
+  /*update-end--Author:jg_renjie  Date:20150613 for锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷小模式锟铰菜碉拷锟侥匡拷龋锟斤拷佣锟绞癸拷貌锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟街菜碉拷锟斤拷锟斤拷*/
   text-decoration: none;
 }
 .nav-list > li > a > .menu-icon {
@@ -2661,7 +2661,7 @@ body.mob-safari .sidebar.sidebar-fixed {
     display: block;
   }
 }
-/*update-begin--Author:jg_renjie  Date:20150613 for����������Сģʽ�²˵��Ŀ�ȣ��Ӷ�ʹ�ò�������������ֲ˵�����*/
+/*update-begin--Author:jg_renjie  Date:20150613 for锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷小模式锟铰菜碉拷锟侥匡拷龋锟斤拷佣锟绞癸拷貌锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟街菜碉拷锟斤拷锟斤拷*/
 .sidebar.menu-min,
 .sidebar.menu-min.compact,
 .sidebar.menu-min.navbar-collapse {
@@ -2670,7 +2670,7 @@ body.mob-safari .sidebar.sidebar-fixed {
 .sidebar.menu-min + .main-content {
   margin-left: 51px;
 }
- /*update-end--Author:jg_renjie  Date:20150613 for����������Сģʽ�²˵��ģ��Ӷ�ʹ�ò�������������ֲ˵�����*/
+ /*update-end--Author:jg_renjie  Date:20150613 for锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷小模式锟铰菜碉拷锟侥ｏ拷锟接讹拷使锟矫诧拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷植说锟斤拷锟斤拷锟�*/
 .sidebar.menu-min .nav-list a .badge,
 .sidebar.menu-min .nav-list a .label {
   position: relative;
@@ -11996,9 +11996,6 @@ td .lbl:only-child {
   width: 375px;
   margin: 0 auto;
 }
-.login-layout {
-  background-color: #1D2024;
-}
 .login-layout .main-container:before {
   display: none;
 }
@@ -12155,9 +12152,6 @@ td .lbl:only-child {
   .login-box .toolbar > div {
     width: auto;
   }
-}
-.light-login {
-  background: #dfe0e2 url('images/pattern.jpg') repeat;
 }
 .light-login .widget-box {
   padding: 1px 1px 0;
