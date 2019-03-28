@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="/context/mytags.jsp"%>
+<!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -118,14 +118,9 @@
                     </li>
                 </ul>
             </div>
-            
+            </nav>
         </div>
-        <style type="text/css">  
-		<!--  
-		.proccess{display:none;background-color:#f2f2f2;border:0px solid;border-color:#009900;height:100%;line-height:600px;width:100%;text-align:center;margin:100;position:absolute;top:0;left:0;}  
-		.proccess b{vertical-align:middle;background:url(plug-in/layer/skin/default/loading-0.gif) no-repeat 0 center;padding-left:55px;display:inline-block;}  
-		-->  
-		</style> 
+       
         <div class="row J_mainContent" id="content-main" style="margin-left:-13px;">
             <div class="proccess" id="panelloadingDiv"><b>&nbsp;</b></div> 
             <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="loginController.do?hplushome" frameborder="0" data-id="loginController.do?hplushome" seamless></iframe>
@@ -276,7 +271,7 @@
 <script src="plug-in/hplus/js/plugins/layer/layer.min.js"></script>
 
 <!-- 自定义js -->
-<script src="plug-in/hplus/js/hplus.js?v=4.1.0"></script>
+<script type="text/javascript" src="plug-in/hplus/js/hplus.js?v=4.1.0"></script>
 <!--右键菜单-->
 <script type="text/javascript" src="plug-in/hplus/jquery-smartMenu.js"></script>
 <script type="text/javascript" src="plug-in/hplus/contabs.js"></script>
@@ -286,12 +281,13 @@
 <script src="plug-in/hplus/js/plugins/pace/pace.min.js"></script>
 <!-- Sweet alert -->
 <script src="plug-in/hplus/js/plugins/sweetalert/sweetalert.min.js"></script>
-<script src="plug-in/jquery-plugs/storage/jquery.storageapi.min.js"></script>
+<script type="text/javascript" src="plug-in/jquery-plugs/storage/jquery.storageapi.min.js"></script>
 
 <!-- 弹出TAB -->
 <script type="text/javascript" src="plug-in/hplus/hplus-tab.js"></script>
 <!-- 在线聊天 -->
-<%@include file="/context/layui.jsp"%>
+<%-- <%@include file="/context/layui.jsp"%> --%>
+
 <script>
 	//初始化国际化配置
 	initI18nConfig();
