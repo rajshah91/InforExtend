@@ -12,4 +12,9 @@ public interface OrdersServiceI extends CommonService{
  	
  	public void saveOrUpdate(OrdersEntity entity) throws Exception;
  	
+ 	//获取账号名称
+ 	public String getName(String account) throws Exception;
+ 	
+ 	//验证出货单号
+ 	public void valiorderkey(String orderkey) throws Exception;
 }

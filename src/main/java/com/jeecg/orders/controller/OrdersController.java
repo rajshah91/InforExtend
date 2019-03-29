@@ -1,4 +1,5 @@
 package com.jeecg.orders.controller;
+import com.alibaba.fastjson.JSONObject;
 import com.jeecg.orders.entity.OrdersEntity;
 import com.jeecg.orders.service.OrdersServiceI;
 
@@ -22,6 +23,7 @@ import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
 import org.jeecgframework.web.system.service.SystemService;
+
 import org.jeecgframework.core.util.MyBeanUtils;
 
 import org.jeecgframework.poi.excel.ExcelImportUtil;
@@ -273,6 +275,26 @@ public class OrdersController extends BaseController {
 		return j;
 	}
 	
-	
+	/**
+	 * 更新出货刷单
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "getName")
+	@ResponseBody
+	public void getName(HttpServletRequest request,HttpServletResponse response) {
+		JSONObject resultjson = new JSONObject();
+		String account=request.getParameter("account");
+		try {
+			String name=ordersService.getName(account);
+			resultjson.put("name", name);
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 }
