@@ -36,6 +36,14 @@
 		<!--工具条-->
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
+			    <el-form-item style="margin-bottom: 8px;" prop="orderkey">
+			    <el-select v-model="filters.warehouse" placeholder="请选择仓库" clearable style="width:175px">
+	                 <el-option label="WH1飞仓" value="wh1"></el-option>
+	                 <el-option label="WH2飞仓品牌" value="wh2"></el-option>
+	                 <el-option label="WH5飞仓VMI" value="wh5"></el-option>
+	                 <el-option label="WH10飞仓昆山外租仓" value="wh10"></el-option>
+	             </el-select>
+				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
 					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input>
 				</el-form-item>
@@ -45,23 +53,39 @@
 			    <el-form-item>
 			    	<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button>
 			    </el-form-item>
-			   
 			</el-form>
 		</el-row>
 		<el-row style="padding: 10px;" size="mini">
-			  <el-button type="primary" icon="el-icon-tickets" @click="PickFormVisible=true">刷单</el-button>
-			  <el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
+			  <el-button type="primary" size="mini" icon="el-icon-tickets" @click="shuadan">刷单</el-button>
+			  <el-dropdown trigger="click" style="float:right" label-width="80px">
+			          <el-button prop="primary"  size="mini" icon="el-icon-menu"></el-button>
+					  <!-- <span class="el-dropdown-link">点我查看<i class="el-icon-caret-bottom el-icon--right"></i></span> -->
+					  <el-dropdown-menu slot="dropdown">
+					  <template>
+						  <el-checkbox-group v-model="checkList" label-width="100px">
+						    <el-checkbox label="出货单号" v-model="detailList.orderkey" checked @change="show(detailList.orderkey)"></el-checkbox>
+						    <el-checkbox label="货主代码 " v-model="detailList.storerkey" checked @change="show(detailList.storerkey,name)"></el-checkbox><br>
+						    <el-checkbox label="收货人代码" v-model="detailList.vendor" checked @change="show(detailList.vendor)" value="3"></el-checkbox>
+						    <el-checkbox label="订单时间"  v-model="detailList.orderdate" checked @change="show(detailList.orderdate)"  value="4"></el-checkbox><br>
+						    <el-checkbox label="请求出货时间" v-model="detailList.requestshipdate" checked @change="show(detailList.requestshipdate)" value="5"></el-checkbox>
+						  </el-checkbox-group>
+					  </template>
+					  <!-- <el-dropdown-item class="clearfix"><el-badge class="mark" :value="12" /></el-dropdown-item>
+					  <el-dropdown-item class="clearfix">回复<el-badge class="mark" :value="3" /></el-dropdown-item> -->
+					  </el-dropdown-menu>
+              </el-dropdown>
+			  <!-- <el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
 			  <el-button type="primary" icon="el-icon-edit" @click="ExportXls">导出</el-button>
-			  <el-button type="primary" icon="el-icon-edit" @click="ImportXls">导入</el-button>
+			  <el-button type="primary" icon="el-icon-edit" @click="ImportXls">导入</el-button> -->
 		</el-row>
 		<!--列表-->
-		<el-table :data="orderss" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
-			<el-table-column type="index" width="60"></el-table-column>
-			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip v-if="show"></el-table-column>
-			<el-table-column prop="storerkey" label="货主代码" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="vendor" label="收货人代码" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"	></el-table-column>
-			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+		<el-table :data="orderss"  border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
+			<el-table-column type="index" label="序号" width="60"></el-table-column>
+			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.orderkey"></el-table-column>
+			<el-table-column prop="storerkey" label="货主代码" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.storerkey"></el-table-column>
+			<el-table-column prop="vendor" label="收货人代码" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.vendor"></el-table-column>
+			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"	 v-if="columnshow.orderdate"></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime" v-if="columnshow.requestshipdate"></el-table-column>
 			<el-table-column prop="picker" label="拣货员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="pickstartdate" label="拣货开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
@@ -149,39 +173,41 @@
 			</div>
 		</el-dialog>
 		<el-dialog :visible.sync="PickFormVisible" fullscreen>
-             <el-form :model="form" :label-width="formLabelWidth" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;">
+             <el-form :model="pickform" :label-width="formLabelWidth" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;">
 	             <el-form-item label="操作">
 		             <template>
 					    <el-radio-group v-model="radio1">
+					    <el-radio :label="0">请选择</el-radio>
 					    <el-radio :label="1">拣货</el-radio>
 					    <el-radio :label="2">贴标</el-radio>
 					    <el-radio :label="3">复检</el-radio>
 	                    </el-radio-group>
-                 </template>
+                     </template>
                  </el-form-item>
                  <br>
 	             <el-form-item label="仓库"  inline="ture">
-	             <el-select v-model="form.region" placeholder="请选择仓库" clearable style="width:175px">
+	             <el-select v-model="pickform.warehouse" placeholder="请选择仓库" clearable style="width:175px">
 	                 <el-option label="WH1飞仓" value="wh1"></el-option>
 	                 <el-option label="WH2飞仓品牌" value="wh2"></el-option>
 	                 <el-option label="WH5飞仓VMI" value="wh5"></el-option>
 	                 <el-option label="WH10飞仓昆山外租仓" value="wh10"></el-option>
 	             </el-select>
 	             </el-form-item>
-	             <el-form-item label="操作部">
-                    <el-input v-model="form.operate" autocomplete="off"></el-input>
+	             <el-form-item label="账号">
+                    <el-input v-model="pickform.operate" autocomplete="off" @change="getname(pickform.operate)"></el-input>
                  </el-form-item>
 	             <el-form-item label="姓名">
-                    <el-input v-model="form.operator" autocomplete="off"></el-input>
+                    <el-input v-model="pickform.operator" autocomplete="off"></el-input>
                  </el-form-item>
                   <el-form-item label="出货单号">
-                    <el-input v-model="form.orderkey" autocomplete="off"></el-input>
+                    <el-input v-model="pickform.orderkey" autocomplete="off" @change="valiorderkey(pickform.orderkey)"></el-input>
                  </el-form-item>
                  <br>
                  <el-form-item label="功能">
                  <template>
 				    <el-radio-group v-model="radio2">
-				    <el-radio :label="3">刷单</el-radio>
+				    <el-radio :label="0">请选择</el-radio>
+				    <el-radio :label="1">刷单</el-radio>
                     </el-radio-group>
                  </template>
                  </el-form-item>
@@ -201,7 +227,7 @@
 			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
 			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatOstatusDict"></el-table-column>
 			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-		   </el-table>
+		    </el-table>
             
             <div slot="footer" class="dialog-footer">
               <el-button @click="PickFormVisible = false">取 消</el-button>
@@ -212,6 +238,7 @@
 	</div>
 </body>
 <script>
+	
 	var vue = new Vue({			
 		el:"#ordersList",
 		data:function() {
@@ -229,7 +256,9 @@
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
 					exportXls:'${webRoot}/ordersController.do?exportXls&id=',
-					ImportXls:'${webRoot}/ordersController.do?upload'
+					ImportXls:'${webRoot}/ordersController.do?upload',
+					getName:'${webRoot}/ordersController.do?getName',
+				    valiorderkey:'${webRoot}/ordersController.do?valiorderkey'
 				},
 				orderss: [],
 				total: 0,
@@ -250,16 +279,78 @@
 				//表单界面数据
 				form: {},
 				//拣货界面
+				pickform:{
+					warehouse:'',
+					operate:'',
+					operator:'',
+					orderkey:''
+				},
+				//显示列
+				checkList:[],
+				detailList:{
+					orderkey:'orderkey',
+					storerkey:'storerkey',
+					vendor:'vendor',
+					orderdate:'orderdate',
+					requestshipdate:'requestshipdate',
+				},
+				columnshow:{
+					orderkey:true,
+					storerkey:true,
+					vendor:true,
+					orderdate:true,
+					requestshipdate:true,
+				},
+				//show:false,
 				pickorderss:[],
 				PickFormVisible:false,
 				formLabelWidth:'70px',
-				radio1:1,
-				radio2:3,
+				radio1:0,
+				radio2:0,
 				//数据字典 
 		   		ostatusOptions:[],
 			}
 		},
 		methods: {
+			//列展示切换
+			show:function(value){
+				if(value=="orderkey"){
+				   this.columnshow.orderkey=!this.columnshow.orderkey;
+				}
+				if(value=="storerkey"){
+					   this.columnshow.storerkey=!this.columnshow.storerkey;
+				}
+				if(value=="vendor"){
+					   this.columnshow.vendor=!this.columnshow.vendor;
+				}
+				if(value=="orderdate"){
+					   this.columnshow.orderdate=!this.columnshow.orderdate;
+				}
+				if(value=="requestshipdate"){
+					   this.columnshow.requestshipdate=!this.columnshow.requestshipdate;
+				}
+			},
+			//清空
+			shuadan:function(){
+				this.pickform.warehouse="";
+				this.pickform.operate="";
+				this.pickform.operator="";
+				this.pickform.orderkey="";
+				this.PickFormVisible=true;
+			},
+			valiorderkey:function(value){
+				//ajax
+				this.$http.get(this.url.valiorderkey,{orderkey:value}).then(function(res)  {
+					this.pickform.orderkey=res.data.name;
+				});
+			},
+			getname:function(value){
+				//ajax
+				console.log(value);
+				this.$http.get(this.url.getName,{params:{account:value}}).then(function(res)  {
+					this.pickform.operator=res.data.name;
+				});
+			},
 			handleSortChange:function(sort){
 				this.sort={
 					sort:sort.prop,
