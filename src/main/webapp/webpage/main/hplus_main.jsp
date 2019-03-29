@@ -56,7 +56,7 @@
                 <div class="navbar-header" style="height: 60px;"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
                     <form role="search" class="navbar-form-custom" method="post" action="search_results.html">
                         <div class="form-group">
-                            <input type="text" placeholder="欢迎使用Jeecg快速开发平台 …" class="form-control" name="top-search" id="top-search">
+                            <input type="text" placeholder="欢迎使用Infor扩展系统..." class="form-control" name="top-search" id="top-search">
                         </div>
                     </form>
                 </div>
@@ -126,7 +126,7 @@
             <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="loginController.do?hplushome" frameborder="0" data-id="loginController.do?hplushome" seamless></iframe>
         </div>
         <div class="footer" style="border-top:none;">
-            <div class="pull-right">&copy; <t:mutiLang langKey="system.version.number"/> <a href="http://www.jeecg.org/" target="_blank">jeecg</a>
+            <div class="pull-right">&copy; <t:mutiLang langKey="system.version.number"/> <a href="http://sce.feili.com/feili/sce/sceapp.ctrl" target="_blank">Infor</a>
             </div>
         </div>        
     </div>
