@@ -203,20 +203,30 @@
                     <el-input v-model="pickform.orderkey" autocomplete="off" @change="valiorderkey(pickform.orderkey)"></el-input>
                  </el-form-item>
                  <br>
-                 <el-form-item label="功能">
+                 <!-- <el-form-item label="功能">
                  <template>
 				    <el-radio-group v-model="radio2">
 				    <el-radio :label="0">请选择</el-radio>
 				    <el-radio :label="1">刷单</el-radio>
                     </el-radio-group>
                  </template>
-                 </el-form-item>
-                 <el-form-item label="">
-                     <el-button @click="">执行</el-button>
-                 </el-form-item>
+                 </el-form-item> -->
+                 <el-form-item label="功能">
+                     <el-button type="primary" icon="el-icon-star-on" @click="starton()">开始</el-button>
+                     <el-button type="primary" icon="el-icon-star-off" @click="endoff()">结束</el-button>
+                 </el-form-item><br>
+                 <el-form-item label="单号展示">
+                 <el-input 
+					  type="textarea"
+					  autosize
+					  disabled
+					  placeholder="请输入内容"
+					  v-model="pickform.orderkeys">
+				</el-input>
+				</el-form-item>
             </el-form>
             
-            <el-table :data="pickorderss" border stripe size="mini" highlight-current-row v-loading="listLoading"   @selection-change="selsChange" style="width: 100%;margin-top: 3px;">
+            <!--  <el-table :data="pickorderss" border stripe size="mini" highlight-current-row v-loading="listLoading"   @selection-change="selsChange" style="width: 100%;margin-top: 3px;">
 			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="storerkey" label="货主代码" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="vendor" label="收货人代码" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -227,12 +237,12 @@
 			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"			></el-table-column>
 			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatOstatusDict"></el-table-column>
 			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-		    </el-table>
+		    </el-table> -->
             
-            <div slot="footer" class="dialog-footer">
+            <!-- <div slot="footer" class="dialog-footer">
               <el-button @click="PickFormVisible = false">取 消</el-button>
               <el-button type="primary" @click="PickFormVisible = false">确 定</el-button>
-            </div>
+            </div> -->
             
         </el-dialog>
 	</div>
@@ -258,7 +268,8 @@
 					exportXls:'${webRoot}/ordersController.do?exportXls&id=',
 					ImportXls:'${webRoot}/ordersController.do?upload',
 					getName:'${webRoot}/ordersController.do?getName',
-				    valiorderkey:'${webRoot}/ordersController.do?valiorderkey'
+				    valiorderkey:'${webRoot}/ordersController.do?valiorderkey',
+				    starton:'${webRoot}/ordersController.do?straton'
 				},
 				orderss: [],
 				total: 0,
@@ -283,7 +294,8 @@
 					warehouse:'',
 					operate:'',
 					operator:'',
-					orderkey:''
+					orderkey:'',
+					orderkeys:''
 				},
 				//显示列
 				checkList:[],
@@ -307,11 +319,32 @@
 				formLabelWidth:'70px',
 				radio1:0,
 				radio2:0,
+			    orderkeysshow:'',
 				//数据字典 
 		   		ostatusOptions:[],
 			}
 		},
 		methods: {
+			//刷单执行
+			starton:function(){
+				//ajax
+				this.$http.get(this.url.starton,{params:{operation:this.radio1,warehouse:this.pickform.warehouse,start:this.radio2}}).then(function(res)  {
+					//返回
+					if(res.body.success){
+						this.$message({
+							message: res.body.msg,
+							type: 'success',
+							duration:1500
+						});
+					}else{
+						this.$message({
+							message: res.body.msg,
+							type: 'error',
+							duration:1500
+						});
+					}
+				});
+			},
 			//列展示切换
 			show:function(value){
 				if(value=="orderkey"){
@@ -332,21 +365,48 @@
 			},
 			//清空
 			shuadan:function(){
+				//切回默认
+				this.radio1=0;
+				this.radio2=0;
+				//清空
 				this.pickform.warehouse="";
 				this.pickform.operate="";
 				this.pickform.operator="";
 				this.pickform.orderkey="";
+				this.pickform.orderkeys="";
 				this.PickFormVisible=true;
 			},
 			valiorderkey:function(value){
 				//ajax
-				this.$http.get(this.url.valiorderkey,{orderkey:value}).then(function(res)  {
-					this.pickform.orderkey=res.data.name;
-				});
+				if(value!=null&&this.pickform.warehouse!=null&&value!=""&&this.pickform.warehouse!=""){
+					this.$http.get(this.url.valiorderkey,{params:{orderkey:value,warehouse:this.pickform.warehouse}}).then(function(res)  {
+						if(res.body.success){
+							this.pickform.orderkeys=this.pickform.orderkeys+res.data.orderkeys;
+							this.$message({
+								message: '验证成功',
+								type: 'success',
+								duration:1500
+							});
+						}else{
+							this.$message({
+								message: '验证失败',
+								type: 'error',
+								duration:1500
+							});
+						}
+					});
+				}else{
+					this.$message({
+						message: '请填写仓库',
+						type: 'error',
+						duration:1500
+					});
+					this.pickform.orderkey="";
+				}
+				
 			},
 			getname:function(value){
 				//ajax
-				console.log(value);
 				this.$http.get(this.url.getName,{params:{account:value}}).then(function(res)  {
 					this.pickform.operator=res.data.name;
 				});
