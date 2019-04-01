@@ -276,7 +276,7 @@ public class OrdersController extends BaseController {
 	}
 	
 	/**
-	 * 更新出货刷单
+	 * 获取名称
 	 * 
 	 * @param ids
 	 * @return
@@ -297,4 +297,63 @@ public class OrdersController extends BaseController {
 		}
 	}
 	
+	/**
+	 * 验证单号
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "valiorderkey")
+	@ResponseBody
+	public void valiorderkey(HttpServletRequest request,HttpServletResponse response) {
+		JSONObject resultjson = new JSONObject();
+		String warehouse=request.getParameter("warehouse");
+		String orderkey=request.getParameter("orderkey");
+		try {
+			//切割字符串
+			String str="";
+			int length=0;
+			while(length<orderkey.length()) {
+				String s=orderkey.substring(length, length+10);
+				length=length+10;
+				str=str+s+"\n";
+			}
+			boolean success=ordersService.valiorderkey(orderkey, warehouse);
+			resultjson.put("success", success);
+			resultjson.put("orderkeys", str);
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 刷单操作
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "starton")
+	@ResponseBody
+	public void starton(HttpServletRequest request,HttpServletResponse response) {
+		JSONObject resultjson = new JSONObject();
+		String operation=request.getParameter("operation");
+		String warehouse=request.getParameter("warehouse");
+		String start=request.getParameter("start");
+		String name=request.getParameter("name");
+		try {
+			/*String name=ordersService.getName(account);
+			resultjson.put("name", name);*/
+			if("1".equals(start)) {
+				ordersService.starton(warehouse, operation);
+			}
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

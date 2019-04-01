@@ -16,5 +16,8 @@ public interface OrdersServiceI extends CommonService{
  	public String getName(String account) throws Exception;
  	
  	//验证出货单号
- 	public void valiorderkey(String orderkey) throws Exception;
+ 	public boolean valiorderkey(String orderkey,String warehouse) throws Exception;
+ 	
+ 	//刷单操作
+ 	public void starton(String warehouse,String operation) throws Exception;
 }

@@ -52,8 +52,14 @@ public class OrdersServiceImpl extends CommonServiceImpl implements OrdersServic
 	}
 
 	@Override
-	public void valiorderkey(String orderkey) throws Exception {
+	public boolean valiorderkey(String orderkey,String warehouse) throws Exception {
 		//验证出货单号
+		return true;
+	}
+
+	@Override
+	public void starton(String warehouse, String operation) throws Exception {
+		// 刷单操作
 		
 	}
  	
