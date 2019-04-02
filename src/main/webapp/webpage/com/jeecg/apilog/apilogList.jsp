@@ -36,20 +36,25 @@
 		<!--工具条-->
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
+			    <el-form-item style="margin-bottom: 8px;" prop="result">
+					 <el-select v-model="filters.result" placeholder="请选择结果" clearable style="width:175px">
+	                 <el-option label="成功" value="成功"></el-option>
+	                 <el-option label="失败" value="失败"></el-option>
+	             </el-select>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="opartner">
+					 <el-select v-model="filters.partner" placeholder="请输入交互对象" clearable style="width:175px">
+	                    <el-option label="INFOR" value="INFOR"></el-option>
+	                 </el-select>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="servicename">
+					<el-input v-model="filters.servicename" auto-complete="off" placeholder="请输入接口方法名"></el-input>
+				</el-form-item>
 				<el-form-item>
 			    	<el-button type="primary" icon="el-icon-search" v-on:click="getApilogs">查询</el-button>
 			    </el-form-item>
 			    <el-form-item>
 			    	<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button>
-			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
-			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="ExportXls">导出</el-button>
-			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="ImportXls">导入</el-button>
 			    </el-form-item>
 			</el-form>
 		</el-row>
@@ -59,8 +64,8 @@
 					  <el-dropdown-menu slot="dropdown">
 					  <template>
 						  <el-checkbox-group v-model="checkList" label-width="100px">
-						    <el-checkbox label="流程状态" v-model="detailList.bpmStatus" checked @change="show(detailList.bpmStatus)"></el-checkbox><br>
-						    <el-checkbox label="状态" v-model="detailList.status" checked @change="show(detailList.status)"></el-checkbox><br>
+						    <!-- <el-checkbox label="流程状态" v-model="detailList.bpmStatus" checked @change="show(detailList.bpmStatus)"></el-checkbox><br>
+						    <el-checkbox label="状态" v-model="detailList.status" checked @change="show(detailList.status)"></el-checkbox><br> -->
 						    <el-checkbox label="发送的数据" v-model="detailList.sendxml" checked @change="show(detailList.sendxml)"></el-checkbox><br>
 						    <el-checkbox label="接受的数据" v-model="detailList.receivexml" checked @change="show(detailList.receivexml)"></el-checkbox><br>
 						    <el-checkbox label="结果" v-model="detailList.result" checked @change="show(detailList.result)"></el-checkbox><br>
@@ -73,21 +78,22 @@
 		</el-row>
 		<!--列表-->
 		<el-table :data="apilogs" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
-			<el-table-column type="selection" width="55"></el-table-column>
-			<el-table-column type="index" width="60"></el-table-column>
-			<el-table-column prop="bpmStatus" label="流程状态" v-if="columnshow.bpmStatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="status" label="状态" v-if="columnshow.status" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+<!-- 			<el-table-column type="selection" width="55"></el-table-column> -->
+			<el-table-column type="index" label="序号" width="60"></el-table-column>
+			<!-- <el-table-column prop="bpmStatus" label="流程状态" v-if="columnshow.bpmStatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="status" label="状态" v-if="columnshow.status" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
+			<el-table-column prop="createDate" label="创建时间"  min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="sendxml" label="发送的数据" v-if="columnshow.sendxml" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="receivexml" label="接受的数据" v-if="columnshow.receivexml" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="result" label="结果" v-if="columnshow.result" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="partner" label="交互的对象" v-if="columnshow.partner" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="servicename" label="接口名称" v-if="columnshow.servicename" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column label="操作" width="150">
+			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
-			</el-table-column>
+			</el-table-column> -->
 		</el-table>
 		
 		<!--工具条-->
@@ -132,6 +138,9 @@
 		data:function() {
 			return {
 				filters: {
+					servicename:'',
+					result:'',
+					partner:''
 				},
 				url:{
 					list:'${webRoot}/apilogController.do?datagrid',
@@ -167,16 +176,6 @@
 				//显示列
 				checkList:[],
 				detailList:{
-					id:'id',
-					createName:'createName',
-					createBy:'createBy',
-					createDate:'createDate',
-					updateName:'updateName',
-					updateBy:'updateBy',
-					updateDate:'updateDate',
-					sysOrgCode:'sysOrgCode',
-					sysCompanyCode:'sysCompanyCode',
-					bpmStatus:'bpmStatus',
 					status:'status',
 					sendxml:'sendxml',
 					receivexml:'receivexml',
@@ -185,16 +184,6 @@
 					servicename:'servicename',
 				},
 				columnshow:{
-					id:true,
-					createName:true,
-					createBy:true,
-					createDate:true,
-					updateName:true,
-					updateBy:true,
-					updateDate:true,
-					sysOrgCode:true,
-					sysCompanyCode:true,
-					bpmStatus:true,
 					status:true,
 					sendxml:true,
 					receivexml:true,
@@ -202,44 +191,12 @@
 					partner:true,
 					servicename:true,
 				},
-				
-				
 				//数据字典 
 			}
 		},
 		methods: {
 		    //列展示切换
 			show:function(value){
-				if(value=="id"){
-				   this.columnshow.id=!this.columnshow.id;
-				}
-				if(value=="createName"){
-				   this.columnshow.createName=!this.columnshow.createName;
-				}
-				if(value=="createBy"){
-				   this.columnshow.createBy=!this.columnshow.createBy;
-				}
-				if(value=="createDate"){
-				   this.columnshow.createDate=!this.columnshow.createDate;
-				}
-				if(value=="updateName"){
-				   this.columnshow.updateName=!this.columnshow.updateName;
-				}
-				if(value=="updateBy"){
-				   this.columnshow.updateBy=!this.columnshow.updateBy;
-				}
-				if(value=="updateDate"){
-				   this.columnshow.updateDate=!this.columnshow.updateDate;
-				}
-				if(value=="sysOrgCode"){
-				   this.columnshow.sysOrgCode=!this.columnshow.sysOrgCode;
-				}
-				if(value=="sysCompanyCode"){
-				   this.columnshow.sysCompanyCode=!this.columnshow.sysCompanyCode;
-				}
-				if(value=="bpmStatus"){
-				   this.columnshow.bpmStatus=!this.columnshow.bpmStatus;
-				}
 				if(value=="status"){
 				   this.columnshow.status=!this.columnshow.status;
 				}
@@ -316,6 +273,9 @@
 						//排序
 						sort:this.sort.sort,
 						order:this.sort.order,
+						servicename:this.filters.servicename,
+						result:this.filters.result,
+						partner:this.filters.partner,
 						field:fields.join(',')
 					}
 				};
