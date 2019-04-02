@@ -1,7 +1,6 @@
-package com.jeecg.orders.controller;
-import com.alibaba.fastjson.JSONObject;
-import com.jeecg.orders.entity.OrdersEntity;
-import com.jeecg.orders.service.OrdersServiceI;
+package com.jeecg.orderforecast.controller;
+import com.jeecg.orderforecast.entity.OrderforecastEntity;
+import com.jeecg.orderforecast.service.OrderforecastServiceI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,6 @@ import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
 import org.jeecgframework.web.system.service.SystemService;
-
 import org.jeecgframework.core.util.MyBeanUtils;
 
 import org.jeecgframework.poi.excel.ExcelImportUtil;
@@ -44,32 +42,32 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**   
  * @Title: Controller  
- * @Description: 出货刷单
+ * @Description: 订单预估
  * @author onlineGenerator
- * @date 2019-03-27 08:43:42
+ * @date 2019-04-01 15:50:55
  * @version V1.0   
  *
  */
 @Controller
-@RequestMapping("/ordersController")
-public class OrdersController extends BaseController {
-	private static final Logger logger = LoggerFactory.getLogger(OrdersController.class);
+@RequestMapping("/orderforecastController")
+public class OrderforecastController extends BaseController {
+	private static final Logger logger = LoggerFactory.getLogger(OrderforecastController.class);
 
 	@Autowired
-	private OrdersServiceI ordersService;
+	private OrderforecastServiceI orderforecastService;
 	@Autowired
 	private SystemService systemService;
 	
 
 
 	/**
-	 * 出货刷单列表 页面跳转
+	 * 订单预估列表 页面跳转
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "list")
 	public ModelAndView list(HttpServletRequest request) {
-		return new ModelAndView("com/jeecg/orders/ordersList");
+		return new ModelAndView("com/jeecg/orderforecast/orderforecastList");
 	}
 
 	/**
@@ -81,33 +79,33 @@ public class OrdersController extends BaseController {
 	 * @param user
 	 */
 	@RequestMapping(params = "datagrid")
-	public void datagrid(OrdersEntity orders,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(OrdersEntity.class, dataGrid);
+	public void datagrid(OrderforecastEntity orderforecast,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+		CriteriaQuery cq = new CriteriaQuery(OrderforecastEntity.class, dataGrid);
 		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orders, request.getParameterMap());
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orderforecast, request.getParameterMap());
 		cq.add();
-		this.ordersService.getDataGridReturn(cq, true);
+		this.orderforecastService.getDataGridReturn(cq, true);
 		TagUtil.datagrid(response, dataGrid);
 	}
 	
 	/**
-	 * 删除出货刷单
+	 * 删除订单预估
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "doDel")
 	@ResponseBody
-	public AjaxJson doDel(OrdersEntity orders, HttpServletRequest request) {
+	public AjaxJson doDel(OrderforecastEntity orderforecast, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		orders = systemService.getEntity(OrdersEntity.class, orders.getId());
-		message = "出货刷单删除成功";
+		orderforecast = systemService.getEntity(OrderforecastEntity.class, orderforecast.getId());
+		message = "订单预估删除成功";
 		try{
-			ordersService.delete(orders);
+			orderforecastService.delete(orderforecast);
 			systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
 		}catch(Exception e){
 			e.printStackTrace();
-			message = "出货刷单删除失败";
+			message = "订单预估删除失败";
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
@@ -115,7 +113,7 @@ public class OrdersController extends BaseController {
 	}
 	
 	/**
-	 * 批量删除出货刷单
+	 * 批量删除订单预估
 	 * 
 	 * @return
 	 */
@@ -124,18 +122,18 @@ public class OrdersController extends BaseController {
 	public AjaxJson doBatchDel(String ids,HttpServletRequest request){
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		message = "出货刷单删除成功";
+		message = "订单预估删除成功";
 		try{
 			for(String id:ids.split(",")){
-				OrdersEntity orders = systemService.getEntity(OrdersEntity.class, 
+				OrderforecastEntity orderforecast = systemService.getEntity(OrderforecastEntity.class, 
 				id
 				);
-				ordersService.delete(orders);
+				orderforecastService.delete(orderforecast);
 				systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
-			message = "出货刷单删除失败";
+			message = "订单预估删除失败";
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
@@ -144,23 +142,23 @@ public class OrdersController extends BaseController {
 
 
 	/**
-	 * 添加出货刷单
+	 * 添加订单预估
 	 * 
 	 * @param ids
 	 * @return
 	 */
 	@RequestMapping(params = "doAdd")
 	@ResponseBody
-	public AjaxJson doAdd(OrdersEntity orders, HttpServletRequest request) {
+	public AjaxJson doAdd(OrderforecastEntity orderforecast, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		message = "出货刷单添加成功";
+		message = "订单预估添加成功";
 		try{
-			ordersService.save(orders);
+			orderforecastService.save(orderforecast);
 			systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
 		}catch(Exception e){
 			e.printStackTrace();
-			message = "出货刷单添加失败";
+			message = "订单预估添加失败";
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
@@ -168,25 +166,25 @@ public class OrdersController extends BaseController {
 	}
 	
 	/**
-	 * 更新出货刷单
+	 * 更新订单预估
 	 * 
 	 * @param ids
 	 * @return
 	 */
 	@RequestMapping(params = "doUpdate")
 	@ResponseBody
-	public AjaxJson doUpdate(OrdersEntity orders, HttpServletRequest request) {
+	public AjaxJson doUpdate(OrderforecastEntity orderforecast, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		message = "出货刷单更新成功";
-		OrdersEntity t = ordersService.get(OrdersEntity.class, orders.getId());
+		message = "订单预估更新成功";
+		OrderforecastEntity t = orderforecastService.get(OrderforecastEntity.class, orderforecast.getId());
 		try {
-			MyBeanUtils.copyBeanNotNull2Bean(orders, t);
-			ordersService.saveOrUpdate(t);
+			MyBeanUtils.copyBeanNotNull2Bean(orderforecast, t);
+			orderforecastService.saveOrUpdate(t);
 			systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
 		} catch (Exception e) {
 			e.printStackTrace();
-			message = "出货刷单更新失败";
+			message = "订单预估更新失败";
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
@@ -201,7 +199,7 @@ public class OrdersController extends BaseController {
 	 */
 	@RequestMapping(params = "upload")
 	public ModelAndView upload(HttpServletRequest req) {
-		req.setAttribute("controller_name","ordersController");
+		req.setAttribute("controller_name","orderforecastController");
 		return new ModelAndView("common/upload/pub_excel_upload");
 	}
 	
@@ -212,16 +210,16 @@ public class OrdersController extends BaseController {
 	 * @param response
 	 */
 	@RequestMapping(params = "exportXls")
-	public String exportXls(OrdersEntity orders,HttpServletRequest request,HttpServletResponse response
+	public String exportXls(OrderforecastEntity orderforecast,HttpServletRequest request,HttpServletResponse response
 			, DataGrid dataGrid,ModelMap modelMap) {
-		CriteriaQuery cq = new CriteriaQuery(OrdersEntity.class, dataGrid);
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orders, request.getParameterMap());
-		List<OrdersEntity> orderss = this.ordersService.getListByCriteriaQuery(cq,false);
-		modelMap.put(NormalExcelConstants.FILE_NAME,"出货刷单");
-		modelMap.put(NormalExcelConstants.CLASS,OrdersEntity.class);
-		modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("出货刷单列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
+		CriteriaQuery cq = new CriteriaQuery(OrderforecastEntity.class, dataGrid);
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orderforecast, request.getParameterMap());
+		List<OrderforecastEntity> orderforecasts = this.orderforecastService.getListByCriteriaQuery(cq,false);
+		modelMap.put(NormalExcelConstants.FILE_NAME,"订单预估");
+		modelMap.put(NormalExcelConstants.CLASS,OrderforecastEntity.class);
+		modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("订单预估列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
 			"导出信息"));
-		modelMap.put(NormalExcelConstants.DATA_LIST,orderss);
+		modelMap.put(NormalExcelConstants.DATA_LIST,orderforecasts);
 		return NormalExcelConstants.JEECG_EXCEL_VIEW;
 	}
 	/**
@@ -231,11 +229,11 @@ public class OrdersController extends BaseController {
 	 * @param response
 	 */
 	@RequestMapping(params = "exportXlsByT")
-	public String exportXlsByT(OrdersEntity orders,HttpServletRequest request,HttpServletResponse response
+	public String exportXlsByT(OrderforecastEntity orderforecast,HttpServletRequest request,HttpServletResponse response
 			, DataGrid dataGrid,ModelMap modelMap) {
-    	modelMap.put(NormalExcelConstants.FILE_NAME,"出货刷单");
-    	modelMap.put(NormalExcelConstants.CLASS,OrdersEntity.class);
-    	modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("出货刷单列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
+    	modelMap.put(NormalExcelConstants.FILE_NAME,"订单预估");
+    	modelMap.put(NormalExcelConstants.CLASS,OrderforecastEntity.class);
+    	modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("订单预估列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
     	"导出信息"));
     	modelMap.put(NormalExcelConstants.DATA_LIST,new ArrayList());
     	return NormalExcelConstants.JEECG_EXCEL_VIEW;
@@ -256,9 +254,9 @@ public class OrdersController extends BaseController {
 			params.setHeadRows(1);
 			params.setNeedSave(true);
 			try {
-				List<OrdersEntity> listOrdersEntitys = ExcelImportUtil.importExcel(file.getInputStream(),OrdersEntity.class,params);
-				for (OrdersEntity orders : listOrdersEntitys) {
-					ordersService.save(orders);
+				List<OrderforecastEntity> listOrderforecastEntitys = ExcelImportUtil.importExcel(file.getInputStream(),OrderforecastEntity.class,params);
+				for (OrderforecastEntity orderforecast : listOrderforecastEntitys) {
+					orderforecastService.save(orderforecast);
 				}
 				j.setMsg("文件导入成功！");
 			} catch (Exception e) {
@@ -275,84 +273,6 @@ public class OrdersController extends BaseController {
 		return j;
 	}
 	
-	/**
-	 * 获取名称
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	@RequestMapping(params = "getName")
-	@ResponseBody
-	public void getName(HttpServletRequest request,HttpServletResponse response) {
-		JSONObject resultjson = new JSONObject();
-		String account=request.getParameter("account");
-		try {
-			String name=ordersService.getName(account);
-			resultjson.put("name", name);
-			response.getWriter().write(resultjson.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
-	/**
-	 * 验证单号
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	@RequestMapping(params = "valiorderkey")
-	@ResponseBody
-	public void valiorderkey(HttpServletRequest request,HttpServletResponse response) {
-		JSONObject resultjson = new JSONObject();
-		String warehouse=request.getParameter("warehouse");
-		String orderkey=request.getParameter("orderkey");
-		try {
-			//切割字符串
-			String str="";
-			int length=0;
-			while(length<orderkey.length()) {
-				String s=orderkey.substring(length, length+10);
-				length=length+10;
-				str=str+s+"\n";
-			}
-			boolean success=ordersService.valiorderkey(orderkey, warehouse);
-			resultjson.put("success", success);
-			resultjson.put("orderkeys", str);
-			response.getWriter().write(resultjson.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
-	/**
-	 * 刷单操作
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	@RequestMapping(params = "starton")
-	@ResponseBody
-	public void starton(HttpServletRequest request,HttpServletResponse response) {
-		JSONObject resultjson = new JSONObject();
-		String orderkeys=request.getParameter("orderkeys");
-		String operation=request.getParameter("operation");
-		String warehouse=request.getParameter("warehouse");
-		String startorend=request.getParameter("startorend");
-		String username=request.getParameter("username");
-		try {
-			/*String name=ordersService.getName(account);
-			resultjson.put("name", name);*/
-			ordersService.starton(warehouse, operation,startorend,username);
-			response.getWriter().write(resultjson.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }

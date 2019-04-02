@@ -58,7 +58,7 @@ public class OrdersServiceImpl extends CommonServiceImpl implements OrdersServic
 	}
 
 	@Override
-	public void starton(String warehouse, String operation) throws Exception {
+	public void starton(String warehouse, String operation,String startorend,String username) throws Exception {
 		// 刷单操作
 		
 	}

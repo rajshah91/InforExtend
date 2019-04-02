@@ -1,7 +1,6 @@
-package com.jeecg.orders.controller;
-import com.alibaba.fastjson.JSONObject;
-import com.jeecg.orders.entity.OrdersEntity;
-import com.jeecg.orders.service.OrdersServiceI;
+package com.jeecg.workamount.controller;
+import com.jeecg.workamount.entity.WorkamountEntity;
+import com.jeecg.workamount.service.WorkamountServiceI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,6 @@ import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
 import org.jeecgframework.web.system.service.SystemService;
-
 import org.jeecgframework.core.util.MyBeanUtils;
 
 import org.jeecgframework.poi.excel.ExcelImportUtil;
@@ -44,32 +42,32 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**   
  * @Title: Controller  
- * @Description: 出货刷单
+ * @Description: 员工操作量
  * @author onlineGenerator
- * @date 2019-03-27 08:43:42
+ * @date 2019-04-02 16:40:07
  * @version V1.0   
  *
  */
 @Controller
-@RequestMapping("/ordersController")
-public class OrdersController extends BaseController {
-	private static final Logger logger = LoggerFactory.getLogger(OrdersController.class);
+@RequestMapping("/workamountController")
+public class WorkamountController extends BaseController {
+	private static final Logger logger = LoggerFactory.getLogger(WorkamountController.class);
 
 	@Autowired
-	private OrdersServiceI ordersService;
+	private WorkamountServiceI workamountService;
 	@Autowired
 	private SystemService systemService;
 	
 
 
 	/**
-	 * 出货刷单列表 页面跳转
+	 * 员工操作量列表 页面跳转
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "list")
 	public ModelAndView list(HttpServletRequest request) {
-		return new ModelAndView("com/jeecg/orders/ordersList");
+		return new ModelAndView("com/jeecg/workamount/workamountList");
 	}
 
 	/**
@@ -81,33 +79,33 @@ public class OrdersController extends BaseController {
 	 * @param user
 	 */
 	@RequestMapping(params = "datagrid")
-	public void datagrid(OrdersEntity orders,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(OrdersEntity.class, dataGrid);
+	public void datagrid(WorkamountEntity workamount,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+		CriteriaQuery cq = new CriteriaQuery(WorkamountEntity.class, dataGrid);
 		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orders, request.getParameterMap());
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, workamount, request.getParameterMap());
 		cq.add();
-		this.ordersService.getDataGridReturn(cq, true);
+		this.workamountService.getDataGridReturn(cq, true);
 		TagUtil.datagrid(response, dataGrid);
 	}
 	
 	/**
-	 * 删除出货刷单
+	 * 删除员工操作量
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "doDel")
 	@ResponseBody
-	public AjaxJson doDel(OrdersEntity orders, HttpServletRequest request) {
+	public AjaxJson doDel(WorkamountEntity workamount, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		orders = systemService.getEntity(OrdersEntity.class, orders.getId());
-		message = "出货刷单删除成功";
+		workamount = systemService.getEntity(WorkamountEntity.class, workamount.getId());
+		message = "员工操作量删除成功";
 		try{
-			ordersService.delete(orders);
+			workamountService.delete(workamount);
 			systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
 		}catch(Exception e){
 			e.printStackTrace();
-			message = "出货刷单删除失败";
+			message = "员工操作量删除失败";
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
@@ -115,7 +113,7 @@ public class OrdersController extends BaseController {
 	}
 	
 	/**
-	 * 批量删除出货刷单
+	 * 批量删除员工操作量
 	 * 
 	 * @return
 	 */
@@ -124,18 +122,18 @@ public class OrdersController extends BaseController {
 	public AjaxJson doBatchDel(String ids,HttpServletRequest request){
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		message = "出货刷单删除成功";
+		message = "员工操作量删除成功";
 		try{
 			for(String id:ids.split(",")){
-				OrdersEntity orders = systemService.getEntity(OrdersEntity.class, 
+				WorkamountEntity workamount = systemService.getEntity(WorkamountEntity.class, 
 				id
 				);
-				ordersService.delete(orders);
+				workamountService.delete(workamount);
 				systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
-			message = "出货刷单删除失败";
+			message = "员工操作量删除失败";
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
@@ -144,23 +142,23 @@ public class OrdersController extends BaseController {
 
 
 	/**
-	 * 添加出货刷单
+	 * 添加员工操作量
 	 * 
 	 * @param ids
 	 * @return
 	 */
 	@RequestMapping(params = "doAdd")
 	@ResponseBody
-	public AjaxJson doAdd(OrdersEntity orders, HttpServletRequest request) {
+	public AjaxJson doAdd(WorkamountEntity workamount, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		message = "出货刷单添加成功";
+		message = "员工操作量添加成功";
 		try{
-			ordersService.save(orders);
+			workamountService.save(workamount);
 			systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
 		}catch(Exception e){
 			e.printStackTrace();
-			message = "出货刷单添加失败";
+			message = "员工操作量添加失败";
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
@@ -168,25 +166,25 @@ public class OrdersController extends BaseController {
 	}
 	
 	/**
-	 * 更新出货刷单
+	 * 更新员工操作量
 	 * 
 	 * @param ids
 	 * @return
 	 */
 	@RequestMapping(params = "doUpdate")
 	@ResponseBody
-	public AjaxJson doUpdate(OrdersEntity orders, HttpServletRequest request) {
+	public AjaxJson doUpdate(WorkamountEntity workamount, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		message = "出货刷单更新成功";
-		OrdersEntity t = ordersService.get(OrdersEntity.class, orders.getId());
+		message = "员工操作量更新成功";
+		WorkamountEntity t = workamountService.get(WorkamountEntity.class, workamount.getId());
 		try {
-			MyBeanUtils.copyBeanNotNull2Bean(orders, t);
-			ordersService.saveOrUpdate(t);
+			MyBeanUtils.copyBeanNotNull2Bean(workamount, t);
+			workamountService.saveOrUpdate(t);
 			systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
 		} catch (Exception e) {
 			e.printStackTrace();
-			message = "出货刷单更新失败";
+			message = "员工操作量更新失败";
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
@@ -201,7 +199,7 @@ public class OrdersController extends BaseController {
 	 */
 	@RequestMapping(params = "upload")
 	public ModelAndView upload(HttpServletRequest req) {
-		req.setAttribute("controller_name","ordersController");
+		req.setAttribute("controller_name","workamountController");
 		return new ModelAndView("common/upload/pub_excel_upload");
 	}
 	
@@ -212,16 +210,16 @@ public class OrdersController extends BaseController {
 	 * @param response
 	 */
 	@RequestMapping(params = "exportXls")
-	public String exportXls(OrdersEntity orders,HttpServletRequest request,HttpServletResponse response
+	public String exportXls(WorkamountEntity workamount,HttpServletRequest request,HttpServletResponse response
 			, DataGrid dataGrid,ModelMap modelMap) {
-		CriteriaQuery cq = new CriteriaQuery(OrdersEntity.class, dataGrid);
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orders, request.getParameterMap());
-		List<OrdersEntity> orderss = this.ordersService.getListByCriteriaQuery(cq,false);
-		modelMap.put(NormalExcelConstants.FILE_NAME,"出货刷单");
-		modelMap.put(NormalExcelConstants.CLASS,OrdersEntity.class);
-		modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("出货刷单列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
+		CriteriaQuery cq = new CriteriaQuery(WorkamountEntity.class, dataGrid);
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, workamount, request.getParameterMap());
+		List<WorkamountEntity> workamounts = this.workamountService.getListByCriteriaQuery(cq,false);
+		modelMap.put(NormalExcelConstants.FILE_NAME,"员工操作量");
+		modelMap.put(NormalExcelConstants.CLASS,WorkamountEntity.class);
+		modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("员工操作量列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
 			"导出信息"));
-		modelMap.put(NormalExcelConstants.DATA_LIST,orderss);
+		modelMap.put(NormalExcelConstants.DATA_LIST,workamounts);
 		return NormalExcelConstants.JEECG_EXCEL_VIEW;
 	}
 	/**
@@ -231,11 +229,11 @@ public class OrdersController extends BaseController {
 	 * @param response
 	 */
 	@RequestMapping(params = "exportXlsByT")
-	public String exportXlsByT(OrdersEntity orders,HttpServletRequest request,HttpServletResponse response
+	public String exportXlsByT(WorkamountEntity workamount,HttpServletRequest request,HttpServletResponse response
 			, DataGrid dataGrid,ModelMap modelMap) {
-    	modelMap.put(NormalExcelConstants.FILE_NAME,"出货刷单");
-    	modelMap.put(NormalExcelConstants.CLASS,OrdersEntity.class);
-    	modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("出货刷单列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
+    	modelMap.put(NormalExcelConstants.FILE_NAME,"员工操作量");
+    	modelMap.put(NormalExcelConstants.CLASS,WorkamountEntity.class);
+    	modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("员工操作量列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
     	"导出信息"));
     	modelMap.put(NormalExcelConstants.DATA_LIST,new ArrayList());
     	return NormalExcelConstants.JEECG_EXCEL_VIEW;
@@ -256,9 +254,9 @@ public class OrdersController extends BaseController {
 			params.setHeadRows(1);
 			params.setNeedSave(true);
 			try {
-				List<OrdersEntity> listOrdersEntitys = ExcelImportUtil.importExcel(file.getInputStream(),OrdersEntity.class,params);
-				for (OrdersEntity orders : listOrdersEntitys) {
-					ordersService.save(orders);
+				List<WorkamountEntity> listWorkamountEntitys = ExcelImportUtil.importExcel(file.getInputStream(),WorkamountEntity.class,params);
+				for (WorkamountEntity workamount : listWorkamountEntitys) {
+					workamountService.save(workamount);
 				}
 				j.setMsg("文件导入成功！");
 			} catch (Exception e) {
@@ -275,84 +273,6 @@ public class OrdersController extends BaseController {
 		return j;
 	}
 	
-	/**
-	 * 获取名称
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	@RequestMapping(params = "getName")
-	@ResponseBody
-	public void getName(HttpServletRequest request,HttpServletResponse response) {
-		JSONObject resultjson = new JSONObject();
-		String account=request.getParameter("account");
-		try {
-			String name=ordersService.getName(account);
-			resultjson.put("name", name);
-			response.getWriter().write(resultjson.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
-	/**
-	 * 验证单号
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	@RequestMapping(params = "valiorderkey")
-	@ResponseBody
-	public void valiorderkey(HttpServletRequest request,HttpServletResponse response) {
-		JSONObject resultjson = new JSONObject();
-		String warehouse=request.getParameter("warehouse");
-		String orderkey=request.getParameter("orderkey");
-		try {
-			//切割字符串
-			String str="";
-			int length=0;
-			while(length<orderkey.length()) {
-				String s=orderkey.substring(length, length+10);
-				length=length+10;
-				str=str+s+"\n";
-			}
-			boolean success=ordersService.valiorderkey(orderkey, warehouse);
-			resultjson.put("success", success);
-			resultjson.put("orderkeys", str);
-			response.getWriter().write(resultjson.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
-	/**
-	 * 刷单操作
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	@RequestMapping(params = "starton")
-	@ResponseBody
-	public void starton(HttpServletRequest request,HttpServletResponse response) {
-		JSONObject resultjson = new JSONObject();
-		String orderkeys=request.getParameter("orderkeys");
-		String operation=request.getParameter("operation");
-		String warehouse=request.getParameter("warehouse");
-		String startorend=request.getParameter("startorend");
-		String username=request.getParameter("username");
-		try {
-			/*String name=ordersService.getName(account);
-			resultjson.put("name", name);*/
-			ordersService.starton(warehouse, operation,startorend,username);
-			response.getWriter().write(resultjson.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }

@@ -173,7 +173,18 @@
 			</div>
 		</el-dialog>
 		<el-dialog :visible.sync="PickFormVisible" fullscreen>
-             <el-form :model="pickform" :label-width="formLabelWidth" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;">
+             <el-form :model="pickform" :label-width="formLabelWidth"  size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;">
+	             <el-form-item label="功能">
+	                <template>
+					    <el-radio-group v-model="radio2">
+					    <el-radio :label="0">请选择</el-radio>
+					    <el-radio :label="1">开始</el-radio>
+					    <el-radio :label="2">结束</el-radio>
+	                    </el-radio-group>
+                     </template>
+                     <!--  <el-button type="primary" icon="el-icon-star-on" @click="starton()">开始</el-button>
+                     <el-button type="primary" icon="el-icon-star-off" @click="endoff()">结束</el-button> -->
+                 </el-form-item><br>
 	             <el-form-item label="操作">
 		             <template>
 					    <el-radio-group v-model="radio1">
@@ -197,10 +208,10 @@
                     <el-input v-model="pickform.operate" autocomplete="off" @change="getname(pickform.operate)"></el-input>
                  </el-form-item>
 	             <el-form-item label="姓名">
-                    <el-input v-model="pickform.operator" autocomplete="off"></el-input>
+                    <el-input v-model="pickform.operator" disabled autocomplete="off"></el-input>
                  </el-form-item>
                   <el-form-item label="出货单号">
-                    <el-input v-model="pickform.orderkey" autocomplete="off" @change="valiorderkey(pickform.orderkey)"></el-input>
+                    <el-input v-model="pickform.orderkey" maxlength="10" minlength="10" autocomplete="off" @change="valiorderkey(pickform.orderkey)"></el-input>
                  </el-form-item>
                  <br>
                  <!-- <el-form-item label="功能">
@@ -211,19 +222,22 @@
                     </el-radio-group>
                  </template>
                  </el-form-item> -->
-                 <el-form-item label="功能">
-                     <el-button type="primary" icon="el-icon-star-on" @click="starton()">开始</el-button>
-                     <el-button type="primary" icon="el-icon-star-off" @click="endoff()">结束</el-button>
-                 </el-form-item><br>
+                 
                  <el-form-item label="单号展示">
                  <el-input 
 					  type="textarea"
 					  autosize
-					  disabled
+					  readonly
 					  placeholder="请输入内容"
 					  v-model="pickform.orderkeys">
-				</el-input>
-				</el-form-item>
+				 </el-input>
+				 </el-form-item>
+				 <el-form-item>
+				 <div>
+                   <el-button type="primary" @click="remove()">移除</el-button><br>
+                   <el-button type="primary" style="margin-top:5px" @click="starton()">确定</el-button>
+                 </div>
+                 </el-form-item>
             </el-form>
             
             <!--  <el-table :data="pickorderss" border stripe size="mini" highlight-current-row v-loading="listLoading"   @selection-change="selsChange" style="width: 100%;margin-top: 3px;">
@@ -239,10 +253,6 @@
 			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 		    </el-table> -->
             
-            <!-- <div slot="footer" class="dialog-footer">
-              <el-button @click="PickFormVisible = false">取 消</el-button>
-              <el-button type="primary" @click="PickFormVisible = false">确 定</el-button>
-            </div> -->
             
         </el-dialog>
 	</div>
@@ -269,7 +279,7 @@
 					ImportXls:'${webRoot}/ordersController.do?upload',
 					getName:'${webRoot}/ordersController.do?getName',
 				    valiorderkey:'${webRoot}/ordersController.do?valiorderkey',
-				    starton:'${webRoot}/ordersController.do?straton'
+				    starton:'${webRoot}/ordersController.do?starton'
 				},
 				orderss: [],
 				total: 0,
@@ -295,7 +305,8 @@
 					operate:'',
 					operator:'',
 					orderkey:'',
-					orderkeys:''
+					orderkeys:'',
+					lastorderkey:''
 				},
 				//显示列
 				checkList:[],
@@ -306,6 +317,7 @@
 					orderdate:'orderdate',
 					requestshipdate:'requestshipdate',
 				},
+				
 				columnshow:{
 					orderkey:true,
 					storerkey:true,
@@ -325,25 +337,41 @@
 			}
 		},
 		methods: {
+			//移除textarea中 的值
+			remove:function(){
+				this.pickform.orderkeys=this.pickform.orderkeys.replace(this.pickform.lastorderkey+"\n",'');
+			},
 			//刷单执行
 			starton:function(){
 				//ajax
-				this.$http.get(this.url.starton,{params:{operation:this.radio1,warehouse:this.pickform.warehouse,start:this.radio2}}).then(function(res)  {
-					//返回
-					if(res.body.success){
-						this.$message({
-							message: res.body.msg,
-							type: 'success',
-							duration:1500
-						});
-					}else{
-						this.$message({
-							message: res.body.msg,
-							type: 'error',
-							duration:1500
-						});
+				if(this.radio1!=0&&this.radio2!=0&&this.pickform.warehouse!=null&&this.pickform.warehouse!=""&&this.pickform.operator!=null&&this.pickform.operator!=""){
+					var string;
+					if(this.pickform.orderkeys!=null&&this.pickform.orderkeys!=""){
+						string=this.pickform.orderkeys.replace(new RegExp("\n","gm"),";");
 					}
-				});
+					this.$http.get(this.url.starton,{params:{operation:this.radio1,warehouse:this.pickform.warehouse,startorend:this.radio2,username:this.pickform.operator,orderkeys:string}}).then(function(res)  {
+						//返回
+						if(res.body.success){
+							this.$message({
+								message: res.body.msg,
+								type: 'success',
+								duration:1500
+							});
+						}else{
+							this.$message({
+								message: res.body.msg,
+								type: 'error',
+								duration:1500
+							});
+						}
+					});
+				}else{
+					this.$message({
+						message: "数据尚未输入完成",
+						type: 'error',
+						duration:1500
+					});
+				}
 			},
 			//列展示切换
 			show:function(value){
@@ -378,26 +406,29 @@
 			},
 			valiorderkey:function(value){
 				//ajax
-				if(value!=null&&this.pickform.warehouse!=null&&value!=""&&this.pickform.warehouse!=""){
+				if(value!=null&&this.pickform.warehouse!=null&&value!=""&&this.pickform.warehouse!=""&&value.length==10){
 					this.$http.get(this.url.valiorderkey,{params:{orderkey:value,warehouse:this.pickform.warehouse}}).then(function(res)  {
 						if(res.body.success){
 							this.pickform.orderkeys=this.pickform.orderkeys+res.data.orderkeys;
+							this.pickform.lastorderkey=this.pickform.orderkey;
 							this.$message({
 								message: '验证成功',
 								type: 'success',
 								duration:1500
 							});
+							this.pickform.orderkey="";
 						}else{
 							this.$message({
 								message: '验证失败',
 								type: 'error',
 								duration:1500
 							});
+							this.pickform.orderkey="";
 						}
 					});
 				}else{
 					this.$message({
-						message: '请填写仓库',
+						message: '未填写仓库或出货单号错误',
 						type: 'error',
 						duration:1500
 					});
@@ -407,9 +438,11 @@
 			},
 			getname:function(value){
 				//ajax
-				this.$http.get(this.url.getName,{params:{account:value}}).then(function(res)  {
-					this.pickform.operator=res.data.name;
-				});
+				if(value!=null&&value!=""){
+					this.$http.get(this.url.getName,{params:{account:value}}).then(function(res)  {
+						this.pickform.operator=res.data.name;
+					});
+				}
 			},
 			handleSortChange:function(sort){
 				this.sort={
