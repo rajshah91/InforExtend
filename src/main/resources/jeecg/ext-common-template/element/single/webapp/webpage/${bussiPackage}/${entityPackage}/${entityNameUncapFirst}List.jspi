@@ -60,53 +60,53 @@
 		 	<#if po.isQuery =='Y' >
 			<#if po.showType=='text'>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}">
-					<el-input v-model="filters.${po.fieldName}" auto-complete="off" placeholder="请输入${po.content}"></el-input>
+					<el-input v-model="filters.${po.fieldName}" auto-complete="off" placeholder="请输入${po.content}" style="width:175px"></el-input>
 				</el-form-item>
 			<#elseif po.showType=='password'>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}">
-					<el-input type="password" v-model="filters.${po.fieldName}"></el-input>
+					<el-input type="password" v-model="filters.${po.fieldName}" style="width:175px"></el-input>
 				</el-form-item>
 			<#elseif po.showType=='date'>
 				<#if po.queryMode=='group'>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}_begin">
-					<el-date-picker type="date" placeholder="选择${po.content}开始" v-model="filters.${po.fieldName}_begin"></el-date-picker>
+					<el-date-picker type="date" placeholder="选择${po.content}开始" v-model="filters.${po.fieldName}_begin" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}_end">
-					<el-date-picker type="date" placeholder="选择${po.content}结束" v-model="filters.${po.fieldName}_end"></el-date-picker>
+					<el-date-picker type="date" placeholder="选择${po.content}结束" v-model="filters.${po.fieldName}_end" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<#else>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}">
-					<el-date-picker type="date" placeholder="选择${po.content}" v-model="filters.${po.fieldName}"></el-date-picker>
+					<el-date-picker type="date" placeholder="选择${po.content}" v-model="filters.${po.fieldName}" style="width:175px"></el-date-picker>
 				</el-form-item>
 				</#if>
 			<#elseif po.showType=='datetime'>
 				<#if po.queryMode=='group'>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}_begin">
-					 <el-date-picker type="datetime" placeholder="选择${po.content}开始" v-model="filters.${po.fieldName}_begin"></el-date-picker>
+					 <el-date-picker type="datetime" placeholder="选择${po.content}开始" v-model="filters.${po.fieldName}_begin" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}_end">
-					 <el-date-picker type="datetime" placeholder="选择${po.content}结束" v-model="filters.${po.fieldName}_end"></el-date-picker>
+					 <el-date-picker type="datetime" placeholder="选择${po.content}结束" v-model="filters.${po.fieldName}_end" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<#else>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}">
-					 <el-date-picker type="datetime" placeholder="选择${po.content}" v-model="filters.${po.fieldName}"></el-date-picker>
+					 <el-date-picker type="datetime" placeholder="选择${po.content}" v-model="filters.${po.fieldName}" style="width:175px"></el-date-picker>
 				</el-form-item>
 				</#if>
 			<#elseif po.showType=='checkbox'>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}">
-				    <el-select v-model="filters.${po.fieldName}" multiple placeholder="请选择${po.content}">
+				    <el-select v-model="filters.${po.fieldName}" multiple placeholder="请选择${po.content}" style="width:175px">
 				      <el-option :label="option.typename" :value="option.typecode" v-for="option in ${po.dictField}Options"></el-option>
 				    </el-select>
 				</el-form-item>
 			<#elseif po.showType=='select' || po.showType=='list' || po.showType=='radio'>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}">
-					<el-select v-model="filters.${po.fieldName}" placeholder="请选择${po.content}">
+					<el-select v-model="filters.${po.fieldName}" placeholder="请选择${po.content}" style="width:175px">
 				      <el-option :label="option.typename" :value="option.typecode" v-for="option in ${po.dictField}Options"></el-option>
 				    </el-select>
 				</el-form-item>
 			<#else>
 				<el-form-item style="margin-bottom: 8px;" prop="${po.fieldName}">
-					<el-input v-model="filters.${po.fieldName}" auto-complete="off" placeholder="请输入${po.content}"></el-input>
+					<el-input v-model="filters.${po.fieldName}" auto-complete="off" placeholder="请输入${po.content}" style="width:175px"></el-input>
 				</el-form-item>
 			</#if>
 		 	</#if>
