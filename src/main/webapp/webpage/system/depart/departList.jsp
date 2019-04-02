@@ -6,7 +6,7 @@
         <t:datagrid name="departList" title="common.department.list" fitColumns="true" actionUrl="departController.do?departgrid" treegrid="true" idField="departid" pagination="false">
             <t:dgCol title="common.id" field="id" treefield="id" hidden="true"></t:dgCol>
             <t:dgCol title="common.id" field="parentId" treefield="parentId" hidden="true"></t:dgCol>
-            <t:dgCol title="common.department.name" field="departname" treefield="text" width="120"></t:dgCol>
+            <t:dgCol title="common.department.name" field="departname" treefield="text" width="180"></t:dgCol>
             <t:dgCol title="position.desc" field="description" treefield="src" width="70"></t:dgCol>
             <t:dgCol title="common.org.code" field="orgCode" treefield="fieldMap.orgCode" width="50"></t:dgCol>
             <t:dgCol title="common.org.type" field="orgType" dictionary="orgtype" treefield="fieldMap.orgType" width="60"></t:dgCol>

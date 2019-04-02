@@ -17,6 +17,13 @@ public class InforWebService {
 	// 接口地址
 	private static String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
 
+	/**
+	 * 检查info用户是否正确
+	 * 
+	 * @param userName
+	 * @param passWord
+	 * @return
+	 */
 	public static String LoginInfor(String userName, String passWord) {
 		try {
 			ServiceClient serviceClient = new ServiceClient();
@@ -60,10 +67,7 @@ public class InforWebService {
 			// 远程调用web服务
 			OMElement resultXml = serviceClient.sendReceive(method);
 			String result = resultXml.toString();
-			String reg1 = "&lt;";
-			result = result.replace(reg1, "<");
-			String reg2 = "&gt;";
-			result = result.replace(reg2, ">");
+			result = formatXml(result);
 			return result;
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
@@ -71,6 +75,12 @@ public class InforWebService {
 		}
 	}
 
+	/**
+	 * 获取info用户的用户名
+	 * 
+	 * @param userName
+	 * @return
+	 */
 	public static String getUserNameFromInfor(String userName) {
 		try {
 			ServiceClient serviceClient = new ServiceClient();
@@ -101,7 +111,7 @@ public class InforWebService {
 			String xml = "<Message>" + "<Head>" + "<MessageID/>" + "<Date/>" + "<MessageType>Utility</MessageType>"
 					+ "<Sender>" + "<user>sceadmin</user>" + "<password>sceadmin</password>"
 					+ "<SystemID>External</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Sender>" + "<Recipient>"
-					+ "<SystemID>ENTERPRISE</SystemID>" + "<CompanyID />" + "<ReplyToQ />" + "</Recipient>" + "</Head>"
+					+ "<SystemID>ENTERPRISE</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>" + "</Head>"
 					+ "<Body>" + "<Utility>" + "<UtilityHeader>" + "<USERID>" + userName + "</USERID>"
 					+ "</UtilityHeader>" + "</Utility>" + "</Body>" + "</Message>";
 			mobileCode = fac.createOMElement("in3", omNs);
@@ -112,10 +122,7 @@ public class InforWebService {
 			// 远程调用web服务
 			OMElement resultXml = serviceClient.sendReceive(method);
 			String result = resultXml.toString();
-			String reg1 = "&lt;";
-			result = result.replace(reg1, "<");
-			String reg2 = "&gt;";
-			result = result.replace(reg2, ">");
+			result = formatXml(result);
 			return readStringXmlForUserName(result);
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
@@ -135,10 +142,21 @@ public class InforWebService {
 			Element Utility = Body.element("Utility");
 			Element UtilityHeader = Utility.element("UtilityHeader");
 			result = UtilityHeader.elementText("FULLY_QUALIFIED_ID");
+			if (result == null || result.isEmpty()) {
+				result = null;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
 
+	//格式化返回的报文
+	private static String formatXml(String xml) {
+		String reg1 = "&lt;";
+		xml = xml.replace(reg1, "<");
+		String reg2 = "&gt;";
+		xml = xml.replace(reg2, ">"); 
+		return xml;
+	}
 }
