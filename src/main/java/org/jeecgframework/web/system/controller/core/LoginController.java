@@ -77,6 +77,9 @@ public class LoginController extends BaseController {
 
 	@Autowired
 	private MutiLangServiceI mutiLangService;
+	
+	@Autowired
+	private InforWebService inforWebService;
 
 	@Autowired
 	public void setSystemService(SystemService systemService) {
@@ -182,7 +185,7 @@ public class LoginController extends BaseController {
 					j.setSuccess(false);
 				}
 			} else {
-				String result = InforWebService.LoginInfor(user.getUserName(), user.getPassword());
+				String result = inforWebService.LoginInfor(user.getUserName(), user.getPassword());
 				if (result == null || result.contains("<Error>")) {
 					j.setMsg(mutiLangService.getLang("common.username.or.password.error"));
 					j.setSuccess(false);
