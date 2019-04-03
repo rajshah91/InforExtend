@@ -27,8 +27,8 @@ public class OrdersServiceImpl extends CommonServiceImpl implements OrdersServic
 	@Autowired
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	
-	/*@Autowired
-	private InforWebService inforWebService;*/
+	@Autowired
+	private InforWebService inforWebService;
 	
  	public void delete(OrdersEntity entity) throws Exception{
  		super.delete(entity);
@@ -47,7 +47,7 @@ public class OrdersServiceImpl extends CommonServiceImpl implements OrdersServic
 	public String getName(String account) throws Exception {
 		//获取名称
 		//调取接口
-		String name=InforWebService.getUserNameFromInfor(account);
+		String name=inforWebService.getUserNameFromInfor(account);
 		return name;
 	}
 
@@ -58,9 +58,10 @@ public class OrdersServiceImpl extends CommonServiceImpl implements OrdersServic
 	}
 
 	@Override
-	public void starton(String warehouse, String operation,String startorend,String username) throws Exception {
+	public String starton(String warehouse, String operation,String startorend,String username,String orderkeys) throws Exception {
 		// 刷单操作
-		
+		String result=inforWebService.startOnFromInfor(username, operation, startorend, orderkeys);
+		return result;
 	}
  	
 }

@@ -38,10 +38,10 @@
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
 			    <el-form-item style="margin-bottom: 8px;" prop="orderkey">
 			    <el-select v-model="filters.warehouse" placeholder="请选择仓库" clearable style="width:175px">
-	                 <el-option label="WH1飞仓" value="wh1"></el-option>
-	                 <el-option label="WH2飞仓品牌" value="wh2"></el-option>
-	                 <el-option label="WH5飞仓VMI" value="wh5"></el-option>
-	                 <el-option label="WH10飞仓昆山外租仓" value="wh10"></el-option>
+	                 <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
+	                 <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
+	                 <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
+	                 <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option>
 	             </el-select>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
@@ -198,10 +198,10 @@
                  <br>
 	             <el-form-item label="仓库"  inline="ture">
 	             <el-select v-model="pickform.warehouse" placeholder="请选择仓库" clearable style="width:175px">
-	                 <el-option label="WH1飞仓" value="wh1"></el-option>
-	                 <el-option label="WH2飞仓品牌" value="wh2"></el-option>
-	                 <el-option label="WH5飞仓VMI" value="wh5"></el-option>
-	                 <el-option label="WH10飞仓昆山外租仓" value="wh10"></el-option>
+	                 <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
+	                 <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
+	                 <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
+	                 <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option>
 	             </el-select>
 	             </el-form-item>
 	             <el-form-item label="账号">
@@ -351,25 +351,18 @@
 					}
 					this.$http.get(this.url.starton,{params:{operation:this.radio1,warehouse:this.pickform.warehouse,startorend:this.radio2,username:this.pickform.operator,orderkeys:string}}).then(function(res)  {
 						//返回
-						if(res.body.success){
-							this.$message({
-								message: res.body.msg,
-								type: 'success',
-								duration:1500
-							});
-						}else{
-							this.$message({
-								message: res.body.msg,
-								type: 'error',
-								duration:1500
-							});
-						}
+						this.PickFormVisible=false;
+						this.$message({
+							message: res.body.result,
+							type: 'infor',
+							duration:5000
+						});
 					});
 				}else{
 					this.$message({
 						message: "数据尚未输入完成",
 						type: 'error',
-						duration:1500
+						duration:2000
 					});
 				}
 			},

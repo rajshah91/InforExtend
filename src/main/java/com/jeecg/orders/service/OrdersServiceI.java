@@ -19,5 +19,5 @@ public interface OrdersServiceI extends CommonService{
  	public boolean valiorderkey(String orderkey,String warehouse) throws Exception;
  	
  	//刷单操作
- 	public void starton(String warehouse,String operation,String startorend,String username) throws Exception;
+ 	public String starton(String warehouse,String operation,String startorend,String username,String orderkeys) throws Exception;
 }

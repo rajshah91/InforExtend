@@ -345,9 +345,25 @@ public class OrdersController extends BaseController {
 		String startorend=request.getParameter("startorend");
 		String username=request.getParameter("username");
 		try {
-			/*String name=ordersService.getName(account);
-			resultjson.put("name", name);*/
-			ordersService.starton(warehouse, operation,startorend,username);
+			String result="";
+			if("1".equals(startorend)) {
+				if("1".equals(operation)) {
+					result=ordersService.starton(warehouse, "pick","start",username,orderkeys);
+				}else if("2".equals(operation)){
+					result=ordersService.starton(warehouse, "label","start",username,orderkeys);
+				}else {
+					result=ordersService.starton(warehouse, "recheck","start",username,orderkeys);
+				}
+			}else {
+				if("1".equals(operation)) {
+					result=ordersService.starton(warehouse, "pick","end",username,orderkeys);
+				}else if("2".equals(operation)){
+					result=ordersService.starton(warehouse, "label","end",username,orderkeys);
+				}else {
+					result=ordersService.starton(warehouse, "recheck","end",username,orderkeys);
+				}
+			}
+			resultjson.put("result", result);
 			response.getWriter().write(resultjson.toString());
 		} catch (IOException e) {
 			e.printStackTrace();

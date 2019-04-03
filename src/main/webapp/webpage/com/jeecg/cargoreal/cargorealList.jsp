@@ -67,6 +67,7 @@
 				<el-form-item style="margin-bottom: 8px;" prop="area">
 					<el-select v-model="filters.area" placeholder="请选择库区" clearable style="width:175px">
 	                 <el-option label="" value=""></el-option>
+	                 </el-select>
 				</el-form-item>
 				<br>
 				<el-form-item>
@@ -117,12 +118,12 @@
 			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
 			<el-table-column prop="warningtime" label="预警时间" v-if="columnshow.warningtime" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
 			<el-table-column prop="orderstatus" label="订单状态" v-if="columnshow.orderstatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column label="操作" width="150">
+			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
-			</el-table-column>
+			</el-table-column> -->
 		</el-table>
 		
 		<!--工具条-->
