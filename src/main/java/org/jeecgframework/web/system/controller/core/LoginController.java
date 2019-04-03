@@ -191,8 +191,7 @@ public class LoginController extends BaseController {
 					j.setSuccess(false);
 					return j;
 				} else {
-					user.setUserName("admin");
-					user.setPassword("123456");
+					addOrUpdateInforUser(user);
 					// 用户登录验证逻辑
 					TSUser u = userService.checkUserExits(user);
 					if (u == null) {
@@ -252,6 +251,26 @@ public class LoginController extends BaseController {
 		return j;
 	}
 
+	//创建或更新infor用户
+	private void addOrUpdateInforUser(TSUser user) {
+		TSUser users = systemService.findUniqueByProperty(TSUser.class, "userName",user.getUserName());
+		if (users != null) {
+			
+		} else {
+			user.setPassword(PasswordUtil.encrypt(user.getUserName(), user.getPassword(), PasswordUtil.getStaticSalt()));
+			user.setRealName(user.getUserName());
+			user.setStatus(Globals.User_Normal);
+			user.setDeleteFlag(Globals.Delete_Normal);
+			user.setDevFlag("0");
+			user.setEmail(user.getUserName()+"@feili.com");
+			//默认添加为系统用户
+			user.setUserType(Globals.USER_TYPE_SYSTEM);
+			String orgids="2c94a5b969e1255d0169e135d6d40003";
+			String roleids="2c94a5b969e1255d0169e13887900007";
+			userService.saveOrUpdate(user, orgids.split(","), roleids.split(","));
+		}
+	}
+	
 	/**
 	 * 变更在线用户组织
 	 * 

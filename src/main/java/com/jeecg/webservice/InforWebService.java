@@ -1,5 +1,7 @@
 package com.jeecg.webservice;
 
+import java.util.Date;
+
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
@@ -273,6 +275,7 @@ public class InforWebService {
 		}
 		apilogEntity.setPartner("INFOR");
 		apilogEntity.setServicename(serviceName);
+		apilogEntity.setCreateDate(new Date());
 		try {
 			apilogService.save(apilogEntity);
 		} catch (Exception e) {
