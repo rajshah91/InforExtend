@@ -2,6 +2,7 @@ package com.jeecg.orders.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.jeecg.orders.entity.OrdersEntity;
 import com.jeecg.orders.service.OrdersServiceI;
+import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
+import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.jeecgframework.web.system.service.SystemService;
 
 import org.jeecgframework.core.util.MyBeanUtils;
@@ -83,7 +85,18 @@ public class OrdersController extends BaseController {
 	@RequestMapping(params = "datagrid")
 	public void datagrid(OrdersEntity orders,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
 		CriteriaQuery cq = new CriteriaQuery(OrdersEntity.class, dataGrid);
+		/*List<OrdersEntity> list=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,od.lottable06,o.adddate+8/24,o.requestedshipdate, " + 
+				"o.performancedata01,o.pickstartdate,o.pickenddate, " + 
+				"o.performancedata02,o.labelingstartdate,o.labelingenddate, " + 
+				"o.performancedata04,o.recheckstartdate,o.recheckenddate,c.description " + 
+				"from W01_orders o " + 
+				"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
+				"left join W01_orderstatussetup c on c.code=o.status " + 
+				"where o.orderkey='0000000026'");
 		//查询条件组装器
+		for (OrdersEntity o : list) {
+			System.out.println(o.getOrderkey());
+		}*/
 		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orders, request.getParameterMap());
 		cq.add();
 		this.ordersService.getDataGridReturn(cq, true);
@@ -298,6 +311,33 @@ public class OrdersController extends BaseController {
 	}
 	
 	/**
+	 * 获取名称
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "getwarehouse")
+	@ResponseBody
+	public void getwarehouse(HttpServletRequest request,HttpServletResponse response) {
+		JSONObject resultjson = new JSONObject();
+		try {
+			List<UsercontactwhEntity> entities=ordersService.getwarehouse();
+			if(entities!=null&&entities.size()>0) {
+				List<String> list=new ArrayList<>();
+				for (UsercontactwhEntity u : entities) {
+					list.add(u.getWarehouse().toString());
+				}
+				resultjson.put("warehouse", list);
+			}
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * 验证单号
 	 * 
 	 * @param ids
@@ -363,7 +403,11 @@ public class OrdersController extends BaseController {
 					result=ordersService.starton(warehouse, "recheck","end",username,orderkeys);
 				}
 			}
-			resultjson.put("result", result);
+			if(result!=null&&result!="") {
+				resultjson.put("result", result);
+			}else {
+				resultjson.put("result", "操作成功");
+			}
 			response.getWriter().write(resultjson.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
