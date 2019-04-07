@@ -84,24 +84,58 @@ public class OrdersController extends BaseController {
 	 */
 	@RequestMapping(params = "datagrid")
 	public void datagrid(OrdersEntity orders,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(OrdersEntity.class, dataGrid);
-		/*List<OrdersEntity> list=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,od.lottable06,o.adddate+8/24,o.requestedshipdate, " + 
-				"o.performancedata01,o.pickstartdate,o.pickenddate, " + 
-				"o.performancedata02,o.labelingstartdate,o.labelingenddate, " + 
-				"o.performancedata04,o.recheckstartdate,o.recheckenddate,c.description " + 
-				"from W01_orders o " + 
-				"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
-				"left join W01_orderstatussetup c on c.code=o.status " + 
-				"where o.orderkey='0000000026'");
-		//查询条件组装器
-		for (OrdersEntity o : list) {
-			System.out.println(o.getOrderkey());
-		}*/
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orders, request.getParameterMap());
-		cq.add();
-		this.ordersService.getDataGridReturn(cq, true);
-		TagUtil.datagrid(response, dataGrid);
+		JSONObject resultjson = new JSONObject();
+		String warehouse= request.getParameter("warehouse");
+		String orderkey=request.getParameter("orderkey");
+		List<Object> data=new ArrayList<>();
+		if("FEILI_wmwhse1".equals(warehouse)) {
+			data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,od.lottable06,o.adddate+8/24,o.requestedshipdate, " + 
+					"o.performancedata01,o.pickstartdate,o.pickenddate, " + 
+					"o.performancedata02,o.labelingstartdate,o.labelingenddate, " + 
+					"o.performancedata04,o.recheckstartdate,o.recheckenddate,c.description " + 
+					"from W01_orders o " + 
+					"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
+					"left join W01_orderstatussetup c on c.code=o.status " + 
+					"where o.orderkey='"+orderkey+"'");
+		}else if("FEILI_wmwhse2".equals(warehouse)){
+			data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,od.lottable06,o.adddate+8/24,o.requestedshipdate, " + 
+					"o.performancedata01,o.pickstartdate+8/24,o.pickenddate+8/24, " + 
+					"o.performancedata02,o.labelingstartdate+8/24,o.labelingenddate+8/24, " + 
+					"o.performancedata04,o.recheckstartdate+8/24,o.recheckenddate+8/24,c.description " + 
+					"from W02_orders o " + 
+					"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
+					"left join W02_orderstatussetup c on c.code=o.status " + 
+					"where o.orderkey='"+orderkey+"'");
+		}else if("FEILI_wmwhse5".equals(warehouse)) {
+			data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,od.lottable06,o.adddate+8/24,o.requestedshipdate, " + 
+					"o.performancedata01,o.pickstartdate+8/24,o.pickenddate+8/24, " + 
+					"o.performancedata02,o.labelingstartdate+8/24,o.labelingenddate+8/24, " + 
+					"o.performancedata04,o.recheckstartdate+8/24,o.recheckenddate+8/24,c.description " + 
+					"from W05_orders o " + 
+					"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
+					"left join W05_orderstatussetup c on c.code=o.status " + 
+					"where o.orderkey='"+orderkey+"'");
+		}else if("FEILI_wmwhse10".equals(warehouse)) {
+			data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,od.lottable06,o.adddate+8/24,o.requestedshipdate, " + 
+					"o.performancedata01,o.pickstartdate+8/24,o.pickenddate+8/24, " + 
+					"o.performancedata02,o.labelingstartdate+8/24,o.labelingenddate+8/24, " + 
+					"o.performancedata04,o.recheckstartdate+8/24,o.recheckenddate+8/24,c.description " + 
+					"from W010_orders o " + 
+					"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
+					"left join W010_orderstatussetup c on c.code=o.status " + 
+					"where o.orderkey='"+orderkey+"'");
+		}
+	    try {
+	    	resultjson.put("orders", data);
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*dataGrid.setResults(data);
+		TagUtil.datagrid(response, dataGrid);*/
 	}
+	
 	
 	/**
 	 * 删除出货刷单
