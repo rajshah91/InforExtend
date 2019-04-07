@@ -94,7 +94,7 @@
 		
 		<!--新增界面-->
 		<el-dialog :title="formTitle" fullscreen z-index="800" :visible.sync="formVisible" :close-on-click-modal="false">
-			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini">
+			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline ="true">
 					<el-form-item label="用户id" prop="userid">
 						<el-input v-model="form.userid" auto-complete="off" placeholder="请输入用户id"></el-input>
 					</el-form-item>
@@ -154,31 +154,11 @@
 				//显示列
 				checkList:[],
 				detailList:{
-					id:'id',
-					createName:'createName',
-					createBy:'createBy',
-					createDate:'createDate',
-					updateName:'updateName',
-					updateBy:'updateBy',
-					updateDate:'updateDate',
-					sysOrgCode:'sysOrgCode',
-					sysCompanyCode:'sysCompanyCode',
-					bpmStatus:'bpmStatus',
 					userid:'userid',
 					username:'username',
 					warehouse:'warehouse',
 				},
 				columnshow:{
-					id:true,
-					createName:true,
-					createBy:true,
-					createDate:true,
-					updateName:true,
-					updateBy:true,
-					updateDate:true,
-					sysOrgCode:true,
-					sysCompanyCode:true,
-					bpmStatus:true,
 					userid:true,
 					username:true,
 					warehouse:true,
@@ -191,36 +171,6 @@
 		methods: {
 		    //列展示切换
 			show:function(value){
-				if(value=="id"){
-				   this.columnshow.id=!this.columnshow.id;
-				}
-				if(value=="createName"){
-				   this.columnshow.createName=!this.columnshow.createName;
-				}
-				if(value=="createBy"){
-				   this.columnshow.createBy=!this.columnshow.createBy;
-				}
-				if(value=="createDate"){
-				   this.columnshow.createDate=!this.columnshow.createDate;
-				}
-				if(value=="updateName"){
-				   this.columnshow.updateName=!this.columnshow.updateName;
-				}
-				if(value=="updateBy"){
-				   this.columnshow.updateBy=!this.columnshow.updateBy;
-				}
-				if(value=="updateDate"){
-				   this.columnshow.updateDate=!this.columnshow.updateDate;
-				}
-				if(value=="sysOrgCode"){
-				   this.columnshow.sysOrgCode=!this.columnshow.sysOrgCode;
-				}
-				if(value=="sysCompanyCode"){
-				   this.columnshow.sysCompanyCode=!this.columnshow.sysCompanyCode;
-				}
-				if(value=="bpmStatus"){
-				   this.columnshow.bpmStatus=!this.columnshow.bpmStatus;
-				}
 				if(value=="userid"){
 				   this.columnshow.userid=!this.columnshow.userid;
 				}
