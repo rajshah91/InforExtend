@@ -1,15 +1,24 @@
 package com.jeecg.orders.service.impl;
 import com.jeecg.orders.service.OrdersServiceI;
+import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 import com.jeecg.webservice.InforWebService;
 
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+import org.jeecgframework.core.util.ResourceUtil;
+import org.jeecgframework.web.system.pojo.base.TSUser;
+
+import com.alibaba.fastjson.JSONObject;
 import com.jeecg.orders.entity.OrdersEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 /*import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;*/
 import java.io.Serializable;
+import java.util.List;
+
 /*import org.jeecgframework.core.util.ApplicationContextUtil;
 import org.jeecgframework.core.util.MyClassLoader;
 import org.jeecgframework.core.util.StringUtil;
@@ -60,8 +69,16 @@ public class OrdersServiceImpl extends CommonServiceImpl implements OrdersServic
 	@Override
 	public String starton(String warehouse, String operation,String startorend,String username,String orderkeys) throws Exception {
 		// 刷单操作
-		String result=inforWebService.startOnFromInfor(username, operation, startorend, orderkeys);
+		String result=inforWebService.startOnFromInfor(warehouse,username, operation, startorend, orderkeys);
 		return result;
+	}
+
+	@Override
+	public List<UsercontactwhEntity> getwarehouse() {
+		//获取当前用户查询对应权限的仓库
+		TSUser user= ResourceUtil.getSessionUser();// 操作人
+		List<UsercontactwhEntity> entities=super.findHql("from UsercontactwhEntity where userid=?",user.getId());
+		return entities;
 	}
  	
 }

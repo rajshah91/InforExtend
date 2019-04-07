@@ -179,7 +179,7 @@ public class InforWebService {
 	 * @param orderKeys
 	 * @return
 	 */
-	public String startOnFromInfor(String userName, String opertionType, String isStartOrEnd, String orderKeys) {
+	public String startOnFromInfor(String warehouse,String userName, String opertionType, String isStartOrEnd, String orderKeys) {
 		String sendXml = null;
 		String receiveXml = null;
 		try {
@@ -211,7 +211,7 @@ public class InforWebService {
 			sendXml = "<Message>" + "<Head>" + "<MessageID/>" + "<Date/>" + "<MessageType>Utility</MessageType>"
 					+ "<Sender>" + "<user>sceadmin</user>" + "<password>sceadmin</password>"
 					+ "<SystemID>External</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Sender>" + "<Recipient>"
-					+ "<SystemID>FEILI_wmwhse1</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>" + "</Head>"
+					+ "<SystemID>"+warehouse+"</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>" + "</Head>"
 					+ "<Body>" + "<Utility>" + "<UtilityHeader>" + "<USERNAME>" + userName + "</USERNAME>"
 					+ "<OPERTIONTYPE>" + opertionType + "</OPERTIONTYPE>" + "<ISSTARTOREND>" + isStartOrEnd
 					+ "</ISSTARTOREND>" + "<ORDERKEYS>" + orderKeys + "</ORDERKEYS>" + "</UtilityHeader>" + "</Utility>"

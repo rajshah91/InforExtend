@@ -1,8 +1,11 @@
 package com.jeecg.orders.service;
 import com.jeecg.orders.entity.OrdersEntity;
+import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
+
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.io.Serializable;
+import java.util.List;
 
 public interface OrdersServiceI extends CommonService{
 	
@@ -20,4 +23,7 @@ public interface OrdersServiceI extends CommonService{
  	
  	//刷单操作
  	public String starton(String warehouse,String operation,String startorend,String username,String orderkeys) throws Exception;
+    
+ 	//获取仓库
+ 	public List<UsercontactwhEntity> getwarehouse();
 }
