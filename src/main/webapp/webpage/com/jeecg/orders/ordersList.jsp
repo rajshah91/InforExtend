@@ -197,11 +197,8 @@
                  </el-form-item>
                  <br>
 	             <el-form-item label="仓库"  inline="ture">
-	             <el-select v-model="pickform.warehouse" placeholder="请选择仓库" clearable style="width:175px">
-	                 <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
-	                 <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
-	                 <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
-	                 <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option>
+	             <el-select v-model="pickform.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
+	                 <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
 	             </el-select>
 	             </el-form-item>
 	             <el-form-item label="账号">
@@ -279,7 +276,9 @@
 					ImportXls:'${webRoot}/ordersController.do?upload',
 					getName:'${webRoot}/ordersController.do?getName',
 				    valiorderkey:'${webRoot}/ordersController.do?valiorderkey',
-				    starton:'${webRoot}/ordersController.do?starton'
+				    starton:'${webRoot}/ordersController.do?starton',
+				    getfrominfor:'${webRoot}/ordersController.do?getfrominfor',
+				    getwarehouse:'${webRoot}/ordersController.do?getwarehouse'
 				},
 				orderss: [],
 				total: 0,
@@ -308,6 +307,7 @@
 					orderkeys:'',
 					lastorderkey:''
 				},
+				warehouses:[],
 				//显示列
 				checkList:[],
 				detailList:{
@@ -339,19 +339,19 @@
 		methods: {
 			//移除textarea中 的值
 			remove:function(){
-				this.pickform.orderkeys=this.pickform.orderkeys.replace(this.pickform.lastorderkey+"\n",'');
+				this.pickform.orderkeys=this.pickform.orderkeys.substring(0,this.pickform.orderkeys.length-11);
 			},
 			//刷单执行
 			starton:function(){
 				//ajax
 				if(this.radio1!=0&&this.radio2!=0&&this.pickform.warehouse!=null&&this.pickform.warehouse!=""&&this.pickform.operator!=null&&this.pickform.operator!=""){
+					this.PickFormVisible=false;
 					var string;
 					if(this.pickform.orderkeys!=null&&this.pickform.orderkeys!=""){
 						string=this.pickform.orderkeys.replace(new RegExp("\n","gm"),";");
 					}
 					this.$http.get(this.url.starton,{params:{operation:this.radio1,warehouse:this.pickform.warehouse,startorend:this.radio2,username:this.pickform.operator,orderkeys:string}}).then(function(res)  {
 						//返回
-						this.PickFormVisible=false;
 						this.$message({
 							message: res.body.result,
 							type: 'infor',
@@ -386,6 +386,11 @@
 			},
 			//清空
 			shuadan:function(){
+				//ajax查询当前用户仓库
+				this.$http.get(this.url.getwarehouse).then(function(res)  {
+					/* console.log(res.data.warehouse); */
+					this.warehouses=res.data.warehouse;
+				});
 				//切回默认
 				this.radio1=0;
 				this.radio2=0;
@@ -525,6 +530,7 @@
 					}
 				};
 				this.listLoading = true;
+				console.log(1111);
 				this.$http.get(this.url.list,para).then(function(res)  {
 					this.total = res.data.total;
 					var datas=res.data.rows;
