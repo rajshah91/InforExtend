@@ -89,10 +89,10 @@ public class OrdersController extends BaseController {
 		String orderkey=request.getParameter("orderkey");
 		List<Object> data=new ArrayList<>();
 		if("FEILI_wmwhse1".equals(warehouse)) {
-			data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,od.lottable06,o.adddate+8/24,o.requestedshipdate, " + 
-					"o.performancedata01,o.pickstartdate,o.pickenddate, " + 
-					"o.performancedata02,o.labelingstartdate,o.labelingenddate, " + 
-					"o.performancedata04,o.recheckstartdate,o.recheckenddate,c.description " + 
+			data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,od.lottable06,o.adddate+8/24,o.requestedshipdate+8/24, " + 
+					"o.performancedata01,o.pickstartdate+8/24,o.pickenddate+8/24, " + 
+					"o.performancedata02,o.labelingstartdate+8/24,o.labelingenddate+8/24, " + 
+					"o.performancedata04,o.recheckstartdate+8/24,o.recheckenddate+8/24,c.description " + 
 					"from W01_orders o " + 
 					"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
 					"left join W01_orderstatussetup c on c.code=o.status " + 

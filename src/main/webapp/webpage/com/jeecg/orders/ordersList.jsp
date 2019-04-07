@@ -84,17 +84,17 @@
 			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.orderkey"></el-table-column>
 			<el-table-column prop="storerkey" label="货主代码" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.storerkey"></el-table-column>
 			<el-table-column prop="vendor" label="收货人代码" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.vendor"></el-table-column>
-			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"	 v-if="columnshow.orderdate"></el-table-column>
-			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime" v-if="columnshow.requestshipdate"></el-table-column>
+			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" show-overflow-tooltip 	 v-if="columnshow.orderdate"></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" show-overflow-tooltip  v-if="columnshow.requestshipdate"></el-table-column>
 			<el-table-column prop="picker" label="拣货员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="pickstartdate" label="拣货开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
-			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="pickstartdate" label="拣货开始时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="labeler" label="贴标员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="labelstartdate" label="贴标开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
-			<el-table-column prop="labelenddate" label="贴标完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="labelstartdate" label="贴标开始时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="labelenddate" label="贴标完成时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="reagents" label="复检员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="reagentstartdate" label="复检开始时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
-			<el-table-column prop="reagentenddate" label="复检完成时间" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="reagentstartdate" label="复检开始时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="reagentenddate" label="复检完成时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column label="操作" width="150">
@@ -571,6 +571,7 @@
 							if(j==4){
 								if(datas[i][j]!=null&&datas[i][j]!=""){
 								   this.order.orderdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
+								   console.log(this.order.orderdate+"");
 								}else{
 									this.order.orderdate=datas[i][j];
 								}
@@ -780,13 +781,13 @@
 	});
 	
 	function utilFormatDate(date, pattern) {
-        pattern = pattern || "yyyy-MM-dd";
+        pattern = pattern || "yyyy-MM-dd"
         return pattern.replace(/([yMdhsm])(\1*)/g, function ($0) {
             switch ($0.charAt(0)) {
                 case 'y': return padding(date.getFullYear(), $0.length);
                 case 'M': return padding(date.getMonth() + 1, $0.length);
                 case 'd': return padding(date.getDate(), $0.length);
-                case 'w': return date.getDay() + 1;
+                /* case 'w': return date.getDay() + 1; */
                 case 'h': return padding(date.getHours(), $0.length);
                 case 'm': return padding(date.getMinutes(), $0.length);
                 case 's': return padding(date.getSeconds(), $0.length);
@@ -794,6 +795,7 @@
         });
     };
 	function padding(s, len) {
+		console.log(s);
 	    var len = len - (s + '').length;
 	    for (var i = 0; i < len; i++) { s = '0' + s; }
 	    return s;

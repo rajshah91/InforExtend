@@ -289,14 +289,14 @@
 			//新增
 			formSubmit: function () {
 				console.log(1111);
-				this.$refs.form.validate(function(valid)  {
+				this.$refs.form.validate((valid) =>  {
 					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(function()  {
+						this.$confirm('确认提交吗？', '提示', {}).then(() =>  {
 							this.formLoading = true;
 							let para = Object.assign({}, this.form);
 							
 							
-							this.$http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then(function(res)  {
+							this.$http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then((res) =>   {
 								this.formLoading = false;
 								this.$message({
 									message: '提交成功',
