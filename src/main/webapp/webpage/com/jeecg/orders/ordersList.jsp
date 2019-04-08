@@ -554,92 +554,98 @@
 				this.$http.get(this.url.list,para).then(function(res)  {
 					this.orderss = res.data.orders;
 					var datas=res.data.orders;
-					for (var i = 0; i < res.data.orders.length; i++) {
-						for(var j=0;j<16;j++){
-							if(j==0){
-								this.order.warehouse=datas[i][j];
-							}
-							if(j==1){
-								this.order.orderkey=datas[i][j];
-							}
-							if(j==2){
-								this.order.storerkey=datas[i][j];
-							}
-							if(j==3){
-								this.order.vendor=datas[i][j];
-							}
-							if(j==4){
-								if(datas[i][j]!=null&&datas[i][j]!=""){
-								   this.order.orderdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
-								   console.log(this.order.orderdate+"");
-								}else{
-									this.order.orderdate=datas[i][j];
+					/* this.orderss[0]="";
+					console.log(this.orderss[0]); */
+					if(res.data.orders.length>0){
+						for (var i = 0; i < res.data.orders.length; i++) {
+							for(var j=0;j<16;j++){
+								if(j==0){
+									this.order.warehouse=datas[i][j];
 								}
-							}
-							if(j==5){
-								if(datas[i][j]!=null&&datas[i][j]!=""){
-								    this.order.requestshipdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
-								}else{
-									this.order.requestshipdate=datas[i][j];
+								if(j==1){
+									this.order.orderkey=datas[i][j];
 								}
-							}
-							if(j==6){
-								this.order.picker=datas[i][j];
-							}
-							if(j==7){
-								if(datas[i][j]!=null&&datas[i][j]!=""){
-								   this.order.pickstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
-								}else{
-									this.order.pickstartdate=datas[i][j];
+								if(j==2){
+									this.order.storerkey=datas[i][j];
 								}
-							}
-							if(j==8){
-								if(datas[i][j]!=null&&datas[i][j]!=""){
-								   this.order.pickenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-								}else{
-									this.order.pickenddate=datas[i][j];
+								if(j==3){
+									this.order.vendor=datas[i][j];
 								}
-							}
-							if(j==9){
-								this.order.labeler=datas[i][j];
-							}
-							if(j==10){
-								if(datas[i][j]!=null&&datas[i][j]!=""){
-								   this.order.labelstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-								}else{
-									this.order.labelstartdate=datas[i][j];
+								if(j==4){
+									if(datas[i][j]!=null&&datas[i][j]!=""){
+									   this.order.orderdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
+									   console.log(this.order.orderdate+"");
+									}else{
+										this.order.orderdate=datas[i][j];
+									}
 								}
-							}
-							if(j==11){
-								if(datas[i][j]!=null&&datas[i][j]!=""){
-								    this.order.labelenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-								}else{
-									this.order.labelenddate=datas[i][j];
+								if(j==5){
+									if(datas[i][j]!=null&&datas[i][j]!=""){
+									    this.order.requestshipdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
+									}else{
+										this.order.requestshipdate=datas[i][j];
+									}
 								}
-							}
-							if(j==12){
-								this.order.reagents=datas[i][j];
-							}
-							if(j==13){
-								if(datas[i][j]!=null&&datas[i][j]!=""){
-								   this.order.reagentstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-								}else{
-									this.order.reagentstartdate=datas[i][j];
+								if(j==6){
+									this.order.picker=datas[i][j];
 								}
-							}
-							if(j==14){
-								if(datas[i][j]!=null&&datas[i][j]!=""){
-								   this.order.reagentenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-								}else{
-									this.order.reagentenddate=datas[i][j];
+								if(j==7){
+									if(datas[i][j]!=null&&datas[i][j]!=""){
+									   this.order.pickstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
+									}else{
+										this.order.pickstartdate=datas[i][j];
+									}
 								}
-							}
-							if(j==15){
-								this.order.orderstatus=datas[i][j];
+								if(j==8){
+									if(datas[i][j]!=null&&datas[i][j]!=""){
+									   this.order.pickenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
+									}else{
+										this.order.pickenddate=datas[i][j];
+									}
+								}
+								if(j==9){
+									this.order.labeler=datas[i][j];
+								}
+								if(j==10){
+									if(datas[i][j]!=null&&datas[i][j]!=""){
+									   this.order.labelstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
+									}else{
+										this.order.labelstartdate=datas[i][j];
+									}
+								}
+								if(j==11){
+									if(datas[i][j]!=null&&datas[i][j]!=""){
+									    this.order.labelenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
+									}else{
+										this.order.labelenddate=datas[i][j];
+									}
+								}
+								if(j==12){
+									this.order.reagents=datas[i][j];
+								}
+								if(j==13){
+									if(datas[i][j]!=null&&datas[i][j]!=""){
+									   this.order.reagentstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
+									}else{
+										this.order.reagentstartdate=datas[i][j];
+									}
+								}
+								if(j==14){
+									if(datas[i][j]!=null&&datas[i][j]!=""){
+									   this.order.reagentenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
+									}else{
+										this.order.reagentenddate=datas[i][j];
+									}
+								}
+								if(j==15){
+									this.order.orderstatus=datas[i][j];
+								}
 							}
 						}
+						this.orderss[0] = this.order;
+					}else{
+						this.orderss[0] ="";
 					}
-					this.orderss[0] = this.order;
 					this.listLoading = false;
 				});
 			},
