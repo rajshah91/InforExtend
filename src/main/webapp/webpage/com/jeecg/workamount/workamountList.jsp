@@ -451,7 +451,7 @@
 				fields.push('rcslocsum');
 				fields.push('rclpnsum');
 				fields.push('username');
-				let para = {
+				var para = {
 					params: {
 						page: this.page,
 						rows: this.pageSize,
@@ -478,7 +478,7 @@
 					type: 'warning'
 				}).then(function()  {
 					this.listLoading = true;
-					let para = { id: row.id };
+					var para = { id: row.id };
 					this.$http.post(this.url.del,para,{emulateJSON: true}).then(function(res)  {
 						this.listLoading = false;
 						this.$message({
@@ -527,7 +527,7 @@
 					if (valid) {
 						this.$confirm('确认提交吗？', '提示', {}).then(function()  {
 							this.formLoading = true;
-							let para = Object.assign({}, this.form);
+							var para = Object.assign({}, this.form);
 							
 							
 							
@@ -556,7 +556,7 @@
 					type: 'warning'
 				}).then(function()  {
 					this.listLoading = true;
-					let para = { ids: ids };
+					var para = { ids: ids };
 					this.$http.post(this.url.batchDel,para,{emulateJSON: true}).then(function(res)  {
 						this.listLoading = false;
 						this.$message({
