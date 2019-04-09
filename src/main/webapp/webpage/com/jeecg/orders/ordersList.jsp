@@ -81,6 +81,7 @@
 		<!--列表-->
 		<el-table :data="orderss"  border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="index" label="序号" width="60"></el-table-column>
+			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.orderkey"></el-table-column>
 			<el-table-column prop="storerkey" label="货主代码" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.storerkey"></el-table-column>
 			<el-table-column prop="vendor" label="收货人代码" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.vendor"></el-table-column>
@@ -96,7 +97,6 @@
 			<el-table-column prop="reagentstartdate" label="复检开始时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="reagentenddate" label="复检完成时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
-			<el-table-column prop="warehouse" label="仓库" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -179,7 +179,7 @@
 					    <el-radio-group v-model="radio2">
 					    <el-radio :label="0">请选择</el-radio>
 					    <el-radio :label="1">开始</el-radio>
-					    <el-radio :label="2">结束</el-radio>
+					    <el-radio :label="2" @change="disabled()">结束</el-radio>
 	                    </el-radio-group>
                      </template>
                      <!--  <el-button type="primary" icon="el-icon-star-on" @click="starton()">开始</el-button>
@@ -202,7 +202,7 @@
 	             </el-select>
 	             </el-form-item>
 	             <el-form-item label="账号">
-                    <el-input v-model="pickform.operate" autocomplete="off" @change="getname(pickform.operate)"></el-input>
+                    <el-input v-model="pickform.operate" :disabled='operatordisabled' autocomplete="off" @change="getname(pickform.operate)"></el-input>
                  </el-form-item>
 	             <el-form-item label="姓名">
                     <el-input v-model="pickform.operator" disabled autocomplete="off"></el-input>
@@ -300,6 +300,8 @@
 				//表单界面数据
 				form: {},
 				//拣货界面
+				//账号
+				operatordisabled:false,
 				pickform:{
 					warehouse:'',
 					operate:'',
@@ -357,6 +359,10 @@
 			}
 		},
 		methods: {
+			disabled:function(){
+				//禁用
+				this.operatordisabled=true;
+			},
 			//移除textarea中 的值
 			remove:function(){
 				this.pickform.orderkeys=this.pickform.orderkeys.substring(0,this.pickform.orderkeys.length-11);
@@ -372,18 +378,20 @@
 					}
 					this.$http.get(this.url.starton,{params:{operation:this.radio1,warehouse:this.pickform.warehouse,startorend:this.radio2,username:this.pickform.operator,orderkeys:string}}).then(function(res)  {
 						//返回
-						this.$message({
-							message: res.body.result,
-							type: 'infor',
-							duration:5000
-						});
+						this.$notify({
+					          type: 'infor',
+					          message: res.body.result,
+					          position: 'bottom-right',
+					          duration:1500
+					    });
 					});
 				}else{
-					this.$message({
-						message: "数据尚未输入完成",
-						type: 'error',
-						duration:2000
-					});
+					this.$notify({
+				          type: 'error',
+				          message: '数据尚未输入完成',
+				          position: 'bottom-right',
+				          duration:1500
+				    });
 				}
 			},
 			//列展示切换
@@ -421,6 +429,7 @@
 				this.pickform.orderkey="";
 				this.pickform.orderkeys="";
 				this.PickFormVisible=true;
+				this.operatordisabled=false;
 			},
 			valiorderkey:function(value){
 				//ajax
@@ -429,27 +438,30 @@
 						if(res.body.success){
 							this.pickform.orderkeys=this.pickform.orderkeys+res.data.orderkeys;
 							this.pickform.lastorderkey=this.pickform.orderkey;
-							this.$message({
-								message: '验证成功',
-								type: 'success',
-								duration:1500
-							});
+							this.$notify({
+						          type: 'success',
+						          message: '验证成功',
+						          position: 'bottom-right',
+						          duration:1500
+						    });
 							this.pickform.orderkey="";
 						}else{
-							this.$message({
-								message: '验证失败',
-								type: 'error',
-								duration:1500
-							});
+							this.$notify({
+								  type: 'error',
+						          message: '验证失败',
+						          position: 'bottom-right',
+						          duration:1500
+						    });
 							this.pickform.orderkey="";
 						}
 					});
 				}else{
-					this.$message({
-						message: '未填写仓库或出货单号错误',
-						type: 'error',
-						duration:1500
-					});
+					this.$notify({
+						  type: 'error',
+				          message: '未填写仓库或出货单号错误',
+				          position: 'bottom-right',
+				          duration:1500
+				    });
 					this.pickform.orderkey="";
 				}
 				
@@ -572,70 +584,53 @@
 									this.order.vendor=datas[i][j];
 								}
 								if(j==4){
-									if(datas[i][j]!=null&&datas[i][j]!=""){
-									   this.order.orderdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
-									   console.log(this.order.orderdate+"");
-									}else{
+									
 										this.order.orderdate=datas[i][j];
-									}
+									
 								}
 								if(j==5){
-									if(datas[i][j]!=null&&datas[i][j]!=""){
-									    this.order.requestshipdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
-									}else{
+									
 										this.order.requestshipdate=datas[i][j];
-									}
+									
 								}
 								if(j==6){
 									this.order.picker=datas[i][j];
 								}
 								if(j==7){
-									if(datas[i][j]!=null&&datas[i][j]!=""){
-									   this.order.pickstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss')
-									}else{
+									
 										this.order.pickstartdate=datas[i][j];
-									}
+									
 								}
 								if(j==8){
-									if(datas[i][j]!=null&&datas[i][j]!=""){
-									   this.order.pickenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-									}else{
+									
 										this.order.pickenddate=datas[i][j];
-									}
+									
 								}
 								if(j==9){
 									this.order.labeler=datas[i][j];
 								}
 								if(j==10){
-									if(datas[i][j]!=null&&datas[i][j]!=""){
-									   this.order.labelstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-									}else{
+									
 										this.order.labelstartdate=datas[i][j];
-									}
+									
 								}
 								if(j==11){
-									if(datas[i][j]!=null&&datas[i][j]!=""){
-									    this.order.labelenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-									}else{
+									
 										this.order.labelenddate=datas[i][j];
-									}
+									
 								}
 								if(j==12){
 									this.order.reagents=datas[i][j];
 								}
 								if(j==13){
-									if(datas[i][j]!=null&&datas[i][j]!=""){
-									   this.order.reagentstartdate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-									}else{
+									
 										this.order.reagentstartdate=datas[i][j];
-									}
+									
 								}
 								if(j==14){
-									if(datas[i][j]!=null&&datas[i][j]!=""){
-									   this.order.reagentenddate=utilFormatDate(new Date(datas[i][j]), 'yyyy-MM-dd hh:mm:ss');
-									}else{
+									
 										this.order.reagentenddate=datas[i][j];
-									}
+									
 								}
 								if(j==15){
 									this.order.orderstatus=datas[i][j];
@@ -801,7 +796,6 @@
         });
     };
 	function padding(s, len) {
-		console.log(s);
 	    var len = len - (s + '').length;
 	    for (var i = 0; i < len; i++) { s = '0' + s; }
 	    return s;
@@ -809,5 +803,6 @@
 	function reloadTable(){
 		
 	}
+	
 </script>
 </html>

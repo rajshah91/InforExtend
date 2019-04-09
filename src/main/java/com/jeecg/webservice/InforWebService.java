@@ -209,7 +209,7 @@ public class InforWebService {
 			method.addChild(mobileCode);
 
 			sendXml = "<Message>" + "<Head>" + "<MessageID/>" + "<Date/>" + "<MessageType>Utility</MessageType>"
-					+ "<Sender>" + "<user>sceadmin</user>" + "<password>sceadmin</password>"
+					+ "<Sender>" + "<user>"+userName+"</user>" + "<password>sceadmin</password>"
 					+ "<SystemID>External</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Sender>" + "<Recipient>"
 					+ "<SystemID>"+warehouse+"</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>" + "</Head>"
 					+ "<Body>" + "<Utility>" + "<UtilityHeader>" + "<USERNAME>" + userName + "</USERNAME>"
