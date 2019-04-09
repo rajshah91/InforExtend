@@ -178,7 +178,7 @@
 	                <template>
 					    <el-radio-group v-model="radio2">
 					    <el-radio :label="0">请选择</el-radio>
-					    <el-radio :label="1">开始</el-radio>
+					    <el-radio :label="1" @change="undisabled()">开始</el-radio>
 					    <el-radio :label="2" @change="disabled()">结束</el-radio>
 	                    </el-radio-group>
                      </template>
@@ -359,6 +359,10 @@
 			}
 		},
 		methods: {
+			undisabled:function(){
+				//禁用
+				this.operatordisabled=false;
+			},
 			disabled:function(){
 				//禁用
 				this.operatordisabled=true;
@@ -550,7 +554,7 @@
 				fields.push('reagentenddate');
 				fields.push('orderstatus');
 				fields.push('warehouse');
-				let para = {
+				var para = {
 					params: {
 						page: this.page,
 						rows: this.pageSize,
@@ -650,7 +654,7 @@
 					type: 'warning'
 				}).then(function()  {
 					this.listLoading = true;
-					let para = { id: row.id };
+					var para = { id: row.id };
 					this.$http.post(this.url.del,para,{emulateJSON: true}).then(function(res)  {
 						this.listLoading = false;
 						this.$message({
@@ -699,7 +703,7 @@
 					if (valid) {
 						this.$confirm('确认提交吗？', '提示', {}).then(function()  {
 							this.formLoading = true;
-							let para = Object.assign({}, this.form);
+							var para = Object.assign({}, this.form);
 							
 							para.orderdate = !para.orderdate ? '' : utilFormatDate(new Date(para.orderdate), 'yyyy-MM-dd hh:mm:ss');
 							para.requestshipdate = !para.requestshipdate ? '' : utilFormatDate(new Date(para.requestshipdate), 'yyyy-MM-dd hh:mm:ss');
@@ -736,7 +740,7 @@
 					type: 'warning'
 				}).then(function()  {
 					this.listLoading = true;
-					let para = { ids: ids };
+					var para = { ids: ids };
 					this.$http.post(this.url.batchDel,para,{emulateJSON: true}).then(function(res)  {
 						this.listLoading = false;
 						this.$message({
