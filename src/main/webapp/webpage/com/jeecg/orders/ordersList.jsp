@@ -374,7 +374,7 @@
 			//刷单执行
 			starton:function(){
 				//ajax
-				if(this.radio1!=0&&this.radio2!=0&&this.pickform.warehouse!=null&&this.pickform.warehouse!=""&&this.pickform.operator!=null&&this.pickform.operator!=""){
+				if(this.radio1!=0&&this.radio2!=0&&this.pickform.warehouse!=null&&this.pickform.warehouse!=""){
 					this.PickFormVisible=false;
 					var string;
 					if(this.pickform.orderkeys!=null&&this.pickform.orderkeys!=""){
