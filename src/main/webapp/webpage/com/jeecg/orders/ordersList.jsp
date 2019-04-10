@@ -375,6 +375,16 @@
 			starton:function(){
 				//ajax
 				if(this.radio1!=0&&this.radio2!=0&&this.pickform.warehouse!=null&&this.pickform.warehouse!=""){
+					if(this.radio2=="1"&&this.pickform.operate==""){
+						this.$message({
+							 showClose:true,
+					          type: 'error',
+					          message: "操作人未填",
+					          position: 'bottom-right',
+					          duration:0
+					    });
+						return;
+					}
 					this.PickFormVisible=false;
 					var string;
 					if(this.pickform.orderkeys!=null&&this.pickform.orderkeys!=""){
