@@ -384,21 +384,21 @@
 						//返回
 						if(res.body.result!=null&&res.body.result!=""){
 							this.$message({
-								  showclose:true,
-						          type: 'infor',
+								 showClose:true,
+						          type: 'error',
 						          message: res.body.result,
 						          position: 'bottom-right',
-						          duration:1500
+						          duration:0
 						    });
 						}
 					});
 				}else{
 					this.$message({
-						  showclose:true,
+						showClose:true,
 				          type: 'error',
 				          message: '数据尚未输入完成',
 				          position: 'bottom-right',
-				          duration:1500
+				          duration:0
 				    });
 				}
 			},
@@ -455,22 +455,22 @@
 							this.pickform.orderkey="";
 						}else{
 							this.$message({
-								  showclose:true,
+								showClose:true,
 								  type: 'error',
 						          message: '验证失败',
 						          position: 'bottom-right',
-						          duration:1500
+						          duration:0
 						    });
 							this.pickform.orderkey="";
 						}
 					});
 				}else{
 					this.$message({
-						  showclose:true,
+						showClose:true,
 						  type: 'error',
 				          message: '未填写仓库或出货单号错误',
 				          position: 'bottom-right',
-				          duration:1500
+				          duration:0
 				    });
 					this.pickform.orderkey="";
 				}
