@@ -212,7 +212,7 @@ public class OrdersController extends BaseController {
 		String resultSql=pagingByOracle(sql,page,rows);
 		List<Object[]> resultList= ordersService.findListbySql(resultSql);
 		
-		SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		for (Object[] result : resultList) {
 			OrdersEntity ordersEntity=new OrdersEntity();
 			ordersEntity.setWarehouse(String.valueOf(result[0]));
@@ -566,8 +566,6 @@ public class OrdersController extends BaseController {
 			}
 			if(result!=null&&result!="") {
 				resultjson.put("result", result);
-			}else {
-				resultjson.put("result", "操作成功");
 			}
 			response.getWriter().write(resultjson.toString());
 		} catch (IOException e) {

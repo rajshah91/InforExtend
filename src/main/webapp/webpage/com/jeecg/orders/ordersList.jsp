@@ -382,15 +382,19 @@
 					}
 					this.$http.get(this.url.starton,{params:{operation:this.radio1,warehouse:this.pickform.warehouse,startorend:this.radio2,username:this.pickform.operator,orderkeys:string}}).then(function(res)  {
 						//返回
-						this.$notify({
-					          type: 'infor',
-					          message: res.body.result,
-					          position: 'bottom-right',
-					          duration:1500
-					    });
+						if(res.body.result!=null&&res.body.result!=""){
+							this.$message({
+								  showclose:true,
+						          type: 'infor',
+						          message: res.body.result,
+						          position: 'bottom-right',
+						          duration:1500
+						    });
+						}
 					});
 				}else{
-					this.$notify({
+					this.$message({
+						  showclose:true,
 				          type: 'error',
 				          message: '数据尚未输入完成',
 				          position: 'bottom-right',
@@ -442,15 +446,16 @@
 						if(res.body.success){
 							this.pickform.orderkeys=this.pickform.orderkeys+res.data.orderkeys;
 							this.pickform.lastorderkey=this.pickform.orderkey;
-							this.$notify({
+							/* this.$notify({
 						          type: 'success',
 						          message: '验证成功',
 						          position: 'bottom-right',
 						          duration:1500
-						    });
+						    }); */
 							this.pickform.orderkey="";
 						}else{
-							this.$notify({
+							this.$message({
+								  showclose:true,
 								  type: 'error',
 						          message: '验证失败',
 						          position: 'bottom-right',
@@ -460,7 +465,8 @@
 						}
 					});
 				}else{
-					this.$notify({
+					this.$message({
+						  showclose:true,
 						  type: 'error',
 				          message: '未填写仓库或出货单号错误',
 				          position: 'bottom-right',
