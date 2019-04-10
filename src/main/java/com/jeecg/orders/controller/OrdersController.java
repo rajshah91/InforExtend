@@ -34,6 +34,9 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.entity.vo.NormalExcelConstants;
 import org.jeecgframework.core.util.ResourceUtil;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import java.util.Map;
@@ -128,6 +131,15 @@ public class OrdersController extends BaseController {
 						"where o.orderkey='"+orderkey+"'";
 			}
 			dataGrid=paging(sql, page, rows, dataGrid);
+		}else {
+			if("FEILI_wmwhse1".equals(warehouse)) {
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+						"from W01_orders o " + 
+						"left join W01_orderstatussetup c on c.code=o.status ";
+			}
 		}
 		TagUtil.datagrid(response, dataGrid);
 //		JSONObject resultjson = new JSONObject();
@@ -200,11 +212,30 @@ public class OrdersController extends BaseController {
 		String resultSql=pagingByOracle(sql,page,rows);
 		List<Object[]> resultList= ordersService.findListbySql(resultSql);
 		
+		SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		for (Object[] result : resultList) {
 			OrdersEntity ordersEntity=new OrdersEntity();
 			ordersEntity.setWarehouse(String.valueOf(result[0]));
 			ordersEntity.setOrderkey(String.valueOf(result[1]));
 			ordersEntity.setStorerkey(String.valueOf(result[2]));
+			ordersEntity.setVendor(String.valueOf(result[3]));
+			ordersEntity.setPicker(String.valueOf(result[6]));
+			ordersEntity.setLabeler(String.valueOf(result[9]));
+			ordersEntity.setReagents(String.valueOf(result[12]));
+			ordersEntity.setOrderstatus(String.valueOf(result[15]));
+			try {
+				ordersEntity.setOrderdate(sdf.parse(String.valueOf(result[4])));
+				ordersEntity.setRequestshipdate(sdf.parse(String.valueOf(result[5])));
+				ordersEntity.setPickstartdate(sdf.parse(String.valueOf(result[7])));
+				ordersEntity.setPickenddate(sdf.parse(String.valueOf(result[8])));
+				ordersEntity.setLabelstartdate(sdf.parse(String.valueOf(result[10])));
+				ordersEntity.setLabelenddate(sdf.parse(String.valueOf(result[11])));
+				ordersEntity.setReagentstartdate(sdf.parse(String.valueOf(result[13])));
+				ordersEntity.setReagentenddate(sdf.parse(String.valueOf(result[14])));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			orders.add(ordersEntity);
 		}
 		

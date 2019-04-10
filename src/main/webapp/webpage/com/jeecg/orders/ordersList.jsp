@@ -85,17 +85,17 @@
 			<el-table-column prop="orderkey" label="出货单号" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.orderkey"></el-table-column>
 			<el-table-column prop="storerkey" label="货主代码" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.storerkey"></el-table-column>
 			<el-table-column prop="vendor" label="收货人代码" min-width="120" sortable="custom" show-overflow-tooltip v-if="columnshow.vendor"></el-table-column>
-			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" show-overflow-tooltip 	 v-if="columnshow.orderdate"></el-table-column>
-			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" show-overflow-tooltip  v-if="columnshow.requestshipdate"></el-table-column>
+			<el-table-column prop="orderdate" label="订单时间" min-width="120" sortable="custom" :formatter="formatDateTime" show-overflow-tooltip 	 v-if="columnshow.orderdate"></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货时间" min-width="120" sortable="custom" :formatter="formatDateTime" show-overflow-tooltip  v-if="columnshow.requestshipdate"></el-table-column>
 			<el-table-column prop="picker" label="拣货员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="pickstartdate" label="拣货开始时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
-			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="pickstartdate" label="拣货开始时间" min-width="120" sortable="custom" :formatter="formatDateTime" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="pickenddate" label="拣货完成时间" min-width="120" sortable="custom" :formatter="formatDateTime" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="labeler" label="贴标员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="labelstartdate" label="贴标开始时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
-			<el-table-column prop="labelenddate" label="贴标完成时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="labelstartdate" label="贴标开始时间" min-width="120" sortable="custom" :formatter="formatDateTime" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="labelenddate" label="贴标完成时间" min-width="120" sortable="custom" :formatter="formatDateTime" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="reagents" label="复检员" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="reagentstartdate" label="复检开始时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
-			<el-table-column prop="reagentenddate" label="复检完成时间" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="reagentstartdate" label="复检开始时间" min-width="120" sortable="custom" :formatter="formatDateTime" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="reagentenddate" label="复检完成时间" min-width="120" sortable="custom" :formatter="formatDateTime" show-overflow-tooltip ></el-table-column>
 			<el-table-column prop="orderstatus" label="状态" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
 			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
