@@ -84,57 +84,153 @@ public class OrdersController extends BaseController {
 	 */
 	@RequestMapping(params = "datagrid")
 	public void datagrid(OrdersEntity orders,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		JSONObject resultjson = new JSONObject();
 		String warehouse= request.getParameter("warehouse");
 		String orderkey=request.getParameter("orderkey");
-		List<Object> data=new ArrayList<>();
+		int page =Integer.parseInt(request.getParameter("page"));
+		int rows =Integer.parseInt(request.getParameter("rows"));
+		String sql=null;
+		
 		if(orderkey!=null&&orderkey!="") {
 			if("FEILI_wmwhse1".equals(warehouse)) {
-				data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
 						"from W01_orders o " + 
 						"left join W01_orderstatussetup c on c.code=o.status " + 
-						"where o.orderkey='"+orderkey+"'");
+						"where o.orderkey='"+orderkey+"'";
 			}else if("FEILI_wmwhse2".equals(warehouse)){
-				data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
 						"from W02_orders o " + 
 						"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
 						"left join W02_orderstatussetup c on c.code=o.status " + 
-						"where o.orderkey='"+orderkey+"'");
+						"where o.orderkey='"+orderkey+"'";
 			}else if("FEILI_wmwhse5".equals(warehouse)) {
-				data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
 						"from W05_orders o " + 
 						"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
 						"left join W05_orderstatussetup c on c.code=o.status " + 
-						"where o.orderkey='"+orderkey+"'");
+						"where o.orderkey='"+orderkey+"'";
 			}else if("FEILI_wmwhse10".equals(warehouse)) {
-				data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
 						"from W010_orders o " + 
 						"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
 						"left join W010_orderstatussetup c on c.code=o.status " + 
-						"where o.orderkey='"+orderkey+"'");
+						"where o.orderkey='"+orderkey+"'";
 			}
+			dataGrid=paging(sql, page, rows, dataGrid);
 		}
-	    try {
-	    	resultjson.put("orders", data);
-			response.getWriter().write(resultjson.toString());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		TagUtil.datagrid(response, dataGrid);
+//		JSONObject resultjson = new JSONObject();
+//		String warehouse= request.getParameter("warehouse");
+//		String orderkey=request.getParameter("orderkey");
+//		List<Object> data=new ArrayList<>();
+//		if(orderkey!=null&&orderkey!="") {
+//			if("FEILI_wmwhse1".equals(warehouse)) {
+//				data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+//						"from W01_orders o " + 
+//						"left join W01_orderstatussetup c on c.code=o.status " + 
+//						"where o.orderkey='"+orderkey+"'");
+//			}else if("FEILI_wmwhse2".equals(warehouse)){
+//				data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+//						"from W02_orders o " + 
+//						"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
+//						"left join W02_orderstatussetup c on c.code=o.status " + 
+//						"where o.orderkey='"+orderkey+"'");
+//			}else if("FEILI_wmwhse5".equals(warehouse)) {
+//				data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+//						"from W05_orders o " + 
+//						"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
+//						"left join W05_orderstatussetup c on c.code=o.status " + 
+//						"where o.orderkey='"+orderkey+"'");
+//			}else if("FEILI_wmwhse10".equals(warehouse)) {
+//				data=ordersService.findListbySql("select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+//						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+//						"from W010_orders o " + 
+//						"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
+//						"left join W010_orderstatussetup c on c.code=o.status " + 
+//						"where o.orderkey='"+orderkey+"'");
+//			}
+//		}
+//	    try {
+//	    	resultjson.put("orders", data);
+//			response.getWriter().write(resultjson.toString());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		/*dataGrid.setResults(data);
 		TagUtil.datagrid(response, dataGrid);*/
+	}
+	
+	/**
+	 * 获取分页数据
+	 * @param sql
+	 * @param page
+	 * @param rows
+	 * @param dataGrid
+	 * @return
+	 */
+	private DataGrid paging(String sql,int page,int rows,DataGrid dataGrid) {
+		String totalSql = "select count(0) from ("+sql+")";
+		List<String> totalList= ordersService.findListbySql(totalSql);
+		int total=Integer.parseInt(String.valueOf(totalList.get(0)));
+		
+		List<OrdersEntity> orders=new ArrayList<>();
+		String resultSql=pagingByOracle(sql,page,rows);
+		List<Object[]> resultList= ordersService.findListbySql(resultSql);
+		
+		for (Object[] result : resultList) {
+			OrdersEntity ordersEntity=new OrdersEntity();
+			ordersEntity.setWarehouse(String.valueOf(result[0]));
+			ordersEntity.setOrderkey(String.valueOf(result[1]));
+			ordersEntity.setStorerkey(String.valueOf(result[2]));
+			orders.add(ordersEntity);
+		}
+		
+		dataGrid.setPage(page);
+	    dataGrid.setRows(rows);
+	    dataGrid.setTotal(total);
+	    dataGrid.setResults(orders);
+		return dataGrid;
+	}
+	
+	/**
+	 * 拼接分页sql
+	 * @param sql
+	 * @param page
+	 * @param pageSize
+	 * @return
+	 */
+	private String pagingByOracle(String sql,int page,int pageSize){
+	//当前页最大值
+	int maxPage = page*pageSize;
+	int minPage =(page-1)*pageSize;
+	String endSql = "select * from ("+
+	  "select t.*,rownum rn from (" +sql + ") t"+
+	     " where rownum<="+maxPage+
+	        ") where rn>"+minPage;
+	    return endSql;
 	}
 	
 	/**
