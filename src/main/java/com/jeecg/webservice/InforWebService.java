@@ -179,7 +179,7 @@ public class InforWebService {
 	 * @param orderKeys
 	 * @return
 	 */
-	public String startOnFromInfor(String warehouse,String userName, String opertionType, String isStartOrEnd, String orderKeys) {
+	public String startOnFromInfor(String warehouse,String userName, String opertionType, String isStartOrEnd, String orderKeys,String usernow) {
 		String sendXml = null;
 		String receiveXml = null;
 		try {
@@ -209,7 +209,7 @@ public class InforWebService {
 			method.addChild(mobileCode);
 
 			sendXml = "<Message>" + "<Head>" + "<MessageID/>" + "<Date/>" + "<MessageType>Utility</MessageType>"
-					+ "<Sender>" + "<user>"+userName+"</user>" + "<password>sceadmin</password>"
+					+ "<Sender>" + "<User>"+usernow+"</User>" + "<Password>sceadmin</Password>"
 					+ "<SystemID>External</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Sender>" + "<Recipient>"
 					+ "<SystemID>"+warehouse+"</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>" + "</Head>"
 					+ "<Body>" + "<Utility>" + "<UtilityHeader>" + "<USERNAME>" + userName + "</USERNAME>"

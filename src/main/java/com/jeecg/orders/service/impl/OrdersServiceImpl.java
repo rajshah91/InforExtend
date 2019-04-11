@@ -67,9 +67,9 @@ public class OrdersServiceImpl extends CommonServiceImpl implements OrdersServic
 	}
 
 	@Override
-	public String starton(String warehouse, String operation,String startorend,String username,String orderkeys) throws Exception {
+	public String starton(String warehouse, String operation,String startorend,String username,String orderkeys,String usernow) throws Exception {
 		// 刷单操作
-		String result=inforWebService.startOnFromInfor(warehouse,username, operation, startorend, orderkeys);
+		String result=inforWebService.startOnFromInfor(warehouse,username, operation, startorend, orderkeys,usernow);
 		return result;
 	}
 

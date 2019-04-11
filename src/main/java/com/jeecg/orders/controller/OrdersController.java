@@ -131,7 +131,7 @@ public class OrdersController extends BaseController {
 						"where o.orderkey='"+orderkey+"'";
 			}
 			dataGrid=paging(sql, page, rows, dataGrid);
-		}else {
+		}else if(warehouse!=null&&warehouse!=""){
 			if("FEILI_wmwhse1".equals(warehouse)) {
 				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
@@ -140,6 +140,31 @@ public class OrdersController extends BaseController {
 						"from W01_orders o " + 
 						"left join W01_orderstatussetup c on c.code=o.status ";
 			}
+			if("FEILI_wmwhse2".equals(warehouse)) {
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+						"from W02_orders o " + 
+						"left join W02_orderstatussetup c on c.code=o.status ";
+			}
+			if("FEILI_wmwhse5".equals(warehouse)) {
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+						"from W05_orders o " + 
+						"left join W05_orderstatussetup c on c.code=o.status ";
+			}
+			if("FEILI_wmwhse10".equals(warehouse)) {
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+						"from W10_orders o " + 
+						"left join W10_orderstatussetup c on c.code=o.status ";
+			}
+			dataGrid=paging(sql, page, rows, dataGrid);
 		}
 		TagUtil.datagrid(response, dataGrid);
 //		JSONObject resultjson = new JSONObject();
@@ -224,14 +249,30 @@ public class OrdersController extends BaseController {
 			ordersEntity.setReagents(String.valueOf(result[12]));
 			ordersEntity.setOrderstatus(String.valueOf(result[15]));
 			try {
-				ordersEntity.setOrderdate(sdf.parse(String.valueOf(result[4])));
-				ordersEntity.setRequestshipdate(sdf.parse(String.valueOf(result[5])));
-				ordersEntity.setPickstartdate(sdf.parse(String.valueOf(result[7])));
-				ordersEntity.setPickenddate(sdf.parse(String.valueOf(result[8])));
-				ordersEntity.setLabelstartdate(sdf.parse(String.valueOf(result[10])));
-				ordersEntity.setLabelenddate(sdf.parse(String.valueOf(result[11])));
-				ordersEntity.setReagentstartdate(sdf.parse(String.valueOf(result[13])));
-				ordersEntity.setReagentenddate(sdf.parse(String.valueOf(result[14])));
+				if(String.valueOf(result[4])!="null") {
+					ordersEntity.setOrderdate(sdf.parse(String.valueOf(result[4])));
+				}
+				if(String.valueOf(result[5])!="null") {
+					ordersEntity.setRequestshipdate(sdf.parse(String.valueOf(result[5])));
+				}
+				if(String.valueOf(result[7])!="null") {
+					ordersEntity.setPickstartdate(sdf.parse(String.valueOf(result[7])));
+				}
+				if(String.valueOf(result[8])!="null") {
+					ordersEntity.setPickenddate(sdf.parse(String.valueOf(result[8])));
+				}
+				if(String.valueOf(result[10])!="null") {
+					ordersEntity.setLabelstartdate(sdf.parse(String.valueOf(result[10])));
+				}
+				if(String.valueOf(result[11])!="null") {
+					ordersEntity.setLabelenddate(sdf.parse(String.valueOf(result[11])));
+				}
+				if(String.valueOf(result[13])!="null") {
+					ordersEntity.setReagentstartdate(sdf.parse(String.valueOf(result[13])));
+				}
+				if(String.valueOf(result[14])!="null") {
+					ordersEntity.setReagentenddate(sdf.parse(String.valueOf(result[14])));
+				}
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -545,23 +586,25 @@ public class OrdersController extends BaseController {
 		String warehouse=request.getParameter("warehouse");
 		String startorend=request.getParameter("startorend");
 		String username=request.getParameter("username");
+		//查询当前明细的操作人
+		TSUser user= ResourceUtil.getSessionUser();// 操作人
 		try {
 			String result="";
 			if("1".equals(startorend)) {
 				if("1".equals(operation)) {
-					result=ordersService.starton(warehouse, "pick","start",username,orderkeys);
+					result=ordersService.starton(warehouse, "pick","start",username,orderkeys,user.getRealName());
 				}else if("2".equals(operation)){
-					result=ordersService.starton(warehouse, "label","start",username,orderkeys);
+					result=ordersService.starton(warehouse, "label","start",username,orderkeys,user.getRealName());
 				}else {
-					result=ordersService.starton(warehouse, "recheck","start",username,orderkeys);
+					result=ordersService.starton(warehouse, "recheck","start",username,orderkeys,user.getRealName());
 				}
 			}else {
 				if("1".equals(operation)) {
-					result=ordersService.starton(warehouse, "pick","end",username,orderkeys);
+					result=ordersService.starton(warehouse, "pick","end",username,orderkeys,user.getRealName());
 				}else if("2".equals(operation)){
-					result=ordersService.starton(warehouse, "label","end",username,orderkeys);
+					result=ordersService.starton(warehouse, "label","end",username,orderkeys,user.getRealName());
 				}else {
-					result=ordersService.starton(warehouse, "recheck","end",username,orderkeys);
+					result=ordersService.starton(warehouse, "recheck","end",username,orderkeys,user.getRealName());
 				}
 			}
 			if(result!=null&&result!="") {
