@@ -294,7 +294,7 @@ public class LoginController extends BaseController {
 			Element UtilityHeader = Utility.element("UtilityHeader");
 			List<Element> nodes=UtilityHeader.elements();
 			 
-			String pattern = ".*Field.*\\d+";
+			String pattern = "Field\\d+";
 			for (Element node : nodes) {
 				if(Pattern.matches(pattern,node.getName())) {
 				String wh=node.getText();
