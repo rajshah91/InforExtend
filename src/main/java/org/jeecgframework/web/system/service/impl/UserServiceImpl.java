@@ -43,6 +43,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
+
 /**
  * 
  * @author  张代浩
@@ -92,6 +94,7 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 			if (roleUser.size()>0) {
 				// 删除用户时先删除用户和角色关系表
 				delRoleUser(user);
+				delUsercontactwhEntity(user);
 				this.commonDao.executeSql("delete from t_s_user_org where user_id=?", user.getId()); // 删除 用户-机构 数据
                 this.commonDao.delete(user);
 				message = "用户：" + user.getUserName() + "删除成功";
@@ -114,6 +117,12 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 				this.commonDao.delete(tRoleUser);
 			}
 		}
+	}
+	
+	private void delUsercontactwhEntity(TSUser user) {
+		// 同步删除用户角色关联表
+		List<UsercontactwhEntity> usercontactwhEntities = this.commonDao.findByProperty(UsercontactwhEntity.class, "userid", user.getId());
+		this.commonDao.deleteAllEntitie(usercontactwhEntities);
 	}
 	
 	/**
@@ -151,6 +160,21 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 		}
 		saveUserOrgList(user,orgIds);
 		saveRoleUser(user,roleIds);
+	}
+	
+	@Override
+	public void saveOrUpdateForInfor(TSUser user, String[] orgIds, String[] roleIds,List<String> whs) {
+		if(StringUtil.isNotEmpty(user.getId())){
+			commonDao.executeSql("delete from t_s_user_org where user_id=?", user.getId());
+			this.commonDao.updateEntitie(user);
+			List<TSRoleUser> ru = commonDao.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
+			commonDao.deleteAllEntitie(ru);
+		}else{
+			this.commonDao.save(user);
+		}
+		saveUserOrgList(user,orgIds);
+		saveRoleUser(user,roleIds);
+		saveUserWh(user, whs);
 	}
 	
 	/**
@@ -196,7 +220,16 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 		}
 	}
 
-
+	private void saveUserWh(TSUser user, List<String> whs) {
+		for (String wh : whs) {
+			UsercontactwhEntity usercontactwhEntity=new UsercontactwhEntity();
+			usercontactwhEntity.setUserid(user.getId());
+			usercontactwhEntity.setUsername(user.getRealName());
+			usercontactwhEntity.setWarehouse(wh);
+			commonDao.save(usercontactwhEntity);
+		}
+	}
+	
 	/**
 	 * 获取用户菜单列表
 	 * 

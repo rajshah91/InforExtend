@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
@@ -15,6 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.constant.Globals;
@@ -191,7 +195,7 @@ public class LoginController extends BaseController {
 					j.setSuccess(false);
 					return j;
 				} else {
-					addOrUpdateInforUser(user);
+					addOrUpdateInforUser(user,result);
 					// 用户登录验证逻辑
 					TSUser u = userService.checkUserExits(user);
 					if (u == null) {
@@ -252,7 +256,7 @@ public class LoginController extends BaseController {
 	}
 
 	//创建或更新infor用户
-	private void addOrUpdateInforUser(TSUser user) {
+	private void addOrUpdateInforUser(TSUser user,String xml) {
 		TSUser users = systemService.findUniqueByProperty(TSUser.class, "userName",user.getUserName());
 		if (users != null) {
 			
@@ -267,10 +271,42 @@ public class LoginController extends BaseController {
 			user.setUserType(Globals.USER_TYPE_SYSTEM);
 			String orgids="2c94a5b969e1255d0169e135d6d40003";
 			String roleids="2c94a5b969e1255d0169e13887900007";
-			userService.saveOrUpdate(user, orgids.split(","), roleids.split(","));
+			List<String> whs=getWHFromXml(xml);
+			userService.saveOrUpdateForInfor(user, orgids.split(","), roleids.split(","),whs);
 		}
 	}
 	
+	/**
+	 * 获取仓库
+	 * @param xml
+	 * @return
+	 */
+	private List<String> getWHFromXml(String xml) {
+		List<String> whs=new ArrayList<>();
+		Document doc = null;
+		try {
+			doc = DocumentHelper.parseText(xml); // 将字符串转为XML
+			Element root = doc.getRootElement(); // 获取根节点
+			Element out = root.element("out");
+			Element Message = out.element("Message");
+			Element Body = Message.element("Body");
+			Element Utility = Body.element("Utility");
+			Element UtilityHeader = Utility.element("UtilityHeader");
+			List<Element> nodes=UtilityHeader.elements();
+			 
+			String pattern = ".*Field.*\\d+";
+			for (Element node : nodes) {
+				if(Pattern.matches(pattern,node.getName())) {
+				String wh=node.getText();
+				whs.add(wh);
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return whs;
+	}
 	/**
 	 * 变更在线用户组织
 	 * 
