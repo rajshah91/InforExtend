@@ -103,7 +103,7 @@ public class OrdersController extends BaseController {
 						"left join W01_orderstatussetup c on c.code=o.status " + 
 						"where o.orderkey='"+orderkey+"'";
 			}else if("FEILI_wmwhse2".equals(warehouse)){
-				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
 						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
@@ -121,13 +121,13 @@ public class OrdersController extends BaseController {
 						"left join W05_orderstatussetup c on c.code=o.status " + 
 						"where o.orderkey='"+orderkey+"'";
 			}else if("FEILI_wmwhse10".equals(warehouse)) {
-				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
-						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
-						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
-						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
-						"from W010_orders o " + 
+				sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
+						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description " + 
+						"from W10_orders o " + 
 						"left join (select lottable06,orderkey from W01_orderdetail group by lottable06,orderkey) od on o.orderkey=od.orderkey " + 
-						"left join W010_orderstatussetup c on c.code=o.status " + 
+						"left join W10_orderstatussetup c on c.code=o.status " + 
 						"where o.orderkey='"+orderkey+"'";
 			}
 			dataGrid=paging(sql, page, rows, dataGrid);
