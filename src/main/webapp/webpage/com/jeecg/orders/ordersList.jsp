@@ -48,7 +48,7 @@
 					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input>
 				</el-form-item>
 				<el-form-item>
-			    	<el-button type="primary" icon="el-icon-search" v-on:click="getOrderss">查询</el-button>
+			    	<el-button type="primary" icon="el-icon-search" v-on:click="search">查询</el-button>
 			    </el-form-item>
 			    <el-form-item>
 			    	<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button>
@@ -359,6 +359,10 @@
 			}
 		},
 		methods: {
+			search:function(){
+				 this.page = 1;
+			     this.getOrderss();
+			},
 			undisabled:function(){
 				//禁用
 				this.operatordisabled=false;
@@ -538,6 +542,7 @@
 			},
 			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
+		        this.page = 1;
 		        this.getOrderss();
 		    },
 			//获取用户列表
