@@ -25,7 +25,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
  * @Title: Entity
  * @Description: 接口日志文档
  * @author onlineGenerator
- * @date 2019-04-01 14:52:38
+ * @date 2019-04-15 10:12:23
  * @version V1.0   
  *
  */
@@ -71,6 +71,9 @@ public class ApilogEntity implements java.io.Serializable {
 	/**接口名称*/
 	@Excel(name="接口名称",width=15)
 	private java.lang.String servicename;
+	/**操作人*/
+	@Excel(name="操作人",width=15)
+	private java.lang.String operator;
 	
 	/**
 	 *方法: 取得java.lang.String
@@ -361,6 +364,24 @@ public class ApilogEntity implements java.io.Serializable {
 	 */
 	public void setServicename(java.lang.String servicename){
 		this.servicename = servicename;
+	}
+	
+	/**
+	 *方法: 取得java.lang.String
+	 *@return: java.lang.String  操作人
+	 */
+
+	@Column(name ="OPERATOR",nullable=true,length=32)
+	public java.lang.String getOperator(){
+		return this.operator;
+	}
+
+	/**
+	 *方法: 设置java.lang.String
+	 *@param: java.lang.String  操作人
+	 */
+	public void setOperator(java.lang.String operator){
+		this.operator = operator;
 	}
 	
 }
