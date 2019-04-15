@@ -60,7 +60,7 @@ public class OrderforecastEntity implements java.io.Serializable {
 	@Excel(name="so单号",width=15)
 	private java.lang.String orderkey;
 	/**请求出货日期*/
-	@Excel(name="请求出货日期",width=15,format = "yyyy-MM-dd")
+	@Excel(name="请求出货日期",width=15,format = "yyyy-MM-dd HH:mm:ss")
 	private java.util.Date requestshipdate;
 	/**订单状态*/
 	@Excel(name="订单状态",width=15)
@@ -90,19 +90,19 @@ public class OrderforecastEntity implements java.io.Serializable {
 	@Excel(name="拣货员",width=15)
 	private java.lang.String pick;
 	/**拣货开始时间*/
-	@Excel(name="拣货开始时间",width=15,format = "yyyy-MM-dd")
+	@Excel(name="拣货开始时间",width=15,format = "yyyy-MM-dd HH:mm:ss")
 	private java.util.Date pickstartdate;
 	/**标准库位时间*/
-	@Excel(name="标准库位时间",width=15,format = "yyyy-MM-dd")
-	private java.util.Date stdocdate;
+	@Excel(name="标准库位时间",width=15,format = "yyyy-MM-dd HH:mm:ss")
+	private java.lang.String stdocdate;
 	/**标准预计完成时间*/
 	@Excel(name="标准预计完成时间",width=15,format = "yyyy-MM-dd HH:mm:ss")
 	private java.util.Date stdcompletedate;
 	/**本次预计完成时间*/
-	@Excel(name="本次预计完成时间",width=15,format = "yyyy-MM-dd")
+	@Excel(name="本次预计完成时间",width=15,format = "yyyy-MM-dd HH:mm:ss")
 	private java.util.Date nowcompletedate;
 	/**实际拣货完成时间*/
-	@Excel(name="实际拣货完成时间",width=15,format = "yyyy-MM-dd")
+	@Excel(name="实际拣货完成时间",width=15,format = "yyyy-MM-dd HH:mm:ss")
 	private java.util.Date factpickdate;
 	/**货主代码*/
 	@Excel(name="货主代码",width=15)
@@ -537,7 +537,7 @@ public class OrderforecastEntity implements java.io.Serializable {
 	 */
 
 	@Column(name ="STDOCDATE",nullable=true,length=32)
-	public java.util.Date getStdocdate(){
+	public java.lang.String getStdocdate(){
 		return this.stdocdate;
 	}
 
@@ -545,7 +545,7 @@ public class OrderforecastEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  标准库位时间
 	 */
-	public void setStdocdate(java.util.Date stdocdate){
+	public void setStdocdate(java.lang.String stdocdate){
 		this.stdocdate = stdocdate;
 	}
 	

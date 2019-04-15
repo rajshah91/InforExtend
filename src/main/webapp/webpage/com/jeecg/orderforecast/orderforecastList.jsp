@@ -77,17 +77,20 @@
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
 				    <el-select v-model="filters.warehouse" placeholder="请选择仓库" clearable style="width:175px">
-		                 <el-option label="WH1飞仓" value="wh1"></el-option>
-		                 <el-option label="WH2飞仓品牌" value="wh2"></el-option>
-		                 <el-option label="WH5飞仓VMI" value="wh5"></el-option>
-		                 <el-option label="WH10飞仓昆山外租仓" value="wh10"></el-option>
+		                 <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
+	                     <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
+	                     <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
+	                     <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option>
 		            </el-select>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
 					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入so单号" style="width:175px"></el-input>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderstatus">
-					<el-input v-model="filters.orderstatus" auto-complete="off" placeholder="请输入订单状态" style="width:175px"></el-input>
+				    <el-select v-model="filters.orderstatus" v-model="orderstatus" placeholder="请选择状态" clearable style="width:175px">
+	                 <el-option v-for="status in orderstatus"  :value="status"></el-option>
+	                </el-select>
+					<!-- <el-input v-model="filters.orderstatus" auto-complete="off" placeholder="请输入订单状态" style="width:175px"></el-input> -->
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="storerkey">
 					<el-input v-model="filters.storerkey" auto-complete="off" placeholder="请输入货主代码" style="width:175px"></el-input>
@@ -96,11 +99,14 @@
 					<el-input v-model="filters.altsku" auto-complete="off" placeholder="请输入收货人代码" style="width:175px"></el-input>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="ordertype">
-					<el-input v-model="filters.ordertype" auto-complete="off" placeholder="请输入业务类型" style="width:175px"></el-input>
+				    <el-select v-model="filters.ordertype" v-model="ordertype" placeholder="请选择状态" clearable style="width:175px">
+	                 <el-option v-for="type in ordertype"  :value="type"></el-option>
+	                </el-select>
+					<!-- <el-input v-model="filters.ordertype" auto-complete="off" placeholder="请输入业务类型" style="width:175px"></el-input> -->
 				</el-form-item>
 				<br>
 				<el-form-item>
-			    	<el-button type="primary" icon="el-icon-search" v-on:click="getOrderforecasts">查询</el-button>
+			    	<el-button type="primary" icon="el-icon-search" v-on:click="search">查询</el-button>
 			    </el-form-item>
 			    <el-form-item>
 			    	<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button>
@@ -116,25 +122,25 @@
 					  <el-dropdown-menu slot="dropdown">
 					  <template>
 						  <el-checkbox-group v-model="checkList" label-width="100px">
-						    <el-checkbox label="仓库" v-model="detailList.warehouse" checked @change="show(detailList.warehouse)"></el-checkbox><br>
+						    <el-checkbox label="仓库" v-model="detailList.warehouse" checked @change="show(detailList.warehouse)"></el-checkbox>
 						    <el-checkbox label="so单号" v-model="detailList.orderkey" checked @change="show(detailList.orderkey)"></el-checkbox><br>
-						    <el-checkbox label="请求出货日期" v-model="detailList.requestshipdate" checked @change="show(detailList.requestshipdate)"></el-checkbox><br>
+						    <el-checkbox label="请求出货日期" v-model="detailList.requestshipdate" checked @change="show(detailList.requestshipdate)"></el-checkbox>
 						    <el-checkbox label="订单状态" v-model="detailList.orderstatus" checked @change="show(detailList.orderstatus)"></el-checkbox><br>
-						    <el-checkbox label="库区" v-model="detailList.area" checked @change="show(detailList.area)"></el-checkbox><br>
+						    <el-checkbox label="库区" v-model="detailList.area" checked @change="show(detailList.area)"></el-checkbox>
 						    <el-checkbox label="货主简称" v-model="detailList.storer" checked @change="show(detailList.storer)"></el-checkbox><br>
-						    <el-checkbox label="收货人简称" v-model="detailList.vendor" checked @change="show(detailList.vendor)"></el-checkbox><br>
+						    <el-checkbox label="收货人简称" v-model="detailList.vendor" checked @change="show(detailList.vendor)"></el-checkbox>
 						    <el-checkbox label="料号数" v-model="detailList.skusum" checked @change="show(detailList.skusum)"></el-checkbox><br>
-						    <el-checkbox label="大库位数" v-model="detailList.blocsum" checked @change="show(detailList.blocsum)"></el-checkbox><br>
+						    <el-checkbox label="大库位数" v-model="detailList.blocsum" checked @change="show(detailList.blocsum)"></el-checkbox>
 						    <el-checkbox label="小库位数" v-model="detailList.slocsum" checked @change="show(detailList.slocsum)"></el-checkbox><br>
-						    <el-checkbox label="LPN数" v-model="detailList.lpnsum" checked @change="show(detailList.lpnsum)"></el-checkbox><br>
+						    <el-checkbox label="LPN数" v-model="detailList.lpnsum" checked @change="show(detailList.lpnsum)"></el-checkbox>
 						    <el-checkbox label="拣货员" v-model="detailList.pick" checked @change="show(detailList.pick)"></el-checkbox><br>
-						    <el-checkbox label="拣货开始时间" v-model="detailList.pickstartdate" checked @change="show(detailList.pickstartdate)"></el-checkbox><br>
+						    <el-checkbox label="拣货开始时间" v-model="detailList.pickstartdate" checked @change="show(detailList.pickstartdate)"></el-checkbox>
 						    <el-checkbox label="标准库位时间" v-model="detailList.stdocdate" checked @change="show(detailList.stdocdate)"></el-checkbox><br>
-						    <el-checkbox label="标准预计完成时间" v-model="detailList.stdcompletedate" checked @change="show(detailList.stdcompletedate)"></el-checkbox><br>
+						    <el-checkbox label="标准预计完成时间" v-model="detailList.stdcompletedate" checked @change="show(detailList.stdcompletedate)"></el-checkbox>
 						    <el-checkbox label="本次预计完成时间" v-model="detailList.nowcompletedate" checked @change="show(detailList.nowcompletedate)"></el-checkbox><br>
-						    <el-checkbox label="实际拣货完成时间" v-model="detailList.factpickdate" checked @change="show(detailList.factpickdate)"></el-checkbox><br>
-						    <el-checkbox label="货主代码" v-model="detailList.storerkey" checked @change="show(detailList.storerkey)"></el-checkbox><br>
-						    <el-checkbox label="收货人代码" v-model="detailList.altsku" checked @change="show(detailList.altsku)"></el-checkbox><br>
+						    <el-checkbox label="实际拣货完成时间" v-model="detailList.factpickdate" checked @change="show(detailList.factpickdate)"></el-checkbox>
+<!-- 						    <el-checkbox label="货主代码" v-model="detailList.storerkey" checked @change="show(detailList.storerkey)"></el-checkbox><br>
+						    <el-checkbox label="收货人代码" v-model="detailList.altsku" checked @change="show(detailList.altsku)"></el-checkbox> -->
 						    <el-checkbox label="业务类型" v-model="detailList.ordertype" checked @change="show(detailList.ordertype)"></el-checkbox><br>
 						  </el-checkbox-group>
 					  </template>
@@ -147,7 +153,7 @@
 			<el-table-column type="index" width="60"></el-table-column> -->
 			<el-table-column prop="warehouse" label="仓库" v-if="columnshow.warehouse" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="orderkey" label="so单号" v-if="columnshow.orderkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<el-table-column prop="orderstatus" label="订单状态" v-if="columnshow.orderstatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="area" label="库区" v-if="columnshow.area" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="storer" label="货主简称" v-if="columnshow.storer" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -157,13 +163,13 @@
 			<el-table-column prop="slocsum" label="小库位数" v-if="columnshow.slocsum" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="lpnsum" label="LPN数" v-if="columnshow.lpnsum" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="pick" label="拣货员" v-if="columnshow.pick" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="pickstartdate" label="拣货开始时间" v-if="columnshow.pickstartdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
-			<el-table-column prop="stdocdate" label="标准库位时间" v-if="columnshow.stdocdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
-			<el-table-column prop="stdcompletedate" label="标准预计完成时间" v-if="columnshow.stdcompletedate" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="nowcompletedate" label="本次预计完成时间" v-if="columnshow.nowcompletedate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
-			<el-table-column prop="factpickdate" label="实际拣货完成时间" v-if="columnshow.factpickdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
-			<el-table-column prop="storerkey" label="货主代码" v-if="columnshow.storerkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="altsku" label="收货人代码" v-if="columnshow.altsku" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="pickstartdate" label="拣货开始时间" v-if="columnshow.pickstartdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="stdocdate" label="标准库位时间" v-if="columnshow.stdocdate" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="stdcompletedate" label="标准预计完成时间" v-if="columnshow.stdcompletedate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="nowcompletedate" label="本次预计完成时间" v-if="columnshow.nowcompletedate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="factpickdate" label="实际拣货完成时间" v-if="columnshow.factpickdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<!-- <el-table-column prop="storerkey" label="货主代码" v-if="columnshow.storerkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="altsku" label="收货人代码" v-if="columnshow.altsku" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
 			<el-table-column prop="ordertype" label="业务类型" v-if="columnshow.ordertype" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -257,12 +263,15 @@
 		data:function() {
 			return {
 				filters: {
+					warehouse:'',
 					orderkey:'',
-					requestshipdate:'',
+					requestshipdatestart:'',
+					requestshipdateend:'',
 					orderstatus:'',
 					storerkey:'',
 					altsku:'',
 					ordertype:'',
+					area:'',
 				},
 				url:{
 					list:'${webRoot}/orderforecastController.do?datagrid',
@@ -274,7 +283,9 @@
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
 					exportXls:'${webRoot}/orderforecastController.do?exportXls&id=',
-					ImportXls:'${webRoot}/orderforecastController.do?upload'
+					ImportXls:'${webRoot}/orderforecastController.do?upload',
+					getorderstatus:'${webRoot}/orderforecastController.do?getorderstatus',
+					getordertype:'${webRoot}/orderforecastController.do?getordertype'
 				},
 				orderforecasts: [],
 				total: 0,
@@ -295,6 +306,9 @@
 				//表单界面数据
 				form: {},
 				
+				//
+				orderstatus:[],
+				ordertype:[],
 				//显示列
 				checkList:[],
 				detailList:{
@@ -341,12 +355,24 @@
 					altsku:true,
 					ordertype:true,
 				},
-				
-				
 				//数据字典 
 			}
 		},
 		methods: {
+			getordertype:function(){
+				this.$http.get(this.url.getordertype).then(function(res)  {
+					this.ordertype=res.data.ordertype;
+				});
+			},
+			getorderstatus:function(){
+				this.$http.get(this.url.getorderstatus).then(function(res)  {
+					this.orderstatus=res.data.orderstatus;
+				});
+			},
+			search:function(){
+				this.page = 1;
+		        this.getOrderforecasts();
+			},
 			getSummaries:function(param) {
 				/* console.log(param); */
 			    var _self=this;
@@ -357,7 +383,7 @@
 		            sums[index] = '汇总';
 		            return;
 		          }
-		          if(index===2){
+		          if(index>=7&&index<=10){
 		        	  const values = param.data.map(function(item) { return Number(item[column.property])});
 			          if (!values.every(function(value) {return isNaN(value)})) {
 			            sums[index] = values.reduce(function(prev, curr)  {
@@ -482,10 +508,10 @@
 				window.open(downUrl);
 			},
 			formatDate: function(row,column,cellValue, index){
-				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd'):'';
+				return !!cellValue?utilFormatDate(dateToGMT(cellValue), 'yyyy-MM-dd'):'';
 			},
 			formatDateTime: function(row,column,cellValue, index){
-				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
+				return !!cellValue?utilFormatDate(dateToGMT(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
 			},
 			handleCurrentChange:function(val) {
 				this.page = val;
@@ -498,6 +524,7 @@
 			},
 			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
+		        this.page = 1;
 		        this.getOrderforecasts();
 		    },
 			//获取用户列表
@@ -534,6 +561,7 @@
 				fields.push('storerkey');
 				fields.push('altsku');
 				fields.push('ordertype');
+				console.log(utilFormatDate(new Date(this.filters.requestshipdate))+"||"+utilFormatDate(new Date(this.filters.requestshipdate)));
 				var para = {
 					params: {
 						page: this.page,
@@ -542,7 +570,15 @@
 						sort:this.sort.sort,
 						order:this.sort.order,
 					 	orderkey:this.filters.orderkey,
-						requestshipdate: !this.filters.requestshipdate ? '' : utilFormatDate(new Date(this.filters.requestshipdate ), 'yyyy-MM-dd'),
+					 	area:this.filters.area,//库区
+					 	warehouse:this.filters.warehouse,//仓库
+					 	orderstatus:this.filters.orderstatus,//订单状态
+					 	storerkey:this.filters.storerkey,//货主代码
+					 	altsku:this.filters.altsku,//收货人代码
+					 	ordertype:this.filters.ordertype,//订单类型
+					 	requestshipdatestart:!this.filters.requestshipdatestart ? '':utilFormatDate(new Date(this.filters.requestshipdate), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间起
+					 	requestshipdateend:!this.filters.requestshipdateend ? '':utilFormatDate(new Date(this.filters.requestshipdate), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间至
+						requestshipdate: !this.filters.requestshipdate ? '' : utilFormatDate(new Date(this.filters.requestshipdate ), 'yyyy-MM-dd hh:mm:ss'),
 					 	orderstatus:this.filters.orderstatus,
 					 	storerkey:this.filters.storerkey,
 					 	altsku:this.filters.altsku,
@@ -695,6 +731,8 @@
 		mounted:function() {
 			this.initDictsData();
 			this.getOrderforecasts();
+			this.getorderstatus();//初始化订单状态
+			this.getordertype();//初始化订单状态
 		}
 	});
 	
@@ -719,6 +757,12 @@
 	};
 	function reloadTable(){
 		
+	}
+	function dateToGMT(strDate){
+	    var dateStr=strDate.split(" ");  
+	    var strGMT = dateStr[0]+" "+dateStr[1]+" "+dateStr[2]+" "+dateStr[5]+" "+dateStr[3]+" GMT+0800";  
+	    var date = new Date(Date.parse(strGMT));
+	    return date;
 	}
 </script>
 </html>

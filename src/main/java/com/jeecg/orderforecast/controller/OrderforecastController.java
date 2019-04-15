@@ -1,6 +1,9 @@
 package com.jeecg.orderforecast.controller;
+import com.alibaba.fastjson.JSONObject;
 import com.jeecg.orderforecast.entity.OrderforecastEntity;
 import com.jeecg.orderforecast.service.OrderforecastServiceI;
+import com.jeecg.orders.entity.OrdersEntity;
+import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,8 @@ import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
+import org.jeecgframework.web.system.pojo.base.TSType;
+import org.jeecgframework.web.system.pojo.base.TSTypegroup;
 import org.jeecgframework.web.system.service.SystemService;
 import org.jeecgframework.core.util.MyBeanUtils;
 
@@ -30,6 +35,9 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.entity.vo.NormalExcelConstants;
 import org.jeecgframework.core.util.ResourceUtil;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import java.util.Map;
@@ -80,12 +88,158 @@ public class OrderforecastController extends BaseController {
 	 */
 	@RequestMapping(params = "datagrid")
 	public void datagrid(OrderforecastEntity orderforecast,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(OrderforecastEntity.class, dataGrid);
-		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orderforecast, request.getParameterMap());
-		cq.add();
-		this.orderforecastService.getDataGridReturn(cq, true);
+		//界面参数
+		String warehouse=request.getParameter("warehouse");
+		String orderkey=request.getParameter("orderkey");
+		String area=request.getParameter("area");
+		String orderstatus=request.getParameter("orderstatus");
+		String storerkey=request.getParameter("storerkey");
+		String altsku=request.getParameter("altsku");
+		String ordertype=request.getParameter("ordertype");
+		String requestshipdatestart=request.getParameter("requestshipdatestart");
+		String requestshipdateend=request.getParameter("requestshipdateend");
+		int page =Integer.parseInt(request.getParameter("page"));
+		int rows =Integer.parseInt(request.getParameter("rows"));
+		String wh="";
+		String sqlwhere="where 1=1 ";
+		//仓库
+		if(warehouse!=null&&warehouse!="") {
+			wh=typeNameToTypeCode(warehouse, "仓库");
+		}
+		//订单
+		if(orderkey!=null&&orderkey!="") {
+		    sqlwhere+="o.orderkey='"+orderkey+"' ";
+		}
+		//区域
+		if(area!=null&&area!="") {
+		    sqlwhere+=" and loc.physicalware='"+area+"'";
+		}
+		//订单状态
+		if(orderstatus!=null&&orderstatus!="") {
+			 sqlwhere+=" and os.description='"+orderstatus+"'";
+		}
+		//货主代码
+		if(storerkey!=null&&storerkey!="") {
+			sqlwhere+=" and o.storerkey='"+storerkey+"'";
+		}
+		//收货人代码
+		if(altsku!=null&&altsku!="") {
+			sqlwhere+=" and s1.storerkey='"+altsku+"'";
+		}
+		//业务类型
+		if(ordertype!=null&&ordertype!="") {
+			sqlwhere+=" and cl.description='"+ordertype+"'";
+		}
+		//请求出货时间
+		if(requestshipdatestart!=null&&requestshipdatestart!=""&&requestshipdateend!=null&&requestshipdateend!="") {
+			sqlwhere+=" and o.requestedshipdate between to_date('"+requestshipdatestart+"','yyyy-MM-dd HH24:mi:ss') and to_date('"+requestshipdateend+"','yyyy-MM-dd HH24:mi:ss')";
+		}
+		//sql拼接
+		String sql="select o.whseid, to_char(o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), os.description orderstatus, loc.physicalware,o.orderkey,s.susr3 Storer,s1.susr3 Vendor,cl.description," + 
+				"  count(distinct pk.sku),count(distinct l.loc),count(distinct l2.loc),count(distinct pk.id),o.performancedata01," + 
+				"  to_char(o.pickstartdate,'yyyy-MM-dd HH24:mi:ss'),o.monthtime / 60,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24,'yyyy-MM-dd HH24:mi:ss')," + 
+				"  to_char(o.pickenddate,'yyyy-MM-dd HH24:mi:ss')  from "+wh+"_orders o left join "+wh+"_pickdetail pk on pk.orderkey = o.orderkey " + 
+				"  left join "+wh+"_loc loc on pk.loc = loc.loc  left join "+wh+"_loc l on pk.fromloc = l.loc and l.locnature <> 'S' " + 
+				"  left join "+wh+"_loc l2 on pk.fromloc = l2.loc and l2.locnature = 'S' left join "+wh+"_storer s on o.storerkey = s.storerkey and s.type = '1' " + 
+				"  left join "+wh+"_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' left join "+wh+"_codelkup cl on o.type = cl.listname and cl.listname = 'ORDERTYPE' "
+				+ "left join "+wh+"_orderstatussetup os on os.code=o.status" +
+				"  "+sqlwhere+" group by o.whseid,o.requestedshipdate,os.description,loc.physicalware, " + 
+				"  o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate, " + 
+				"  o.pickstartdate,o.monthtime,o.daytime";
+		
+		if(warehouse!=null&&warehouse!=""){
+			dataGrid=paging(sql, page, rows, dataGrid);
+		}
 		TagUtil.datagrid(response, dataGrid);
+	}
+	
+	//仓库字典code 转换
+	private String typeNameToTypeCode(String typeName,String typegroupname) {
+		List<TSTypegroup> tsTypegroup=systemService.findHql("from TSTypegroup where typegroupname=?", typegroupname);
+		List<TSType> tsType=systemService.findHql("from TSType where TSTypegroup.id=? and typename=?",tsTypegroup.get(0).getId(),typeName);
+		return tsType.get(0).getTypecode();
+	}
+	
+	
+	/**
+	 * 获取分页数据
+	 * @param sql
+	 * @param page
+	 * @param rows
+	 * @param dataGrid
+	 * @return
+	 */
+	private DataGrid paging(String sql,int page,int rows,DataGrid dataGrid) {
+		String totalSql = "select count(0) from ("+sql+")";
+		List<String> totalList= orderforecastService.findListbySql(totalSql);
+		int total=Integer.parseInt(String.valueOf(totalList.get(0)));
+		
+		List<OrderforecastEntity> list=new ArrayList<>();
+		String resultSql=pagingByOracle(sql,page,rows);
+		List<Object[]> resultList= orderforecastService.findListbySql(resultSql);
+		
+		SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		for (Object[] result : resultList) {
+			OrderforecastEntity entity=new OrderforecastEntity();
+			entity.setWarehouse(String.valueOf(result[0]));
+			entity.setOrderstatus(String.valueOf(result[2]));
+			entity.setArea(String.valueOf(result[3]));
+			entity.setOrderkey(String.valueOf(result[4]));
+			entity.setStorer(String.valueOf(result[5]));
+			entity.setVendor(String.valueOf(result[6]));
+			entity.setOrdertype(String.valueOf(result[7]));
+			entity.setSkusum(String.valueOf(result[8]));
+			entity.setBlocsum(String.valueOf(result[9]));
+			entity.setSlocsum(String.valueOf(result[10]));
+			entity.setLpnsum(String.valueOf(result[11]));
+			entity.setPick(String.valueOf(result[12]));
+			entity.setStdocdate(String.valueOf(result[14]));
+			try {
+				if(String.valueOf(result[1])!="null") {
+					entity.setRequestshipdate(sdf.parse(String.valueOf(result[1])));
+				}
+				if(String.valueOf(result[13])!="null") {
+					entity.setPickstartdate(sdf.parse(String.valueOf(result[13])));
+				}
+				if(String.valueOf(result[15])!="null") {
+					entity.setStdcompletedate(sdf.parse(String.valueOf(result[15])));
+				}
+				if(String.valueOf(result[16])!="null") {
+					entity.setNowcompletedate(sdf.parse(String.valueOf(result[16])));
+				}
+				if(String.valueOf(result[17])!="null") {
+					entity.setFactpickdate(sdf.parse(String.valueOf(result[17])));
+				}
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			list.add(entity);
+		}
+		
+		dataGrid.setPage(page);
+	    dataGrid.setRows(rows);
+	    dataGrid.setTotal(total);
+	    dataGrid.setResults(list);
+		return dataGrid;
+	}
+	
+	/**
+	 * 拼接分页sql
+	 * @param sql
+	 * @param page
+	 * @param pageSize
+	 * @return
+	 */
+	private String pagingByOracle(String sql,int page,int pageSize){
+	//当前页最大值
+	int maxPage = page*pageSize;
+	int minPage =(page-1)*pageSize;
+	String endSql = "select * from ("+
+	  "select t.*,rownum rn from (" +sql + ") t"+
+	     " where rownum<="+maxPage+
+	        ") where rn>"+minPage;
+	    return endSql;
 	}
 	
 	/**
@@ -273,6 +427,46 @@ public class OrderforecastController extends BaseController {
 		return j;
 	}
 	
+	/**
+	 * 获取infor状态
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "getorderstatus")
+	@ResponseBody
+	public void getorderstatus(HttpServletRequest request,HttpServletResponse response) {
+		JSONObject resultjson = new JSONObject();
+		try {
+			List<Object[]> list=systemService.findListbySql("select o.description from W01_ORDERSTATUSSETUP o");
+			resultjson.put("orderstatus",list);
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
+	/**
+	 * 获取infor业务类型
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "getordertype")
+	@ResponseBody
+	public void getordertype(HttpServletRequest request,HttpServletResponse response) {
+		JSONObject resultjson = new JSONObject();
+		try {
+			List<Object[]> list=systemService.findListbySql("select c.description from W01_Codelkup c where c.listname='ORDERTYPE'");
+			resultjson.put("ordertype",list);
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 }
