@@ -37,11 +37,12 @@
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
 			    <el-form-item style="margin-bottom: 8px;" prop="orderkey">
-			    <el-select v-model="filters.warehouse" placeholder="请选择仓库" clearable style="width:175px">
-	                 <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
+			    <el-select v-model="filters.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
+	                 <!-- <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
 	                 <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
 	                 <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
-	                 <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option>
+	                 <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option> -->
+	                 <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
 	             </el-select>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
@@ -434,6 +435,13 @@
 					   this.columnshow.requestshipdate=!this.columnshow.requestshipdate;
 				}
 			},
+			//
+			getwarehouse:function(){
+				this.$http.get(this.url.getwarehouse).then(function(res)  {
+					/* console.log(res.data.warehouse); */
+					this.warehouses=res.data.warehouse;
+				});
+			},
 			//清空
 			shuadan:function(){
 				//ajax查询当前用户仓库
@@ -812,6 +820,7 @@
 		mounted:function() {
 			this.initDictsData();
 			this.getOrderss();
+			this.getwarehouse();
 		}
 	});
 	

@@ -69,19 +69,20 @@
 	                <el-option label="" value=""></el-option>
 	                </el-select>
 				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
+				    <el-select v-model="filters.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
+		                 <!-- <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
+	                     <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
+	                     <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
+	                     <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option> -->
+	                     <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
+		            </el-select>
+				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="requestshipdate">
 					<el-date-picker type="date" placeholder="选择请求出货日期起" v-model="filters.requestshipdatestart" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="requestshipdate">
 					<el-date-picker type="date" placeholder="选择请求出货日期至" v-model="filters.requestshipdateend" style="width:175px"></el-date-picker>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-				    <el-select v-model="filters.warehouse" placeholder="请选择仓库" clearable style="width:175px">
-		                 <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
-	                     <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
-	                     <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
-	                     <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option>
-		            </el-select>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
 					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入so单号" style="width:175px"></el-input>
@@ -285,7 +286,8 @@
 					exportXls:'${webRoot}/orderforecastController.do?exportXls&id=',
 					ImportXls:'${webRoot}/orderforecastController.do?upload',
 					getorderstatus:'${webRoot}/orderforecastController.do?getorderstatus',
-					getordertype:'${webRoot}/orderforecastController.do?getordertype'
+					getordertype:'${webRoot}/orderforecastController.do?getordertype',
+					getwarehouse:'${webRoot}/ordersController.do?getwarehouse'
 				},
 				orderforecasts: [],
 				total: 0,
@@ -309,6 +311,7 @@
 				//
 				orderstatus:[],
 				ordertype:[],
+				warehouses:[],
 				//显示列
 				checkList:[],
 				detailList:{
@@ -359,6 +362,12 @@
 			}
 		},
 		methods: {
+			getwarehouse:function(){
+				this.$http.get(this.url.getwarehouse).then(function(res)  {
+					/* console.log(res.data.warehouse); */
+					this.warehouses=res.data.warehouse;
+				});
+			},
 			getordertype:function(){
 				this.$http.get(this.url.getordertype).then(function(res)  {
 					this.ordertype=res.data.ordertype;
@@ -733,6 +742,7 @@
 			this.getOrderforecasts();
 			this.getorderstatus();//初始化订单状态
 			this.getordertype();//初始化订单状态
+			this.getwarehouse();
 		}
 	});
 	
