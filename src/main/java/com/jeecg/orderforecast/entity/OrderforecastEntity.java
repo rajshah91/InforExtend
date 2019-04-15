@@ -93,7 +93,7 @@ public class OrderforecastEntity implements java.io.Serializable {
 	@Excel(name="拣货开始时间",width=15,format = "yyyy-MM-dd HH:mm:ss")
 	private java.util.Date pickstartdate;
 	/**标准库位时间*/
-	@Excel(name="标准库位时间",width=15,format = "yyyy-MM-dd HH:mm:ss")
+	@Excel(name="标准库位时间",width=15)
 	private java.lang.String stdocdate;
 	/**标准预计完成时间*/
 	@Excel(name="标准预计完成时间",width=15,format = "yyyy-MM-dd HH:mm:ss")

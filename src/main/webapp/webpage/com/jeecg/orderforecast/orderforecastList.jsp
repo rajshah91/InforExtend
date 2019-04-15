@@ -281,7 +281,7 @@
 					edit:'${webRoot}/orderforecastController.do?doUpdate',
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
-					exportXls:'${webRoot}/orderforecastController.do?exportXls&id=',
+					exportXls:'${webRoot}/orderforecastController.do?exportXls',
 					ImportXls:'${webRoot}/orderforecastController.do?upload',
 					getorderstatus:'${webRoot}/orderforecastController.do?getorderstatus',
 					getordertype:'${webRoot}/orderforecastController.do?getordertype',
@@ -585,7 +585,6 @@
 				fields.push('storerkey');
 				fields.push('altsku');
 				fields.push('ordertype');
-				console.log(this.filters.requestshipdatestart+"||"+this.filters.requestshipdateend);
 				var para = {
 					params: {
 						page: this.page,
@@ -729,8 +728,10 @@
 			},
 			//导出
 			ExportXls: function() {
-					var ids = '';
-					window.location.href = this.url.exportXls+ids;
+					var	requestshipdatestart=!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd');//请求出货时间起
+					var	requestshipdateend=!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd');//请求出货时间至
+				    var urllist="&warehouse="+this.filters.warehouse+"&orderstatus="+this.filters.orderstatus+"&orderkey="+this.filters.orderkey+"&area="+this.filters.area+"&storerkey="+this.filters.storerkey+"&altsku="+this.filters.altsku+"&ordertype="+this.filters.ordertype+"&requestshipdatestart="+requestshipdatestart+"&requestshipdateend="+requestshipdateend
+				    window.location.href = this.url.exportXls+urllist;
 			},
 			//导入
 			ImportXls: function(){

@@ -81,11 +81,11 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "functionOperation");
+			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "functionOperation","");
 			return receiveXml;
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "functionOperation");
+			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "functionOperation","");
 			return null;
 		}
 	}
@@ -140,11 +140,11 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "getUserName");
+			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "getUserName","");
 			return readStringXmlForUserName(receiveXml);
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "getUserName");
+			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "getUserName","");
 			return null;
 		}
 	}
@@ -225,11 +225,11 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "storeOrderIsStartOrEnd");
+			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "storeOrderIsStartOrEnd",userName);
 			return readStringXmlForStartOn(receiveXml);
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "storeOrderIsStartOrEnd");
+			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "storeOrderIsStartOrEnd",userName);
 			return "失败";
 		}
 	}
@@ -264,7 +264,7 @@ public class InforWebService {
 	/**
 	 * 保存接口记录
 	 */
-	private void saveLog(String sendXml, String receiveXml, boolean result, String partner, String serviceName) {
+	private void saveLog(String sendXml, String receiveXml, boolean result, String partner, String serviceName,String username) {
 		ApilogEntity apilogEntity = new ApilogEntity();
 		apilogEntity.setSendxml(sendXml);
 		apilogEntity.setReceivexml(receiveXml);
@@ -276,6 +276,7 @@ public class InforWebService {
 		apilogEntity.setPartner("INFOR");
 		apilogEntity.setServicename(serviceName);
 		apilogEntity.setCreateDate(new Date());
+		apilogEntity.setOperator(username);
 		try {
 			apilogService.save(apilogEntity);
 		} catch (Exception e) {
