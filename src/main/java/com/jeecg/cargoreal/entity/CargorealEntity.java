@@ -77,6 +77,9 @@ public class CargorealEntity implements java.io.Serializable {
 	/**订单状态*/
 	@Excel(name="订单状态",width=15)
 	private java.lang.String orderstatus;
+	/**订单状态*/
+	@Excel(name="操作员",width=15)
+	private java.lang.String operator;
 	
 	/**
 	 *方法: 取得java.lang.String
@@ -403,6 +406,15 @@ public class CargorealEntity implements java.io.Serializable {
 	 */
 	public void setOrderstatus(java.lang.String orderstatus){
 		this.orderstatus = orderstatus;
+	}
+
+	@Column(name ="OPERATOR",nullable=true,length=32)
+	public java.lang.String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(java.lang.String operator) {
+		this.operator = operator;
 	}
 	
 }

@@ -115,9 +115,10 @@
 			<el-table-column prop="orderkey" label="so单号" v-if="columnshow.orderkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="storer" label="货主简称" v-if="columnshow.storer" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="vendor" label="收货人简称" v-if="columnshow.vendor" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
-			<el-table-column prop="warningtime" label="预警时间" v-if="columnshow.warningtime" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="warningtime" label="预警时间" v-if="columnshow.warningtime" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<el-table-column prop="orderstatus" label="订单状态" v-if="columnshow.orderstatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="operator" label="订单状态" v-if="columnshow.orderstatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -365,6 +366,7 @@
 				fields.push('requestshipdate');
 				fields.push('warningtime');
 				fields.push('orderstatus');
+				fields.push('operator');
 				var para = {
 					params: {
 						page: this.page,
