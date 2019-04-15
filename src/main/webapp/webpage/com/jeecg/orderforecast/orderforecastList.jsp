@@ -390,6 +390,23 @@
 		            sums[index] = '汇总';
 		            return;
 		          }
+		          if(index==1){
+		        	  var count=1;
+		        	  const values = param.data.map(function(item) { return Number(item[column.property])});
+			          if (!values.every(function(value) {return isNaN(value)})) {
+			            sums[index] = values.reduce(function(prev, curr)  {
+			              const value = Number(curr);
+			              if (!isNaN(value)) {
+			                return count++;
+			              } else {
+			                return count;
+			              }
+			            }, 0);
+			            sums[index] += '';
+			          } else {
+			            sums[index] = '暂无数据';
+			          }
+		          }
 		          if(index>=7&&index<=10){
 		        	  const values = param.data.map(function(item) { return Number(item[column.property])});
 			          if (!values.every(function(value) {return isNaN(value)})) {
