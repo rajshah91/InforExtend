@@ -561,7 +561,7 @@
 				fields.push('storerkey');
 				fields.push('altsku');
 				fields.push('ordertype');
-				console.log(utilFormatDate(new Date(this.filters.requestshipdate))+"||"+utilFormatDate(new Date(this.filters.requestshipdate)));
+				console.log(this.filters.requestshipdatestart+"||"+this.filters.requestshipdateend);
 				var para = {
 					params: {
 						page: this.page,
@@ -576,8 +576,8 @@
 					 	storerkey:this.filters.storerkey,//货主代码
 					 	altsku:this.filters.altsku,//收货人代码
 					 	ordertype:this.filters.ordertype,//订单类型
-					 	requestshipdatestart:!this.filters.requestshipdatestart ? '':utilFormatDate(new Date(this.filters.requestshipdate), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间起
-					 	requestshipdateend:!this.filters.requestshipdateend ? '':utilFormatDate(new Date(this.filters.requestshipdate), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间至
+					 	requestshipdatestart:!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd'),//请求出货时间起
+					 	requestshipdateend:!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd'),//请求出货时间至
 						requestshipdate: !this.filters.requestshipdate ? '' : utilFormatDate(new Date(this.filters.requestshipdate ), 'yyyy-MM-dd hh:mm:ss'),
 					 	orderstatus:this.filters.orderstatus,
 					 	storerkey:this.filters.storerkey,
@@ -737,6 +737,7 @@
 	});
 	
 	function utilFormatDate(date, pattern) {
+		console.log(date);
         pattern = pattern || "yyyy-MM-dd";
         return pattern.replace(/([yMdhsm])(\1*)/g, function ($0) {
             switch ($0.charAt(0)) {
