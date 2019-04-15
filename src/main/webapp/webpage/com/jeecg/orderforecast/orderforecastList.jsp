@@ -65,9 +65,7 @@
 	            </el-select>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="area">
-					<el-select v-model="filters.area" placeholder="请选择库区" clearable style="width:175px">
-	                <el-option label="" value=""></el-option>
-	                </el-select>
+					<el-input v-model="filters.area" placeholder="请输入库区"  style="width:175px"></el-input>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
 				    <el-select v-model="filters.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
