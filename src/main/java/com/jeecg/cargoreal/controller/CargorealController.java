@@ -22,6 +22,9 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.entity.vo.NormalExcelConstants;
 import org.jeecgframework.tag.core.easyui.TagUtil;
+import org.jeecgframework.web.system.pojo.base.TSDepart;
+import org.jeecgframework.web.system.pojo.base.TSType;
+import org.jeecgframework.web.system.pojo.base.TSTypegroup;
 import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.jeecgframework.web.system.service.SystemService;
 import org.slf4j.Logger;
@@ -36,6 +39,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.jeecg.cargoreal.entity.CargorealEntity;
 import com.jeecg.cargoreal.service.CargorealServiceI;
 import com.jeecg.orders.entity.OrdersEntity;
@@ -85,8 +90,16 @@ public class CargorealController extends BaseController {
 		int rows =Integer.parseInt(request.getParameter("rows"));
 		TSUser user= ResourceUtil.getSessionUser();// 操作人
 		List<UsercontactwhEntity> usercontactwhEntities=cargorealService.findHql("from UsercontactwhEntity where userid=?",user.getId());
+		if(usercontactwhEntities.size()>0) {
+		String sql="";
+		for (int i = 0; i < usercontactwhEntities.size(); i++) {
+			if(usercontactwhEntities.get(i).getWarehouse().contains("FEILI_wmwhse")) {
+				String wh=typeNameToTypeCode(usercontactwhEntities.get(i).getWarehouse(), "仓库");
+			if(i!=0) {
+				 sql+=" union all ";
+			 }
 		
-		String sql="select o.whseid,loc.physicalware,o.orderkey,s.susr3 as s1susr3,s2.susr3 as s2susr3," + 
+		 sql+="select o.whseid,loc.physicalware,o.orderkey,s.susr3 as s1susr3,s2.susr3 as s2susr3," + 
 				"       to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate," + 
 				"       case when o.susr35='CSKJY0101' then " + 
 				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
@@ -98,13 +111,13 @@ public class CargorealController extends BaseController {
 				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
 				"         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15" + 
 				"         end as earlywarndate," + 
-				"        os.description,o.performancedata01 from w01_orders o" + 
-				" left join w01_orderdetail od on od.orderkey=o.orderkey" + 
-				" left join w01_pickdetail pd on pd.orderkey=o.orderkey" + 
-				" left join w01_loc loc on loc.loc=pd.loc" + 
-				" left join w01_storer s on s.storerkey=o.storerkey and s.type='1'" + 
-				" left join w01_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
-				" left join w01_orderstatussetup os on os.code=o.status" + 
+				"        os.description,o.performancedata01 from "+wh+"_orders o" + 
+				" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
+				" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
+				" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+				" left join "+wh+"_storer s on s.storerkey=o.storerkey and s.type='1'" + 
+				" left join "+wh+"_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
+				" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
 				" where o.priority='1' and o.status>=14 and o.status<95" + 
 				" union all" + 
 				" select r.whseid,r.physicalware,r.orderkey,r.s1susr3,r.s2susr3," + 
@@ -132,13 +145,13 @@ public class CargorealController extends BaseController {
 				"         when o.susr35='KSDZY0201' then " + 
 				"         o.requestedshipdate - 3.5/24" + 
 				"         else o.requestedshipdate" + 
-				"         end as enddate from w01_orders o" + 
-				" left join w01_orderdetail od on od.orderkey=o.orderkey" + 
-				" left join w01_pickdetail pd on pd.orderkey=o.orderkey" + 
-				" left join w01_loc loc on loc.loc=pd.loc" + 
-				" left join w01_storer s on s.storerkey=o.storerkey and s.type='1'" + 
-				" left join w01_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
-				" left join w01_orderstatussetup os on os.code=o.status" + 
+				"         end as enddate from "+wh+"_orders o" + 
+				" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
+				" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
+				" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+				" left join "+wh+"_storer s on s.storerkey=o.storerkey and s.type='1'" + 
+				" left join "+wh+"_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
+				" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
 				" where o.priority <> '1' and o.status>=14 and o.status<55 " + 
 				" and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
 				" where sysdate>r.enddate" + 
@@ -155,17 +168,22 @@ public class CargorealController extends BaseController {
 				"         when o.status>=55 and o.status<95 then " + 
 				"         o.requestedshipdate - 0.5/24" + 
 				"         else o.requestedshipdate" + 
-				"         end as enddate from w01_orders o" + 
-				" left join w01_orderdetail od on od.orderkey=o.orderkey" + 
-				" left join w01_pickdetail pd on pd.orderkey=o.orderkey" + 
-				" left join w01_loc loc on loc.loc=pd.loc" + 
-				" left join w01_storer s on s.storerkey=o.storerkey and s.type='1'" + 
-				" left join w01_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
-				" left join w01_orderstatussetup os on os.code=o.status" + 
+				"         end as enddate from "+wh+"_orders o" + 
+				" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
+				" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
+				" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+				" left join "+wh+"_storer s on s.storerkey=o.storerkey and s.type='1'" + 
+				" left join "+wh+"_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
+				" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
 				" where o.priority <> '1' and o.status>=14 and o.status<95 " + 
 				" and o.susr35 not in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
 				" where sysdate>r.enddate";
+		 
+			}
+		}
 		dataGrid=paging(sql, page, rows, dataGrid);
+		
+		}
 		TagUtil.datagrid(response, dataGrid);
 	}
 	
@@ -231,6 +249,14 @@ public class CargorealController extends BaseController {
 	        ") where rn>"+minPage;
 	    return endSql;
 	}
+	
+	//仓库字典code 转换
+	private String typeNameToTypeCode(String typeName,String typegroupname) {
+		List<TSTypegroup> tsTypegroup=systemService.findHql("from TSTypegroup where typegroupname=?", typegroupname);
+		List<TSType> tsType=systemService.findHql("from TSType where TSTypegroup.id=? and typename=?",tsTypegroup.get(0).getId(),typeName);
+		return tsType.get(0).getTypecode();
+	}
+	
 	
 	/**
 	 * 删除急货实时
@@ -417,6 +443,44 @@ public class CargorealController extends BaseController {
 		return j;
 	}
 	
-	
-	
+	/**
+	 * 获取组织
+	 * @param request
+	 * @param response
+	 */
+	@RequestMapping(params = "doFindDeparts")
+	@ResponseBody
+	public void doFindDeparts(HttpServletRequest request,HttpServletResponse response) {
+		JSONArray resultjson= new JSONArray();
+		try {
+			TSDepart firstDepart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", "A04");
+			List<TSDepart> departs=cargorealService.findHql("from TSDepart where TSPDepart.id=?", firstDepart.getId());
+			for (TSDepart tsDepart : departs) {
+				if(!tsDepart.getOrgCode().equals("A04A01")) {
+					resultjson.add(findChildrenDepart(tsDepart));
+				}
+			}
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private JSONObject findChildrenDepart(TSDepart tsDepart) {
+		// TODO Auto-generated method stub
+		JSONObject depart = new JSONObject();
+		depart.put("value", tsDepart.getOrgCode());
+		depart.put("label", tsDepart.getDepartname());
+		List<TSDepart> departs=cargorealService.findHql("from TSDepart where TSPDepart.id=?", tsDepart.getId());
+		if(departs.size()>0) {
+			JSONArray jsonArray=new JSONArray();
+			for (TSDepart tdepart : departs) {
+				jsonArray.add(findChildrenDepart(tdepart));
+			}
+			depart.put("children", jsonArray);
+		}
+		return depart;
+	}
 }

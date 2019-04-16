@@ -36,38 +36,44 @@
 		<!--工具条-->
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
-			    <el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.region" placeholder="请选择分区" clearable style="width:175px">
-	                 <el-option label="昆山区" value="昆山区"></el-option>
-	             </el-select>
-				</el-form-item>
+<!-- 			    <el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
+<!-- 					<el-select v-model="filters.region" placeholder="请选择分区" clearable style="width:175px"> -->
+<!-- 	                 <el-option label="昆山区" value="昆山区"></el-option> -->
+<!-- 	             </el-select> -->
+<!-- 				</el-form-item> -->
+<!-- 				<el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
+<!-- 					<el-select v-model="filters.operatdepart" placeholder="请选择操作部" clearable style="width:175px"> -->
+<!-- 	                 <el-option label="操作一部" value="depart1"></el-option> -->
+<!-- 	                 <el-option label="操作二部" value="depart2"></el-option> -->
+<!-- 	                 <el-option label="操作三部" value="depart3"></el-option> -->
+<!-- 	                 <el-option label="客服部" value="operation4"></el-option> -->
+<!-- 	            </el-select> -->
+<!-- 				</el-form-item> -->
+<!-- 				<el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
+<!-- 					<el-select v-model="filters.operatsection" placeholder="请选择操作科" clearable style="width:175px"> -->
+<!-- 	                 <el-option label="操作一部一科" value="section1"></el-option> -->
+<!-- 	                 <el-option label="操作一部二科" value="section2"></el-option> -->
+<!-- 	                 <el-option label="操作一部三科" value="section3"></el-option> -->
+<!-- 	                 <el-option label="操作一部五科" value="section4"></el-option> -->
+<!-- 	                 <el-option label="操作一部六科" value="section5"></el-option> -->
+<!-- 	                 <el-option label="操作二部" value="section6"></el-option> -->
+<!-- 	                 <el-option label="操作三部" value="section7"></el-option> -->
+<!-- 	                 <el-option label="客服部一科" value="section8"></el-option> -->
+<!-- 	                 <el-option label="客服部二科" value="section9"></el-option> -->
+<!-- 	                 <el-option label="客服部三科" value="section10"></el-option> -->
+<!-- 	                 <el-option label="客服部五科" value="section11"></el-option> -->
+<!-- 	            </el-select> -->
+<!-- 				</el-form-item> -->
+<!-- 				<el-form-item style="margin-bottom: 8px;" prop="area"> -->
+<!-- 					<el-select v-model="filters.area" placeholder="请选择库区" clearable style="width:175px"> -->
+<!-- 	                 <el-option label="" value=""></el-option> -->
+<!-- 	                 </el-select> -->
+<!-- 				</el-form-item> -->
 				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.operatdepart" placeholder="请选择操作部" clearable style="width:175px">
-	                 <el-option label="操作一部" value="depart1"></el-option>
-	                 <el-option label="操作二部" value="depart2"></el-option>
-	                 <el-option label="操作三部" value="depart3"></el-option>
-	                 <el-option label="客服部" value="operation4"></el-option>
-	            </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.operatsection" placeholder="请选择操作科" clearable style="width:175px">
-	                 <el-option label="操作一部一科" value="section1"></el-option>
-	                 <el-option label="操作一部二科" value="section2"></el-option>
-	                 <el-option label="操作一部三科" value="section3"></el-option>
-	                 <el-option label="操作一部五科" value="section4"></el-option>
-	                 <el-option label="操作一部六科" value="section5"></el-option>
-	                 <el-option label="操作二部" value="section6"></el-option>
-	                 <el-option label="操作三部" value="section7"></el-option>
-	                 <el-option label="客服部一科" value="section8"></el-option>
-	                 <el-option label="客服部二科" value="section9"></el-option>
-	                 <el-option label="客服部三科" value="section10"></el-option>
-	                 <el-option label="客服部五科" value="section11"></el-option>
-	            </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="area">
-					<el-select v-model="filters.area" placeholder="请选择库区" clearable style="width:175px">
-	                 <el-option label="" value=""></el-option>
-	                 </el-select>
+				<el-cascader
+				    placeholder="试试搜索：指南" style="width:400px"
+				    :options="options" filterable
+				    change-on-select></el-cascader>
 				</el-form-item>
 				<br>
 				<el-form-item>
@@ -174,6 +180,9 @@
 		el:"#cargorealList",
 		data:function() {
 			return {
+				 options: [{
+			          value: 'zhinan',
+			          label: '指南'}],
 				filters: {
 					region:'昆山区',
 					area:'',
@@ -188,6 +197,7 @@
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
 					exportXls:'${webRoot}/cargorealController.do?exportXls&id=',
+					findDeparts:'${webRoot}/cargorealController.do?doFindDeparts',
 					ImportXls:'${webRoot}/cargorealController.do?upload'
 				},
 				cargoreals: [],
@@ -513,6 +523,10 @@
 		},
 		mounted:function() {
 			this.initDictsData();
+			this.$http.get(this.url.findDeparts).then(function(res)  {
+		        console.log("dai",res.data);
+		        this.options=res.data;
+			});
 			this.getCargoreals();
 		}
 	});
