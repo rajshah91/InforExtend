@@ -152,7 +152,7 @@
 			<el-table-column type="index" width="60"></el-table-column> -->
 			<el-table-column prop="warehouse" label="仓库" v-if="columnshow.warehouse" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="orderkey" label="so单号" v-if="columnshow.orderkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="140" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<el-table-column prop="orderstatus" label="订单状态" v-if="columnshow.orderstatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="area" label="库区" v-if="columnshow.area" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="storer" label="货主简称" v-if="columnshow.storer" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -162,11 +162,11 @@
 			<el-table-column prop="slocsum" label="小库位数" v-if="columnshow.slocsum" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="lpnsum" label="LPN数" v-if="columnshow.lpnsum" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="pick" label="拣货员" v-if="columnshow.pick" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="pickstartdate" label="拣货开始时间" v-if="columnshow.pickstartdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
-			<el-table-column prop="stdocdate" label="标准库位时间" v-if="columnshow.stdocdate" min-width="120" sortable="custom" show-overflow-tooltip ></el-table-column>
-			<el-table-column prop="stdcompletedate" label="标准预计完成时间" v-if="columnshow.stdcompletedate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
-			<el-table-column prop="nowcompletedate" label="本次预计完成时间" v-if="columnshow.nowcompletedate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
-			<el-table-column prop="factpickdate" label="实际拣货完成时间" v-if="columnshow.factpickdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="pickstartdate" label="拣货开始时间" v-if="columnshow.pickstartdate" min-width="140" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="stdocdate" label="标准库位时间" v-if="columnshow.stdocdate" min-width="140" sortable="custom" show-overflow-tooltip ></el-table-column>
+			<el-table-column prop="stdcompletedate" label="标准预计完成时间" v-if="columnshow.stdcompletedate" min-width="160" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="nowcompletedate" label="本次预计完成时间" v-if="columnshow.nowcompletedate" min-width="160" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="factpickdate" label="实际拣货完成时间" v-if="columnshow.factpickdate" min-width="160" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<!-- <el-table-column prop="storerkey" label="货主代码" v-if="columnshow.storerkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="altsku" label="收货人代码" v-if="columnshow.altsku" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
 			<el-table-column prop="ordertype" label="业务类型" v-if="columnshow.ordertype" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
