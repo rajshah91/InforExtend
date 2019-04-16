@@ -72,8 +72,8 @@ public class CargorealEntity implements java.io.Serializable {
 	@Excel(name="请求出货日期",width=15,format = "yyyy-MM-dd")
 	private java.util.Date requestshipdate;
 	/**预警时间*/
-	@Excel(name="预警时间",width=15,format = "yyyy-MM-dd")
-	private java.util.Date warningtime;
+	@Excel(name="预警时间",width=15)
+	private java.lang.String warningtime;
 	/**订单状态*/
 	@Excel(name="订单状态",width=15)
 	private java.lang.String orderstatus;
@@ -378,7 +378,7 @@ public class CargorealEntity implements java.io.Serializable {
 	 */
 
 	@Column(name ="WARNINGTIME",nullable=true,length=32)
-	public java.util.Date getWarningtime(){
+	public java.lang.String getWarningtime(){
 		return this.warningtime;
 	}
 
@@ -386,7 +386,7 @@ public class CargorealEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  预警时间
 	 */
-	public void setWarningtime(java.util.Date warningtime){
+	public void setWarningtime(java.lang.String warningtime){
 		this.warningtime = warningtime;
 	}
 	

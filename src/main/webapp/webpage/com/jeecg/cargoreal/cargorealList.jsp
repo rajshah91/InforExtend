@@ -108,17 +108,17 @@
 		</el-row>
 		<!--列表-->
 		<el-table :data="cargoreals" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
-			<el-table-column type="selection" width="55"></el-table-column>
-			<el-table-column type="index" width="60"></el-table-column>
+<!-- 			<el-table-column type="selection" width="55"></el-table-column> -->
+			<el-table-column type="index" width="60" label="序号"></el-table-column>
 			<el-table-column prop="warehouse" label="仓库" v-if="columnshow.warehouse" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="area" label="库区" v-if="columnshow.area" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="orderkey" label="so单号" v-if="columnshow.orderkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="storer" label="货主简称" v-if="columnshow.storer" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="vendor" label="收货人简称" v-if="columnshow.vendor" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
-			<el-table-column prop="warningtime" label="预警时间" v-if="columnshow.warningtime" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="140" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
+			<el-table-column prop="warningtime" label="预警时间" v-if="columnshow.warningtime" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="orderstatus" label="订单状态" v-if="columnshow.orderstatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="operator" label="订单状态" v-if="columnshow.orderstatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="operator" label="操作人" v-if="columnshow.operator" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -230,6 +230,7 @@
 					requestshipdate:'requestshipdate',
 					warningtime:'warningtime',
 					orderstatus:'orderstatus',
+					operator:'operator',
 				},
 				columnshow:{
 					id:true,
@@ -250,6 +251,7 @@
 					requestshipdate:true,
 					warningtime:true,
 					orderstatus:true,
+					operator:true,
 				},
 				
 				
@@ -312,6 +314,9 @@
 				}
 				if(value=="orderstatus"){
 				   this.columnshow.orderstatus=!this.columnshow.orderstatus;
+				}
+				if(value=="operator"){
+				   this.columnshow.operator=!this.columnshow.operator;
 				}
 			},
 			handleSortChange:function(sort){

@@ -1,17 +1,13 @@
 package com.jeecg.cargoreal.controller;
-import com.jeecg.cargoreal.entity.CargorealEntity;
-import com.jeecg.cargoreal.service.CargorealServiceI;
-
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.servlet.ModelAndView;
 
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.exception.BusinessException;
@@ -19,26 +15,31 @@ import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
-import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.tag.core.easyui.TagUtil;
-import org.jeecgframework.web.system.service.SystemService;
 import org.jeecgframework.core.util.MyBeanUtils;
-
+import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.entity.vo.NormalExcelConstants;
-import org.jeecgframework.core.util.ResourceUtil;
-import java.io.IOException;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import java.util.Map;
-import java.util.HashMap;
-import org.jeecgframework.core.util.ExceptionUtil;
+import org.jeecgframework.tag.core.easyui.TagUtil;
+import org.jeecgframework.web.system.pojo.base.TSUser;
+import org.jeecgframework.web.system.service.SystemService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.jeecg.cargoreal.entity.CargorealEntity;
+import com.jeecg.cargoreal.service.CargorealServiceI;
+import com.jeecg.orders.entity.OrdersEntity;
+import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
 /**   
  * @Title: Controller  
@@ -80,12 +81,155 @@ public class CargorealController extends BaseController {
 	 */
 	@RequestMapping(params = "datagrid")
 	public void datagrid(CargorealEntity cargoreal,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(CargorealEntity.class, dataGrid);
-		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, cargoreal, request.getParameterMap());
-		cq.add();
-		this.cargorealService.getDataGridReturn(cq, true);
+		int page =Integer.parseInt(request.getParameter("page"));
+		int rows =Integer.parseInt(request.getParameter("rows"));
+		TSUser user= ResourceUtil.getSessionUser();// 操作人
+		List<UsercontactwhEntity> usercontactwhEntities=cargorealService.findHql("from UsercontactwhEntity where userid=?",user.getId());
+		
+		String sql="select o.whseid,loc.physicalware,o.orderkey,s.susr3 as s1susr3,s2.susr3 as s2susr3," + 
+				"       to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate," + 
+				"       case when o.susr35='CSKJY0101' then " + 
+				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+				"         when o.susr35='MSDNY0102' then " + 
+				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-210" + 
+				"         when o.susr35='SSDZY0600' then " + 
+				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-60" + 
+				"         when o.susr35='KSDZY0201' then " + 
+				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+				"         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15" + 
+				"         end as earlywarndate," + 
+				"        os.description,o.performancedata01 from w01_orders o" + 
+				" left join w01_orderdetail od on od.orderkey=o.orderkey" + 
+				" left join w01_pickdetail pd on pd.orderkey=o.orderkey" + 
+				" left join w01_loc loc on loc.loc=pd.loc" + 
+				" left join w01_storer s on s.storerkey=o.storerkey and s.type='1'" + 
+				" left join w01_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
+				" left join w01_orderstatussetup os on os.code=o.status" + 
+				" where o.priority='1' and o.status>=14 and o.status<95" + 
+				" union all" + 
+				" select r.whseid,r.physicalware,r.orderkey,r.s1susr3,r.s2susr3," + 
+				"       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate," + 
+				"       r.description,r.performancedata01 from" + 
+				" (select o.whseid,loc.physicalware,o.orderkey,s.susr3 as s1susr3,s2.susr3 as s2susr3," + 
+				"       o.requestedshipdate," + 
+				"       case when o.susr35='CSKJY0101' then " + 
+				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+				"         when o.susr35='MSDNY0102' then " + 
+				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-210" + 
+				"         when o.susr35='SSDZY0600' then " + 
+				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-60" + 
+				"         when o.susr35='KSDZY0201' then " + 
+				"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+				"         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15" + 
+				"         end as earlywarndate," + 
+				"        os.description,o.performancedata01," + 
+				"        case when o.susr35='CSKJY0101' then " + 
+				"         o.requestedshipdate - 3.5/24" + 
+				"         when o.susr35='MSDNY0102' then " + 
+				"         o.requestedshipdate - 4/24" + 
+				"         when o.susr35='SSDZY0600' then " + 
+				"         o.requestedshipdate - 1.5/24" + 
+				"         when o.susr35='KSDZY0201' then " + 
+				"         o.requestedshipdate - 3.5/24" + 
+				"         else o.requestedshipdate" + 
+				"         end as enddate from w01_orders o" + 
+				" left join w01_orderdetail od on od.orderkey=o.orderkey" + 
+				" left join w01_pickdetail pd on pd.orderkey=o.orderkey" + 
+				" left join w01_loc loc on loc.loc=pd.loc" + 
+				" left join w01_storer s on s.storerkey=o.storerkey and s.type='1'" + 
+				" left join w01_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
+				" left join w01_orderstatussetup os on os.code=o.status" + 
+				" where o.priority <> '1' and o.status>=14 and o.status<55 " + 
+				" and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
+				" where sysdate>r.enddate" + 
+				" union all" + 
+				" select r.whseid,r.physicalware,r.orderkey,r.s1susr3,r.s2susr3," + 
+				"       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate," + 
+				"       r.description,r.performancedata01 from" + 
+				" (select o.whseid,loc.physicalware,o.orderkey,s.susr3 as s1susr3,s2.susr3 as s2susr3," + 
+				"       o.requestedshipdate," + 
+				"       CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15 as earlywarndate," + 
+				"       os.description,o.performancedata01," + 
+				"        case when o.status>=14 and o.status<55 then " + 
+				"         o.requestedshipdate - 1/24" + 
+				"         when o.status>=55 and o.status<95 then " + 
+				"         o.requestedshipdate - 0.5/24" + 
+				"         else o.requestedshipdate" + 
+				"         end as enddate from w01_orders o" + 
+				" left join w01_orderdetail od on od.orderkey=o.orderkey" + 
+				" left join w01_pickdetail pd on pd.orderkey=o.orderkey" + 
+				" left join w01_loc loc on loc.loc=pd.loc" + 
+				" left join w01_storer s on s.storerkey=o.storerkey and s.type='1'" + 
+				" left join w01_storer s2 on s2.storerkey=o.susr35 and s.type='1'" + 
+				" left join w01_orderstatussetup os on os.code=o.status" + 
+				" where o.priority <> '1' and o.status>=14 and o.status<95 " + 
+				" and o.susr35 not in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
+				" where sysdate>r.enddate";
+		dataGrid=paging(sql, page, rows, dataGrid);
 		TagUtil.datagrid(response, dataGrid);
+	}
+	
+	/**
+	 * 获取分页数据
+	 * @param sql
+	 * @param page
+	 * @param rows
+	 * @param dataGrid
+	 * @return
+	 */
+	private DataGrid paging(String sql,int page,int rows,DataGrid dataGrid) {
+		String totalSql = "select count(0) from ("+sql+")";
+		List<String> totalList= cargorealService.findListbySql(totalSql);
+		int total=Integer.parseInt(String.valueOf(totalList.get(0)));
+		
+		List<CargorealEntity> cargorealEntities=new ArrayList<>();
+		String resultSql=pagingByOracle(sql,page,rows);
+		List<Object[]> resultList= cargorealService.findListbySql(resultSql);
+		
+		SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		for (Object[] result : resultList) {
+			CargorealEntity cargorealEntity=new CargorealEntity();
+			cargorealEntity.setWarehouse(String.valueOf(result[0]));
+			cargorealEntity.setArea(String.valueOf(result[1]));
+			cargorealEntity.setOrderkey(String.valueOf(result[2]));
+			cargorealEntity.setStorer(String.valueOf(result[3]));
+			cargorealEntity.setVendor(String.valueOf(result[4]));
+			try {
+				if(String.valueOf(result[5])!="null") {
+					cargorealEntity.setRequestshipdate(sdf.parse(String.valueOf(result[5])));
+				}
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			cargorealEntity.setWarningtime(String.valueOf(result[6]));
+			cargorealEntity.setOrderstatus(String.valueOf(result[7]));
+			cargorealEntity.setOperator(String.valueOf(result[8]));
+			cargorealEntities.add(cargorealEntity);
+		}
+		dataGrid.setPage(page);
+	    dataGrid.setRows(rows);
+	    dataGrid.setTotal(total);
+	    dataGrid.setResults(cargorealEntities);
+		return dataGrid;
+	}
+	
+	/**
+	 * 拼接分页sql
+	 * @param sql
+	 * @param page
+	 * @param pageSize
+	 * @return
+	 */
+	private String pagingByOracle(String sql,int page,int pageSize){
+	//当前页最大值
+	int maxPage = page*pageSize;
+	int minPage =(page-1)*pageSize;
+	String endSql = "select * from ("+
+	  "select t.*,rownum rn from (" +sql + ") t"+
+	     " where rownum<="+maxPage+
+	        ") where rn>"+minPage;
+	    return endSql;
 	}
 	
 	/**
