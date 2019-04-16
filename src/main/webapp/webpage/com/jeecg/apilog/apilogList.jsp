@@ -92,6 +92,7 @@
 		<el-table :data="apilogs" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
 			<!-- <el-table-column type="selection" width="55"></el-table-column>
 			<el-table-column type="index" width="60"></el-table-column> -->
+			<el-table-column prop="createDate" label="创建时间" v-if="columnshow.createName" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="createName" label="创建人名称" v-if="columnshow.createName" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column prop="bpmStatus" label="流程状态" v-if="columnshow.bpmStatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
 			<!-- <el-table-column prop="status" label="状态" v-if="columnshow.status" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
