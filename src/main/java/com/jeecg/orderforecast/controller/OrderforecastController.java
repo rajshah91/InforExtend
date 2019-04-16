@@ -1,5 +1,6 @@
 package com.jeecg.orderforecast.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jeecg.orderforecast.entity.OrderforecastEntity;
 import com.jeecg.orderforecast.service.OrderforecastServiceI;
@@ -108,7 +109,7 @@ public class OrderforecastController extends BaseController {
 		}
 		// 订单
 		if (orderkey != null && orderkey != "") {
-			sqlwhere += "o.orderkey='" + orderkey + "' ";
+			sqlwhere += " and o.orderkey='" + orderkey + "' ";
 		}
 		// 区域
 		if (area != null && area != "") {
@@ -598,4 +599,44 @@ public class OrderforecastController extends BaseController {
 		}
 	}
 
+	
+	//getInforCustomer
+	
+	/**
+	 * 获取infor业务类型
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "getInforStorerkey")
+	@ResponseBody
+	public void getInforCustomer(HttpServletRequest request, HttpServletResponse response) {
+		/*JSONObject resultjson = new JSONObject();*/
+		JSONArray array = new JSONArray();
+		try {
+			String warehouse = request.getParameter("warehouse");
+			String storerkey = request.getParameter("storerkey");
+			// 仓库
+			if (warehouse != null && warehouse != "") {
+			 	String wh = typeNameToTypeCode(warehouse, "仓库");
+				List<Object[]> list = systemService
+						.findListbySql("select s.storerkey,s.company from W01_Storer s where s.type='1' and s.storerkey like '"+storerkey+"%'");
+				int i=1;
+				for (Object[] objects : list) {
+					if (i <= 10) {
+						com.alibaba.fastjson.JSONObject object = new com.alibaba.fastjson.JSONObject();
+						object.put("storerkey", isnull(String.valueOf(objects[0])));
+						object.put("company", isnull(String.valueOf(objects[1])));
+						array.add(object);
+					}
+					i++;
+				}
+				response.getWriter().write(array.toString());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

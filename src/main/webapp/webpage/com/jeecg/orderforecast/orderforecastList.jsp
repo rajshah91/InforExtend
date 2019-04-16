@@ -77,10 +77,10 @@
 		            </el-select>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="requestshipdate">
-					<el-date-picker type="date" placeholder="选择请求出货日期起" v-model="filters.requestshipdatestart" style="width:175px"></el-date-picker>
+					<el-date-picker type="datetime" placeholder="选择请求出货日期起" v-model="filters.requestshipdatestart" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="requestshipdate">
-					<el-date-picker type="date" placeholder="选择请求出货日期至" v-model="filters.requestshipdateend" style="width:175px"></el-date-picker>
+					<el-date-picker type="datetime" placeholder="选择请求出货日期至" v-model="filters.requestshipdateend" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
 					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入so单号" style="width:175px"></el-input>
@@ -92,13 +92,38 @@
 					<!-- <el-input v-model="filters.orderstatus" auto-complete="off" placeholder="请输入订单状态" style="width:175px"></el-input> -->
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="storerkey">
-					<el-input v-model="filters.storerkey" auto-complete="off" placeholder="请输入货主代码" style="width:175px"></el-input>
+				       <el-select v-model="filters.storerkey" name="storerkey" @change="changestorerkey($event)" clearable
+							default-first-option="true" filterable remote reserve-keyword placeholder="请输入货主代码"
+							:remote-method="storerkeyQuery" :loading="storerkey_loading" style="width: 175px;">
+							<el-option
+								v-for="item in storerkey_select"
+								:key="item.value"
+								:label="item.value"
+								:value="item.value">
+								 <span style="float: left;margin-right:10px">{{ item.value }}</span>
+                                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.label }}</span>
+							</el-option>
+						</el-select>
+						<!-- <el-input v-model="form.op" name="op" style="width:178px" auto-complete="off" placeholder="请输入OP"></el-input> -->
+					<!-- <el-input v-model="filters.storerkey" auto-complete="off" placeholder="请输入货主代码" style="width:175px"></el-input> -->
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="altsku">
-					<el-input v-model="filters.altsku" auto-complete="off" placeholder="请输入收货人代码" style="width:175px"></el-input>
+				    <el-select v-model="filters.altsku" name="storerkey" @change="changestorerkey($event)" clearable
+							default-first-option="true" filterable remote reserve-keyword placeholder="请输入货主代码"
+							:remote-method="storerkeyQuery" :loading="storerkey_loading" style="width: 175px;">
+							<el-option
+								v-for="item in storerkey_select"
+								:key="item.value"
+								:label="item.value"
+								:value="item.value">
+								 <span style="float: left;margin-right:10px">{{ item.value }}</span>
+                                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.label }}</span>
+							</el-option>
+				   </el-select>
+					<!-- <el-input v-model="filters.altsku" auto-complete="off" placeholder="请输入收货人代码" style="width:175px"></el-input> -->
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="ordertype">
-				    <el-select v-model="filters.ordertype" v-model="ordertype" placeholder="请选择状态" clearable style="width:175px">
+				    <el-select v-model="filters.ordertype" v-model="ordertype" placeholder="请输入业务类型" clearable style="width:175px">
 	                 <el-option v-for="type in ordertype"  :value="type"></el-option>
 	                </el-select>
 					<!-- <el-input v-model="filters.ordertype" auto-complete="off" placeholder="请输入业务类型" style="width:175px"></el-input> -->
@@ -285,7 +310,8 @@
 					ImportXls:'${webRoot}/orderforecastController.do?upload',
 					getorderstatus:'${webRoot}/orderforecastController.do?getorderstatus',
 					getordertype:'${webRoot}/orderforecastController.do?getordertype',
-					getwarehouse:'${webRoot}/ordersController.do?getwarehouse'
+					getwarehouse:'${webRoot}/ordersController.do?getwarehouse',
+					getInforStorerkey:'${webRoot}/orderforecastController.do?getInforStorerkey'
 				},
 				orderforecasts: [],
 				total: 0,
@@ -296,6 +322,8 @@
 					order:'desc'
 				},
 				listLoading: false,
+				storerkey_loading:false,
+				storerkey_select:[],
 				sels: [],//列表选中列
 				
 				formTitle:'新增',
@@ -360,6 +388,42 @@
 			}
 		},
 		methods: {
+			changestorerkey:function(event){
+				this.$http.get(this.url.getInforStorerkey,{params:{storerkey:this.filters.storerkey,warehouse:this.filters.warehouse}}).then(function(res) {
+					console.log(res.data);
+					//clear
+					
+					/* this.$set(this.form,"supplierName",res.data.localName);
+					this.$set(this.form,"phonenum",res.data.phonenum); */
+					/* this.$set(this.form,"contactMan",res.data.contactMan); */
+				});
+			},
+			//编号查询货主的信息
+			storerkeyQuery: function(query) {
+				if (query !== '') {
+					this.storerkey_loading = true;
+			        this.$http.get(this.url.getInforStorerkey,{params:{storerkey:query,warehouse:this.filters.warehouse}}).then(function(res)  {
+			            this.storerkey_loading = false;
+						if(res.data.length==0){
+							 this.storerkey_select = [];
+						}else{
+							this.storerkey_loading = false;
+							this.storerkey_select = res.data.map(function(d) {
+								return {
+									value: d.storerkey, 
+									label: d.company
+								};
+							}.bind(this));
+						}
+					});
+			       /*  setTimeout(function() {
+			        	console.log(1);
+			        	
+			        }, 200); */
+			    } else {
+			          this.storerkey_select = [];
+			    }
+			},
 			getwarehouse:function(){
 				this.$http.get(this.url.getwarehouse).then(function(res)  {
 					/* console.log(res.data.warehouse); */
@@ -602,10 +666,10 @@
 					 	requestshipdatestart:!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd'),//请求出货时间起
 					 	requestshipdateend:!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd'),//请求出货时间至
 						requestshipdate: !this.filters.requestshipdate ? '' : utilFormatDate(new Date(this.filters.requestshipdate ), 'yyyy-MM-dd hh:mm:ss'),
-					 	orderstatus:this.filters.orderstatus,
+					 	/* orderstatus:this.filters.orderstatus,
 					 	storerkey:this.filters.storerkey,
 					 	altsku:this.filters.altsku,
-					 	ordertype:this.filters.ordertype,
+					 	ordertype:this.filters.ordertype, */
 						field:fields.join(',')
 					}
 				};
