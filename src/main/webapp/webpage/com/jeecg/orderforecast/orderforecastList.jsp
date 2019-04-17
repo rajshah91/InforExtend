@@ -222,6 +222,7 @@
 			<el-table-column prop="area" label="库区" v-if="columnshow.area" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="storer" label="货主简称" v-if="columnshow.storer" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="vendor" label="收货人简称" v-if="columnshow.vendor" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="ordertype" label="业务类型" v-if="columnshow.ordertype" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="skusum" label="料号数" v-if="columnshow.skusum" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="blocsum" label="大库位数" v-if="columnshow.blocsum" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="slocsum" label="小库位数" v-if="columnshow.slocsum" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -234,7 +235,6 @@
 			<el-table-column prop="factpickdate" label="实际拣货完成时间" v-if="columnshow.factpickdate" min-width="160" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
 			<!-- <el-table-column prop="storerkey" label="货主代码" v-if="columnshow.storerkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="altsku" label="收货人代码" v-if="columnshow.altsku" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
-			<el-table-column prop="ordertype" label="业务类型" v-if="columnshow.ordertype" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -765,8 +765,9 @@
 					 	storerkey:this.filters.storerkey,//货主代码
 					 	altsku:this.filters.altsku,//收货人代码
 					 	ordertype:this.filters.ordertype,//订单类型
-					 	requestshipdatestart:!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd'),//请求出货时间起
-					 	requestshipdateend:!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd'),//请求出货时间至
+					 	area:this.filters.area.join(','),//库区
+					 	requestshipdatestart:!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间起
+					 	requestshipdateend:!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间至
 						requestshipdate: !this.filters.requestshipdate ? '' : utilFormatDate(new Date(this.filters.requestshipdate ), 'yyyy-MM-dd hh:mm:ss'),
 					 	/* orderstatus:this.filters.orderstatus,
 					 	storerkey:this.filters.storerkey,
