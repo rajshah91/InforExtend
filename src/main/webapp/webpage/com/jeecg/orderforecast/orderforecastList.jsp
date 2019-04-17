@@ -109,7 +109,7 @@
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="altsku">
 				    <el-select v-model="filters.altsku" name="storerkey" @change="changestorerkey($event)" clearable
-							default-first-option="true" filterable remote reserve-keyword placeholder="请输入货主代码"
+							default-first-option="true" filterable remote reserve-keyword placeholder="请输入收货人代码"
 							:remote-method="storerkeyQuery" :loading="storerkey_loading" style="width: 175px;">
 							<el-option
 								v-for="item in storerkey_select"
