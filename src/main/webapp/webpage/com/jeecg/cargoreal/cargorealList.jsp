@@ -480,8 +480,10 @@
 						//排序
 						sort:this.sort.sort,
 						order:this.sort.order,
-					 	warehouse:this.filters.warehouse,
-					 	area:this.filters.area,
+						region:this.filters.region,
+						department:this.filters.department.join(','),
+						office:this.filters.office.join(','),
+					 	area:this.filters.area.join(','),
 						field:fields.join(',')
 					}
 				};

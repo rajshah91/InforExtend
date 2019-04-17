@@ -41,10 +41,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Joiner;
 import com.jeecg.cargoreal.entity.CargorealEntity;
 import com.jeecg.cargoreal.service.CargorealServiceI;
-import com.jeecg.orders.entity.OrdersEntity;
 import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
+
 
 /**   
  * @Title: Controller  
@@ -88,7 +89,12 @@ public class CargorealController extends BaseController {
 	public void datagrid(CargorealEntity cargoreal,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
 		int page =Integer.parseInt(request.getParameter("page"));
 		int rows =Integer.parseInt(request.getParameter("rows"));
-		TSUser user= ResourceUtil.getSessionUser();// 操作人
+		String regions =request.getParameter("region");
+		String departments=request.getParameter("department");
+		String offices=request.getParameter("office");
+		String areas=request.getParameter("area");
+		String areaSql=getAllArea(regions,departments,offices,areas);
+ 		TSUser user= ResourceUtil.getSessionUser();// 操作人
 		List<UsercontactwhEntity> usercontactwhEntities=cargorealService.findHql("from UsercontactwhEntity where userid=?",user.getId());
 		if(usercontactwhEntities.size()>0) {
 		String sql="";
@@ -187,6 +193,65 @@ public class CargorealController extends BaseController {
 		TagUtil.datagrid(response, dataGrid);
 	}
 	
+	/**
+	 * 
+	 * 获取所有库区
+	 * @param regions
+	 * @param departments
+	 * @param offices
+	 * @param areas
+	 * @return
+	 */
+	private String getAllArea(String regions, String departments, String offices, String areas) {
+		// TODO Auto-generated method stub
+		 List<String> areaSql=new ArrayList<>();
+		 
+		 if(!areas.equals("")) {
+		    String[] areaList=areas.split(",");
+			for (String area : areaList) {
+				TSDepart depart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", area);
+				areaSql.add("'"+depart.getDepartname()+"'");
+			}
+		}else if (!offices.equals("")){
+			String[] officeList=offices.split(",");
+			for (String office : officeList) {
+				TSDepart depart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", office);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+			
+		}else if (!departments.equals("")){
+			String[] departmentList=departments.split(",");
+			for (String department : departmentList) {
+				TSDepart depart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", department);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+			
+		}else if (!regions.equals("")){
+			String[] regiontList=regions.split(",");
+			for (String region : regiontList) {
+				TSDepart depart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", region);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+		}
+		
+		return Joiner.on(",").join(areaSql);
+	}
+
+	private List<String> getAreaByDepart(TSDepart depart) {
+		// TODO Auto-generated method stub
+		List<String> areaSql=new ArrayList<>();
+		List<TSDepart> departs=cargorealService.findHql("from TSDepart where TSPDepart.id=?", depart.getId());
+		for (TSDepart tsDepart : departs) {
+			List<TSDepart> tdeparts=cargorealService.findHql("from TSDepart where TSPDepart.id=?", tsDepart.getId());
+			if(tdeparts.size()>0) {
+				areaSql.addAll(getAreaByDepart(tsDepart));
+			}else {
+				areaSql.add("'"+tsDepart.getDepartname()+"'");
+			}
+		}
+		return areaSql;
+	}
+
 	/**
 	 * 获取分页数据
 	 * @param sql
@@ -502,46 +567,5 @@ public class CargorealController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	/**
-	 * 获取组织
-	 * @param request
-	 * @param response
-	 */
-	@RequestMapping(params = "doFindDeparts")
-	@ResponseBody
-	public void doFindDeparts(HttpServletRequest request,HttpServletResponse response) {
-		JSONArray resultjson= new JSONArray();
-		try {
-			TSDepart firstDepart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", "A04");
-			List<TSDepart> departs=cargorealService.findHql("from TSDepart where TSPDepart.id=?", firstDepart.getId());
-			for (TSDepart tsDepart : departs) {
-				if(!tsDepart.getOrgCode().equals("A04A01")) {
-					resultjson.add(findChildrenDepart(tsDepart));
-				}
-			}
-			response.getWriter().write(resultjson.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private JSONObject findChildrenDepart(TSDepart tsDepart) {
-		// TODO Auto-generated method stub
-		JSONObject depart = new JSONObject();
-		depart.put("value", tsDepart.getOrgCode());
-		depart.put("label", tsDepart.getDepartname());
-		List<TSDepart> departs=cargorealService.findHql("from TSDepart where TSPDepart.id=?", tsDepart.getId());
-		if(departs.size()>0) {
-			JSONArray jsonArray=new JSONArray();
-			for (TSDepart tdepart : departs) {
-				jsonArray.add(findChildrenDepart(tdepart));
-			}
-			depart.put("children", jsonArray);
-		}
-		return depart;
 	}
 }
