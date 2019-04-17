@@ -408,7 +408,6 @@
 				});
 		    },
 		    findDepartments:function(){
-		    	console.log("dai1",this.filters.region);
 		    	if(this.filters.region!=''){
 			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.region}}).then(function(res)  {
 						this.departments = res.data;
@@ -416,7 +415,6 @@
 		    	}
 		    },
 		    findOffices:function(){
-		    	console.log("dai2",this.filters.department);
 		    	if(this.filters.department!=''){
 			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.department.join(',')}}).then(function(res)  {
 						this.offices = res.data;
@@ -425,7 +423,6 @@
 		    },
 		    findAreas:function(){
 		    	if(this.filters.office!=''){
-			    	console.log("dai3",this.filters.office);
 			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.office.join(',')}}).then(function(res)  {
 						this.areas = res.data;
 					});
