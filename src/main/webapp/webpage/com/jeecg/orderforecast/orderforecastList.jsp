@@ -765,7 +765,7 @@
 					 	storerkey:this.filters.storerkey,//货主代码
 					 	altsku:this.filters.altsku,//收货人代码
 					 	ordertype:this.filters.ordertype,//订单类型
-					 	area:this.filters.area.join(','),//库区
+					 	//area:this.filters.area.join(','),//库区
 					 	requestshipdatestart:!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间起
 					 	requestshipdateend:!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间至
 						requestshipdate: !this.filters.requestshipdate ? '' : utilFormatDate(new Date(this.filters.requestshipdate ), 'yyyy-MM-dd hh:mm:ss'),
