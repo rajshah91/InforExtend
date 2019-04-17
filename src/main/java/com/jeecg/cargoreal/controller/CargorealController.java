@@ -444,6 +444,67 @@ public class CargorealController extends BaseController {
 	}
 	
 	/**
+	 * 获取分区
+	 * @param request
+	 * @param response
+	 */
+	@RequestMapping(params = "doFindRegion")
+	@ResponseBody
+	public void doFindRegion(HttpServletRequest request,HttpServletResponse response) {
+		JSONArray resultjson= new JSONArray();
+		try {
+			TSDepart firstDepart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", "A04");
+			List<TSDepart> departs=cargorealService.findHql("from TSDepart where TSPDepart.id=?", firstDepart.getId());
+			for (TSDepart tsDepart : departs) {
+				if(!tsDepart.getOrgCode().equals("A04A01")) {
+					JSONObject region=new JSONObject();
+					region.put("value", tsDepart.getOrgCode());
+					region.put("label", tsDepart.getDepartname());
+					resultjson.add(region);
+				}
+			}
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 获取操作部
+	 * @param request
+	 * @param response
+	 */
+	@RequestMapping(params = "doFindDepartment")
+	@ResponseBody
+	public void doFindDepartment(HttpServletRequest request,HttpServletResponse response) {
+		String regionsParam = request.getParameter("regions");
+		String[] regions= regionsParam.split(",");
+		
+		JSONArray resultjson= new JSONArray();
+		try {
+			for (String region : regions) {
+				TSDepart firstDepart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", region);
+				List<TSDepart> departs=cargorealService.findHql("from TSDepart where TSPDepart.id=?", firstDepart.getId());
+				for (TSDepart tsDepart : departs) {
+					if(!tsDepart.getOrgCode().equals("A04A01")) {
+						JSONObject department=new JSONObject();
+						department.put("value", tsDepart.getOrgCode());
+						department.put("label", tsDepart.getDepartname());
+						resultjson.add(department);
+					}
+				}
+			}
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * 获取组织
 	 * @param request
 	 * @param response

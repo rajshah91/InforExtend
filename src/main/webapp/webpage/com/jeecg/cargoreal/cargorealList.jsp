@@ -36,6 +36,46 @@
 		<!--工具条-->
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
+				 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.region" clearable placeholder="请选择分区" @change="changeRegion" style="width:175px">
+					    <el-option
+					      v-for="item in regions"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.department" clearable multiple collapse-tags @change="changeDepartment" placeholder="请选择操作部" style="width:175px">
+					    <el-option
+					      v-for="item in departments"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.office" clearable multiple collapse-tags @change="changeOffice" placeholder="请选择操作科" style="width:175px">
+					    <el-option
+					      v-for="item in offices"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.area" clearable multiple collapse-tags placeholder="请选择库区" style="width:175px">
+					    <el-option
+					      v-for="item in areas"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
 <!-- 			    <el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
 <!-- 					<el-select v-model="filters.region" placeholder="请选择分区" clearable style="width:175px"> -->
 <!-- 	                 <el-option label="昆山区" value="昆山区"></el-option> -->
@@ -69,12 +109,6 @@
 <!-- 	                 <el-option label="" value=""></el-option> -->
 <!-- 	                 </el-select> -->
 <!-- 				</el-form-item> -->
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-				<el-cascader
-				    placeholder="试试搜索：指南" style="width:400px"
-				    :options="options" filterable
-				    change-on-select></el-cascader>
-				</el-form-item>
 				<br>
 				<el-form-item>
 			    	<el-button type="primary" icon="el-icon-search" v-on:click="getCargoreals">查询</el-button>
@@ -180,12 +214,11 @@
 		el:"#cargorealList",
 		data:function() {
 			return {
-				 options: [{
-			          value: 'zhinan',
-			          label: '指南'}],
 				filters: {
-					region:'昆山区',
-					area:'',
+					region:'',
+					department:[],
+					office:[],
+					area:[],
 				},
 				url:{
 					list:'${webRoot}/cargorealController.do?datagrid',
@@ -197,8 +230,9 @@
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
 					exportXls:'${webRoot}/cargorealController.do?exportXls&id=',
-					findDeparts:'${webRoot}/cargorealController.do?doFindDeparts',
-					ImportXls:'${webRoot}/cargorealController.do?upload'
+					ImportXls:'${webRoot}/cargorealController.do?upload',
+					findRegion:'${webRoot}/cargorealController.do?doFindRegion',
+					findDepartment:'${webRoot}/cargorealController.do?doFindDepartment'
 				},
 				cargoreals: [],
 				total: 0,
@@ -264,8 +298,11 @@
 					operator:true,
 				},
 				
-				
-				//数据字典 
+				regions:[],
+			    departments:[],
+			    offices:[],
+			    areas:[],
+			//数据字典 
 			}
 		},
 		methods: {
@@ -357,7 +394,63 @@
 			},
 			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
+		        this.$set(this.filters,"region",[]);
+		        this.departments=[];
+		    	this.$set(this.filters,"department",[]);
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
 		        this.getCargoreals();
+		    },
+		    findRegions:function(){
+		    	this.$http.get(this.url.findRegion).then(function(res)  {
+					this.regions = res.data;
+				});
+		    },
+		    findDepartments:function(){
+		    	console.log("dai1",this.filters.region);
+		    	if(this.filters.region!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.region}}).then(function(res)  {
+						this.departments = res.data;
+					});
+		    	}
+		    },
+		    findOffices:function(){
+		    	console.log("dai2",this.filters.department);
+		    	if(this.filters.department!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.department.join(',')}}).then(function(res)  {
+						this.offices = res.data;
+					});
+		    	}
+		    },
+		    findAreas:function(){
+		    	if(this.filters.office!=''){
+			    	console.log("dai3",this.filters.office);
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.office.join(',')}}).then(function(res)  {
+						this.areas = res.data;
+					});
+		    	}
+		    },
+		    changeRegion:function(){
+		        this.departments=[];
+		    	this.$set(this.filters,"department",[]);
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findDepartments();
+		    }, 
+		    changeDepartment:function(){
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findOffices();
+		    },
+		    changeOffice:function(){
+		    	this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findAreas();
 		    },
 			//获取用户列表
 			getCargoreals:function() {
@@ -523,10 +616,7 @@
 		},
 		mounted:function() {
 			this.initDictsData();
-			this.$http.get(this.url.findDeparts).then(function(res)  {
-		        console.log("dai",res.data);
-		        this.options=res.data;
-			});
+			this.findRegions();
 			this.getCargoreals();
 		}
 	});
