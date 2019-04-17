@@ -147,16 +147,18 @@ public class OrderforecastController extends BaseController {
 				+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24,'yyyy-MM-dd HH24:mi:ss'),  "
 				+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss')  " + "from " + wh + "_orders o " + "left join "
 				+ wh + "_pickdetail pk on pk.orderkey = o.orderkey "
-				+ "left join (select orderkey,listagg(to_char(physicalware),'\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
-				+ "          from " + wh + "_Pickdetail pd left join " + wh
-				+ "_loc loc on pd.loc = loc.loc left join "+wh+"_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null and pd.orderkey='0000003940' )group by orderkey) lp "
+				+ "left join (select orderkey,listagg(to_char(physicalware),'\\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
+				+ "          from " + wh + "_Pickdetail pd left join " + wh + "_loc loc on pd.loc = loc.loc left join "
+				+ wh
+				+ "_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null)group by orderkey) lp "
 				+ "          on lp.orderkey=o.orderkey " + "left join " + wh
 				+ "_loc l on pk.fromloc = l.loc and l.locnature <> 'S'   " + "left join " + wh
 				+ "_loc l2 on pk.fromloc = l2.loc and l2.locnature = 'S' " + "left join " + wh
 				+ "_storer s on o.storerkey = s.storerkey and s.type = '1'   " + "left join " + wh
 				+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' " + "left join " + wh
 				+ "_codelkup cl on o.type = cl.code and cl.listname = 'ORDERTYPE' " + "left join " + wh
-				+ "_orderstatussetup os on os.code=o.status  "+sqlwhere+""
+				+ "_orderstatussetup os on os.code=o.status  " + "left join "+wh+"_Loc l3 on pk.loc=l3.loc "
+				+ "left join "+wh+"_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
 				+ " group by o.whseid,o.requestedshipdate,os.description,lp.physicalware,o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate,   o.pickstartdate,o.monthtime,o.daytime";
 
 		if (warehouse != null && warehouse != "") {
