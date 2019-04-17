@@ -520,7 +520,7 @@
 			            sums[index] = '暂无数据';
 			          }
 		          }
-		          if(index>=7&&index<=10){
+		          if(index>=8&&index<=11){
 		        	  const values = param.data.map(function(item) { return Number(item[column.property])});
 			          if (!values.every(function(value) {return isNaN(value)})) {
 			            sums[index] = values.reduce(function(prev, curr)  {
