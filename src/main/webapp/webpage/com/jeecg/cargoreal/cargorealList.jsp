@@ -394,6 +394,7 @@
 			},
 			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
+		        this.page = 1;
 		        this.$set(this.filters,"region",[]);
 		        this.departments=[];
 		    	this.$set(this.filters,"department",[]);

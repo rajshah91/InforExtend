@@ -36,37 +36,77 @@
 		<!--工具条-->
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
-			 <el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.region" placeholder="请选择分区" clearable style="width:175px">
-	                 <el-option label="昆山区" value="昆山区"></el-option>
-	             </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.operatdepart" placeholder="请选择操作部" clearable style="width:175px">
-	                 <el-option label="操作一部" value="depart1"></el-option>
-	                 <el-option label="操作二部" value="depart2"></el-option>
-	                 <el-option label="操作三部" value="depart3"></el-option>
-	                 <el-option label="客服部" value="operation4"></el-option>
-	            </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.operatsection" placeholder="请选择操作科" clearable style="width:175px">
-	                 <el-option label="操作一部一科" value="section1"></el-option>
-	                 <el-option label="操作一部二科" value="section2"></el-option>
-	                 <el-option label="操作一部三科" value="section3"></el-option>
-	                 <el-option label="操作一部五科" value="section4"></el-option>
-	                 <el-option label="操作一部六科" value="section5"></el-option>
-	                 <el-option label="操作二部" value="section6"></el-option>
-	                 <el-option label="操作三部" value="section7"></el-option>
-	                 <el-option label="客服部一科" value="section8"></el-option>
-	                 <el-option label="客服部二科" value="section9"></el-option>
-	                 <el-option label="客服部三科" value="section10"></el-option>
-	                 <el-option label="客服部五科" value="section11"></el-option>
-	            </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="area">
-					<el-input v-model="filters.area" placeholder="请输入库区"  style="width:175px"></el-input>
-				</el-form-item>
+				 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.region" clearable placeholder="请选择分区" @change="changeRegion" style="width:175px">
+					    <el-option
+					      v-for="item in regions"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.department" clearable multiple collapse-tags @change="changeDepartment" placeholder="请选择操作部" style="width:175px">
+					    <el-option
+					      v-for="item in departments"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.office" clearable multiple collapse-tags @change="changeOffice" placeholder="请选择操作科" style="width:175px">
+					    <el-option
+					      v-for="item in offices"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.area" clearable multiple collapse-tags placeholder="请选择库区" style="width:175px">
+					    <el-option
+					      v-for="item in areas"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+<!-- 			 <el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
+<!-- 					<el-select v-model="filters.region" placeholder="请选择分区" clearable style="width:175px"> -->
+<!-- 	                 <el-option label="昆山区" value="昆山区"></el-option> -->
+<!-- 	             </el-select> -->
+<!-- 				</el-form-item> -->
+<!-- 				<el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
+<!-- 					<el-select v-model="filters.operatdepart" placeholder="请选择操作部" clearable style="width:175px"> -->
+<!-- 	                 <el-option label="操作一部" value="depart1"></el-option> -->
+<!-- 	                 <el-option label="操作二部" value="depart2"></el-option> -->
+<!-- 	                 <el-option label="操作三部" value="depart3"></el-option> -->
+<!-- 	                 <el-option label="客服部" value="operation4"></el-option> -->
+<!-- 	            </el-select> -->
+<!-- 				</el-form-item> -->
+<!-- 				<el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
+<!-- 					<el-select v-model="filters.operatsection" placeholder="请选择操作科" clearable style="width:175px"> -->
+<!-- 	                 <el-option label="操作一部一科" value="section1"></el-option> -->
+<!-- 	                 <el-option label="操作一部二科" value="section2"></el-option> -->
+<!-- 	                 <el-option label="操作一部三科" value="section3"></el-option> -->
+<!-- 	                 <el-option label="操作一部五科" value="section4"></el-option> -->
+<!-- 	                 <el-option label="操作一部六科" value="section5"></el-option> -->
+<!-- 	                 <el-option label="操作二部" value="section6"></el-option> -->
+<!-- 	                 <el-option label="操作三部" value="section7"></el-option> -->
+<!-- 	                 <el-option label="客服部一科" value="section8"></el-option> -->
+<!-- 	                 <el-option label="客服部二科" value="section9"></el-option> -->
+<!-- 	                 <el-option label="客服部三科" value="section10"></el-option> -->
+<!-- 	                 <el-option label="客服部五科" value="section11"></el-option> -->
+<!-- 	            </el-select> -->
+<!-- 				</el-form-item> -->
+<!-- 				<el-form-item style="margin-bottom: 8px;" prop="area"> -->
+<!-- 					<el-input v-model="filters.area" placeholder="请输入库区"  style="width:175px"></el-input> -->
+<!-- 				</el-form-item> -->
 				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
 				    <el-select v-model="filters.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
 		                 <!-- <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
@@ -295,7 +335,10 @@
 					storerkey:'',
 					altsku:'',
 					ordertype:'',
-					area:'',
+					region:'',
+					department:[],
+					office:[],
+					area:[],
 				},
 				url:{
 					list:'${webRoot}/orderforecastController.do?datagrid',
@@ -311,7 +354,9 @@
 					getorderstatus:'${webRoot}/orderforecastController.do?getorderstatus',
 					getordertype:'${webRoot}/orderforecastController.do?getordertype',
 					getwarehouse:'${webRoot}/ordersController.do?getwarehouse',
-					getInforStorerkey:'${webRoot}/orderforecastController.do?getInforStorerkey'
+					getInforStorerkey:'${webRoot}/orderforecastController.do?getInforStorerkey',
+					findRegion:'${webRoot}/cargorealController.do?doFindRegion',
+					findDepartment:'${webRoot}/cargorealController.do?doFindDepartment'
 				},
 				orderforecasts: [],
 				total: 0,
@@ -384,6 +429,10 @@
 					altsku:true,
 					ordertype:true,
 				},
+				regions:[],
+			    departments:[],
+			    offices:[],
+			    areas:[],
 				//数据字典 
 			}
 		},
@@ -613,7 +662,60 @@
 			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
 		        this.page = 1;
+		        this.$set(this.filters,"region",[]);
+		        this.departments=[];
+		    	this.$set(this.filters,"department",[]);
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
 		        this.getOrderforecasts();
+		    },
+		    findRegions:function(){
+		    	this.$http.get(this.url.findRegion).then(function(res)  {
+					this.regions = res.data;
+				});
+		    },
+		    findDepartments:function(){
+		    	if(this.filters.region!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.region}}).then(function(res)  {
+						this.departments = res.data;
+					});
+		    	}
+		    },
+		    findOffices:function(){
+		    	if(this.filters.department!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.department.join(',')}}).then(function(res)  {
+						this.offices = res.data;
+					});
+		    	}
+		    },
+		    findAreas:function(){
+		    	if(this.filters.office!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.office.join(',')}}).then(function(res)  {
+						this.areas = res.data;
+					});
+		    	}
+		    },
+		    changeRegion:function(){
+		        this.departments=[];
+		    	this.$set(this.filters,"department",[]);
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findDepartments();
+		    }, 
+		    changeDepartment:function(){
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findOffices();
+		    },
+		    changeOffice:function(){
+		    	this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findAreas();
 		    },
 			//获取用户列表
 			getOrderforecasts:function() {
@@ -823,6 +925,7 @@
 			this.getorderstatus();//初始化订单状态
 			this.getordertype();//初始化订单状态
 			this.getwarehouse();
+			this.findRegions();
 		}
 	});
 	
