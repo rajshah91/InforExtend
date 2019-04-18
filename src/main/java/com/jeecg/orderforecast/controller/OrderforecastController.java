@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jeecg.orderforecast.entity.OrderforecastEntity;
 import com.jeecg.orderforecast.service.OrderforecastServiceI;
 import com.jeecg.orders.entity.OrdersEntity;
+import com.jeecg.orders.service.OrdersServiceI;
 import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
 import java.util.ArrayList;
@@ -67,7 +68,8 @@ public class OrderforecastController extends BaseController {
 	private OrderforecastServiceI orderforecastService;
 	@Autowired
 	private SystemService systemService;
-
+	@Autowired
+	private OrdersServiceI ordersService;
 	/**
 	 * 订单预估列表 页面跳转
 	 * 
@@ -137,31 +139,71 @@ public class OrderforecastController extends BaseController {
 			sqlwhere += " and o.requestedshipdate between to_date('" + requestshipdatestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
-		// sql拼接
-		String sql = "select  o.whseid, " + "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
-				+ "os.description orderstatus, " + "lp.physicalware, " + "o.orderkey, " + "s.susr3 Storer, "
-				+ "s1.susr3 Vendor, " + "cl.description,  " + "count(distinct pk.sku), " + "count(distinct l.loc), "
-				+ "count(distinct l2.loc), " + "count(distinct pk.id),o.performancedata01,  "
-				+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
-				+ "o.monthtime / 60,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24,'yyyy-MM-dd HH24:mi:ss'), "
-				+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24,'yyyy-MM-dd HH24:mi:ss'),  "
-				+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss')  " + "from " + wh + "_orders o " + "left join "
-				+ wh + "_pickdetail pk on pk.orderkey = o.orderkey "
-				+ "left join (select orderkey,listagg(to_char(physicalware),'\\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
-				+ "          from " + wh + "_Pickdetail pd left join " + wh + "_loc loc on pd.loc = loc.loc left join "
-				+ wh
-				+ "_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null)group by orderkey) lp "
-				+ "          on lp.orderkey=o.orderkey " + "left join " + wh
-				+ "_loc l on pk.fromloc = l.loc and l.locnature <> 'S'   " + "left join " + wh
-				+ "_loc l2 on pk.fromloc = l2.loc and l2.locnature = 'S' " + "left join " + wh
-				+ "_storer s on o.storerkey = s.storerkey and s.type = '1'   " + "left join " + wh
-				+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' " + "left join " + wh
-				+ "_codelkup cl on o.type = cl.code and cl.listname = 'ORDERTYPE' " + "left join " + wh
-				+ "_orderstatussetup os on os.code=o.status  " + "left join "+wh+"_Loc l3 on pk.loc=l3.loc "
-				+ "left join "+wh+"_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
-				+ " group by o.whseid,o.requestedshipdate,os.description,lp.physicalware,o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate,   o.pickstartdate,o.monthtime,o.daytime";
+		
 
 		if (warehouse != null && warehouse != "") {
+			// sql拼接
+			String sql = "select  o.whseid, " + "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
+					+ "os.description orderstatus, " + "lp.physicalware, " + "o.orderkey, " + "s.susr3 Storer, "
+					+ "s1.susr3 Vendor, " + "cl.description,  " + "count(distinct pk.sku), " + "count(distinct l.loc), "
+					+ "count(distinct l2.loc), " + "count(distinct pk.id),o.performancedata01,  "
+					+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
+					+ "o.monthtime / 60,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss'), "
+					+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss'),  "
+					+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss')  " + "from " + wh + "_orders o " + "left join "
+					+ wh + "_pickdetail pk on pk.orderkey = o.orderkey "
+					+ "left join (select orderkey,listagg(to_char(physicalware),'\\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
+					+ "          from " + wh + "_Pickdetail pd left join " + wh + "_loc loc on nvl(trim(pd.fromloc),pd.loc) = loc.loc left join "
+					+ wh
+					+ "_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null)group by orderkey) lp "
+					+ "          on lp.orderkey=o.orderkey " + "left join " + wh
+					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S'   " + "left join " + wh
+					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
+					+ "_storer s on o.storerkey = s.storerkey and s.type = '1'   " + "left join " + wh
+					+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' " + "left join " + wh
+					+ "_codelkup cl on o.type = cl.code and cl.listname = 'ORDERTYPE' " + "left join " + wh
+					+ "_orderstatussetup os on os.code=o.status  " + "left join "+wh+"_Loc l3 on pk.loc=l3.loc "
+					+ "left join "+wh+"_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
+					+ " group by o.whseid,o.requestedshipdate,os.description,lp.physicalware,o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate,   o.pickstartdate,o.monthtime,o.daytime";
+			dataGrid = paging(sql, page, rows, dataGrid);
+		}else {
+			String sql="";
+			List<UsercontactwhEntity> entities=ordersService.getwarehouse();
+			if(entities!=null&&entities.size()>0) {
+				List<String> list=new ArrayList<>();
+				for (UsercontactwhEntity u : entities) {
+					list.add(u.getWarehouse().toString());
+				}
+			}
+			for (int i = 0; i < entities.size(); i++) {
+				wh=typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
+				if(i!=0) {
+					 sql+=" union all ";
+				 }
+				// sql拼接
+				sql += "select  o.whseid, " + "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
+						+ "os.description orderstatus, " + "lp.physicalware, " + "o.orderkey, " + "s.susr3 Storer, "
+						+ "s1.susr3 Vendor, " + "cl.description,  " + "count(distinct pk.sku), " + "count(distinct l.loc), "
+						+ "count(distinct l2.loc), " + "count(distinct pk.id),o.performancedata01,  "
+						+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
+						+ "o.monthtime / 60,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss'), "
+						+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss'),  "
+						+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss')  " + "from " + wh + "_orders o " + "left join "
+						+ wh + "_pickdetail pk on pk.orderkey = o.orderkey "
+						+ "left join (select orderkey,listagg(to_char(physicalware),'\\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
+						+ "          from " + wh + "_Pickdetail pd left join " + wh + "_loc loc on nvl(trim(pd.fromloc),pd.loc) = loc.loc left join "
+						+ wh
+						+ "_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null)group by orderkey) lp "
+						+ "          on lp.orderkey=o.orderkey " + "left join " + wh
+						+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S'   " + "left join " + wh
+						+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
+						+ "_storer s on o.storerkey = s.storerkey and s.type = '1'   " + "left join " + wh
+						+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' " + "left join " + wh
+						+ "_codelkup cl on o.type = cl.code and cl.listname = 'ORDERTYPE' " + "left join " + wh
+						+ "_orderstatussetup os on os.code=o.status  " + "left join "+wh+"_Loc l3 on pk.loc=l3.loc "
+						+ "left join "+wh+"_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
+						+ " group by o.whseid,o.requestedshipdate,os.description,lp.physicalware,o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate,   o.pickstartdate,o.monthtime,o.daytime";
+			}
 			dataGrid = paging(sql, page, rows, dataGrid);
 		}
 		TagUtil.datagrid(response, dataGrid);
