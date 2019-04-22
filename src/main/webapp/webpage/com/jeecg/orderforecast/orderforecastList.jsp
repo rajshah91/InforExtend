@@ -762,9 +762,9 @@
 						order:this.sort.order,
 					 	orderkey:this.filters.orderkey,
 					 	region:this.filters.region,
-						department:this.filters.department[0],
-						office:this.filters.office[0],
-					 	seracharea:this.filters.area[0],
+						department:this.filters.department.join(','),
+						office:this.filters.office.join(','),
+					 	seracharea:this.filters.area.join(','),
 					 	warehouse:this.filters.warehouse,//仓库
 					 	orderstatus:this.filters.orderstatus,//订单状态
 					 	storerkey:this.filters.storerkey,//货主代码
