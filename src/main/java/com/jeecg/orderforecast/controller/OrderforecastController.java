@@ -124,7 +124,7 @@ public class OrderforecastController extends BaseController {
 			sqlwhere += " and o.orderkey='" + orderkey + "' ";
 		}
 		// 区域
-		if (areaSql != null && !"".equals(areaSql)  ) {
+		if (areaSql != null && !"".equals(areaSql)) {
 			sqlwhere += " and c3.description in (" + areaSql + ")";
 		}
 		// 订单状态
@@ -136,25 +136,25 @@ public class OrderforecastController extends BaseController {
 			}
 		}
 		// 货主代码
-		if (storerkey != null && ! "".equals(storerkey)) {
+		if (storerkey != null && !"".equals(storerkey)) {
 			sqlwhere += " and o.storerkey='" + storerkey + "'";
 		}
 		// 收货人代码
-		if (altsku != null && ! "".equals(altsku)) {
+		if (altsku != null && !"".equals(altsku)) {
 			sqlwhere += " and s1.storerkey='" + altsku + "'";
 		}
 		// 业务类型
-		if (ordertype != null &&  ! "".equals(ordertype)) {
+		if (ordertype != null && !"".equals(ordertype)) {
 			sqlwhere += " and cl.description='" + ordertype + "'";
 		}
 		// 请求出货时间
-		if (requestshipdatestart != null &&  ! "".equals(requestshipdatestart) && requestshipdateend != null
-				&& ! "".equals(requestshipdateend)) {
+		if (requestshipdatestart != null && !"".equals(requestshipdatestart) && requestshipdateend != null
+				&& !"".equals(requestshipdateend)) {
 			sqlwhere += " and o.requestedshipdate between to_date('" + requestshipdatestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
 
-		if (warehouse != null &&  ! "".equals(warehouse)) {
+		if (warehouse != null && !"".equals(warehouse)) {
 			// sql拼接
 			String sql = "select  o.whseid, "
 					+ "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, "
@@ -613,7 +613,7 @@ public class OrderforecastController extends BaseController {
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
 		List<OrderforecastEntity> orderforecasts = new ArrayList<>();
-		
+
 		if (warehouse != null && warehouse != "") {
 			// sql拼接
 			String sql = "select  o.whseid, "
@@ -684,7 +684,7 @@ public class OrderforecastController extends BaseController {
 			}
 			orderforecasts = exportSQL(sql);
 		}
-		
+
 		modelMap.put(NormalExcelConstants.FILE_NAME, "订单预估");
 		modelMap.put(NormalExcelConstants.CLASS, OrderforecastEntity.class);
 		modelMap.put(NormalExcelConstants.PARAMS,
@@ -802,23 +802,37 @@ public class OrderforecastController extends BaseController {
 		/* JSONObject resultjson = new JSONObject(); */
 		JSONArray array = new JSONArray();
 		try {
-			String warehouse = request.getParameter("warehouse");
+			/* String warehouse = request.getParameter("warehouse"); */
 			String storerkey = request.getParameter("storerkey");
 			// 仓库
-			if (warehouse != null && warehouse != "") {
-				String wh = typeNameToTypeCode(warehouse, "仓库");
-				List<Object[]> list = systemService.findListbySql(
-						"select s.storerkey,s.company from W01_Storer s where s.type='1' and s.storerkey like '"
-								+ storerkey + "%'");
-				int i = 1;
+
+			if (storerkey != null && !"".equals(storerkey)) {
+				String sql = "";
+				List<UsercontactwhEntity> entities = ordersService.getwarehouse();
+				if (entities != null && entities.size() > 0) {
+					List<String> list = new ArrayList<>();
+					for (UsercontactwhEntity u : entities) {
+						list.add(u.getWarehouse().toString());
+					}
+				}
+				for (int i = 0; i < entities.size(); i++) {
+					String wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
+					if (i != 0) {
+						sql += " union all ";
+					}
+					sql += "select  s.storerkey,s.company from "+wh+"_Storer s where s.type='1' and s.storerkey like '"
+							+ storerkey + "%'";
+				}
+				List<Object[]> list = systemService.findListbySql("select distinct * from ("+sql+")");
+				int j = 1;
 				for (Object[] objects : list) {
-					if (i <= 10) {
+					if (j <= 10) {
 						com.alibaba.fastjson.JSONObject object = new com.alibaba.fastjson.JSONObject();
 						object.put("storerkey", isnull(String.valueOf(objects[0])));
 						object.put("company", isnull(String.valueOf(objects[1])));
 						array.add(object);
 					}
-					i++;
+					j++;
 				}
 				response.getWriter().write(array.toString());
 			}
