@@ -116,19 +116,19 @@ public class OrderforecastController extends BaseController {
 		String wh = "";
 		String sqlwhere = "where 1=1 ";
 		// 仓库
-		if (warehouse != null && warehouse != "") {
+		if (warehouse != null && !"".equals(warehouse)) {
 			wh = typeNameToTypeCode(warehouse, "仓库");
 		}
 		// 订单
-		if (orderkey != null && orderkey != "") {
+		if (orderkey != null && !"".equals(orderkey)) {
 			sqlwhere += " and o.orderkey='" + orderkey + "' ";
 		}
 		// 区域
-		if (areaSql != null && areaSql != "") {
+		if (areaSql != null && !"".equals(areaSql)  ) {
 			sqlwhere += " and c3.description in (" + areaSql + ")";
 		}
 		// 订单状态
-		if (orderstatus != null && orderstatus != "") {
+		if (orderstatus != null && !"".equals(orderstatus)) {
 			if ("未发运".equals(orderstatus)) {
 				sqlwhere += " and o.status>=14 and o.status<=92";
 			} else {
@@ -136,25 +136,25 @@ public class OrderforecastController extends BaseController {
 			}
 		}
 		// 货主代码
-		if (storerkey != null && storerkey != "") {
+		if (storerkey != null && ! "".equals(storerkey)) {
 			sqlwhere += " and o.storerkey='" + storerkey + "'";
 		}
 		// 收货人代码
-		if (altsku != null && altsku != "") {
+		if (altsku != null && ! "".equals(altsku)) {
 			sqlwhere += " and s1.storerkey='" + altsku + "'";
 		}
 		// 业务类型
-		if (ordertype != null && ordertype != "") {
+		if (ordertype != null &&  ! "".equals(ordertype)) {
 			sqlwhere += " and cl.description='" + ordertype + "'";
 		}
 		// 请求出货时间
-		if (requestshipdatestart != null && requestshipdatestart != "" && requestshipdateend != null
-				&& requestshipdateend != "") {
+		if (requestshipdatestart != null &&  ! "".equals(requestshipdatestart) && requestshipdateend != null
+				&& ! "".equals(requestshipdateend)) {
 			sqlwhere += " and o.requestedshipdate between to_date('" + requestshipdatestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
 
-		if (warehouse != null && warehouse != "") {
+		if (warehouse != null &&  ! "".equals(warehouse)) {
 			// sql拼接
 			String sql = "select  o.whseid, "
 					+ "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, "
