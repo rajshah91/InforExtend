@@ -2,6 +2,8 @@ package com.jeecg.orderforecast.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Joiner;
+import com.jeecg.cargoreal.service.CargorealServiceI;
 import com.jeecg.orderforecast.entity.OrderforecastEntity;
 import com.jeecg.orderforecast.service.OrderforecastServiceI;
 import com.jeecg.orders.entity.OrdersEntity;
@@ -27,6 +29,7 @@ import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
+import org.jeecgframework.web.system.pojo.base.TSDepart;
 import org.jeecgframework.web.system.pojo.base.TSType;
 import org.jeecgframework.web.system.pojo.base.TSTypegroup;
 import org.jeecgframework.web.system.service.SystemService;
@@ -70,6 +73,9 @@ public class OrderforecastController extends BaseController {
 	private SystemService systemService;
 	@Autowired
 	private OrdersServiceI ordersService;
+	@Autowired
+	private CargorealServiceI cargorealService;
+
 	/**
 	 * 订单预估列表 页面跳转
 	 * 
@@ -94,11 +100,15 @@ public class OrderforecastController extends BaseController {
 		// 界面参数
 		String warehouse = request.getParameter("warehouse");
 		String orderkey = request.getParameter("orderkey");
-		String area = request.getParameter("area");
 		String orderstatus = request.getParameter("orderstatus");
 		String storerkey = request.getParameter("storerkey");
 		String altsku = request.getParameter("altsku");
 		String ordertype = request.getParameter("ordertype");
+		String areas = request.getParameter("seracharea");
+		String regions = request.getParameter("region");
+		String departments = request.getParameter("department");
+		String offices = request.getParameter("office");
+		String areaSql = getAllArea(regions, departments, offices, areas);
 		String requestshipdatestart = request.getParameter("requestshipdatestart");
 		String requestshipdateend = request.getParameter("requestshipdateend");
 		int page = Integer.parseInt(request.getParameter("page"));
@@ -114,12 +124,16 @@ public class OrderforecastController extends BaseController {
 			sqlwhere += " and o.orderkey='" + orderkey + "' ";
 		}
 		// 区域
-		if (area != null && area != "") {
-			sqlwhere += " and loc.physicalware='" + area + "'";
+		if (areaSql != null && areaSql != "") {
+			sqlwhere += " and c3.description in (" + areaSql + ")";
 		}
 		// 订单状态
 		if (orderstatus != null && orderstatus != "") {
-			sqlwhere += " and os.description='" + orderstatus + "'";
+			if ("未发运".equals(orderstatus)) {
+				sqlwhere += " and o.status>=14 and o.status<=92";
+			} else {
+				sqlwhere += " and os.description='" + orderstatus + "'";
+			}
 		}
 		// 货主代码
 		if (storerkey != null && storerkey != "") {
@@ -139,22 +153,22 @@ public class OrderforecastController extends BaseController {
 			sqlwhere += " and o.requestedshipdate between to_date('" + requestshipdatestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
-		
 
 		if (warehouse != null && warehouse != "") {
 			// sql拼接
-			String sql = "select  o.whseid, " + "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
+			String sql = "select  o.whseid, "
+					+ "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, "
 					+ "os.description orderstatus, " + "lp.physicalware, " + "o.orderkey, " + "s.susr3 Storer, "
 					+ "s1.susr3 Vendor, " + "cl.description,  " + "count(distinct pk.sku), " + "count(distinct l.loc), "
 					+ "count(distinct l2.loc), " + "count(distinct pk.id),o.performancedata01,  "
-					+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
-					+ "o.monthtime / 60,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss'), "
-					+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss'),  "
-					+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss')  " + "from " + wh + "_orders o " + "left join "
-					+ wh + "_pickdetail pk on pk.orderkey = o.orderkey "
+					+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickdate1, "
+					+ "o.monthtime / 60 pickdate2,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss') pickdate3, "
+					+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss') pickdate4,  "
+					+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickdate5 " + "from " + wh + "_orders o "
+					+ "left join " + wh + "_pickdetail pk on pk.orderkey = o.orderkey "
 					+ "left join (select orderkey,listagg(to_char(physicalware),'\\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
-					+ "          from " + wh + "_Pickdetail pd left join " + wh + "_loc loc on nvl(trim(pd.fromloc),pd.loc) = loc.loc left join "
-					+ wh
+					+ "          from " + wh + "_Pickdetail pd left join " + wh
+					+ "_loc loc on nvl(trim(pd.fromloc),pd.loc) = loc.loc left join " + wh
 					+ "_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null)group by orderkey) lp "
 					+ "          on lp.orderkey=o.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S'   " + "left join " + wh
@@ -162,37 +176,40 @@ public class OrderforecastController extends BaseController {
 					+ "_storer s on o.storerkey = s.storerkey and s.type = '1'   " + "left join " + wh
 					+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' " + "left join " + wh
 					+ "_codelkup cl on o.type = cl.code and cl.listname = 'ORDERTYPE' " + "left join " + wh
-					+ "_orderstatussetup os on os.code=o.status  " + "left join "+wh+"_Loc l3 on pk.loc=l3.loc "
-					+ "left join "+wh+"_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
+					+ "_orderstatussetup os on os.code=o.status  " + "left join " + wh
+					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
+					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
 					+ " group by o.whseid,o.requestedshipdate,os.description,lp.physicalware,o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate,   o.pickstartdate,o.monthtime,o.daytime";
 			dataGrid = paging(sql, page, rows, dataGrid);
-		}else {
-			String sql="";
-			List<UsercontactwhEntity> entities=ordersService.getwarehouse();
-			if(entities!=null&&entities.size()>0) {
-				List<String> list=new ArrayList<>();
+		} else {
+			String sql = "";
+			List<UsercontactwhEntity> entities = ordersService.getwarehouse();
+			if (entities != null && entities.size() > 0) {
+				List<String> list = new ArrayList<>();
 				for (UsercontactwhEntity u : entities) {
 					list.add(u.getWarehouse().toString());
 				}
 			}
 			for (int i = 0; i < entities.size(); i++) {
-				wh=typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
-				if(i!=0) {
-					 sql+=" union all ";
-				 }
+				wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
+				if (i != 0) {
+					sql += " union all ";
+				}
 				// sql拼接
-				sql += "select  o.whseid, " + "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
+				sql += "select  o.whseid, "
+						+ "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, "
 						+ "os.description orderstatus, " + "lp.physicalware, " + "o.orderkey, " + "s.susr3 Storer, "
-						+ "s1.susr3 Vendor, " + "cl.description,  " + "count(distinct pk.sku), " + "count(distinct l.loc), "
-						+ "count(distinct l2.loc), " + "count(distinct pk.id),o.performancedata01,  "
-						+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'), "
-						+ "o.monthtime / 60,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss'), "
-						+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss'),  "
-						+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss')  " + "from " + wh + "_orders o " + "left join "
-						+ wh + "_pickdetail pk on pk.orderkey = o.orderkey "
+						+ "s1.susr3 Vendor, " + "cl.description,  " + "count(distinct pk.sku), "
+						+ "count(distinct l.loc), " + "count(distinct l2.loc), "
+						+ "count(distinct pk.id),o.performancedata01,  "
+						+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickdate1, "
+						+ "o.monthtime / 60 pickdate2,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss') pickdate3, "
+						+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss') pickdate4,  "
+						+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickdate5 " + "from " + wh + "_orders o "
+						+ "left join " + wh + "_pickdetail pk on pk.orderkey = o.orderkey "
 						+ "left join (select orderkey,listagg(to_char(physicalware),'\\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
-						+ "          from " + wh + "_Pickdetail pd left join " + wh + "_loc loc on nvl(trim(pd.fromloc),pd.loc) = loc.loc left join "
-						+ wh
+						+ "          from " + wh + "_Pickdetail pd left join " + wh
+						+ "_loc loc on nvl(trim(pd.fromloc),pd.loc) = loc.loc left join " + wh
 						+ "_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null)group by orderkey) lp "
 						+ "          on lp.orderkey=o.orderkey " + "left join " + wh
 						+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S'   " + "left join " + wh
@@ -200,13 +217,74 @@ public class OrderforecastController extends BaseController {
 						+ "_storer s on o.storerkey = s.storerkey and s.type = '1'   " + "left join " + wh
 						+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' " + "left join " + wh
 						+ "_codelkup cl on o.type = cl.code and cl.listname = 'ORDERTYPE' " + "left join " + wh
-						+ "_orderstatussetup os on os.code=o.status  " + "left join "+wh+"_Loc l3 on pk.loc=l3.loc "
-						+ "left join "+wh+"_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
+						+ "_orderstatussetup os on os.code=o.status  " + "left join " + wh
+						+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
+						+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
 						+ " group by o.whseid,o.requestedshipdate,os.description,lp.physicalware,o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate,   o.pickstartdate,o.monthtime,o.daytime";
 			}
 			dataGrid = paging(sql, page, rows, dataGrid);
 		}
 		TagUtil.datagrid(response, dataGrid);
+	}
+
+	/**
+	 * 
+	 * 获取所有库区
+	 * 
+	 * @param regions
+	 * @param departments
+	 * @param offices
+	 * @param areas
+	 * @return
+	 */
+	private String getAllArea(String regions, String departments, String offices, String areas) {
+		// TODO Auto-generated method stub
+		List<String> areaSql = new ArrayList<>();
+
+		if (!("").equals(areas) && areas != null) {
+			String[] areaList = areas.split(",");
+			for (String area : areaList) {
+				TSDepart depart = cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", area);
+				areaSql.add("'" + depart.getDepartname() + "'");
+			}
+		} else if (!("").equals(offices) && offices != null) {
+			String[] officeList = offices.split(",");
+			for (String office : officeList) {
+				TSDepart depart = cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", office);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+
+		} else if (!("").equals(departments) && departments != null) {
+			String[] departmentList = departments.split(",");
+			for (String department : departmentList) {
+				TSDepart depart = cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", department);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+
+		} else if (!("").equals(regions) && regions != null) {
+			String[] regiontList = regions.split(",");
+			for (String region : regiontList) {
+				TSDepart depart = cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", region);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+		}
+
+		return Joiner.on(",").join(areaSql);
+	}
+
+	private List<String> getAreaByDepart(TSDepart depart) {
+		// TODO Auto-generated method stub
+		List<String> areaSql = new ArrayList<>();
+		List<TSDepart> departs = cargorealService.findHql("from TSDepart where TSPDepart.id=?", depart.getId());
+		for (TSDepart tsDepart : departs) {
+			List<TSDepart> tdeparts = cargorealService.findHql("from TSDepart where TSPDepart.id=?", tsDepart.getId());
+			if (tdeparts.size() > 0) {
+				areaSql.addAll(getAreaByDepart(tsDepart));
+			} else {
+				areaSql.add("'" + tsDepart.getDepartname() + "'");
+			}
+		}
+		return areaSql;
 	}
 
 	// 仓库字典code 转换
@@ -482,7 +560,12 @@ public class OrderforecastController extends BaseController {
 		// 界面参数
 		String warehouse = request.getParameter("warehouse");
 		String orderkey = request.getParameter("orderkey");
-		String area = request.getParameter("area");
+		/* String area = request.getParameter("area"); */
+		String areas = request.getParameter("seracharea");
+		String regions = request.getParameter("region");
+		String departments = request.getParameter("department");
+		String offices = request.getParameter("office");
+		String areaSql = getAllArea(regions, departments, offices, areas);
 		String orderstatus = request.getParameter("orderstatus");
 		String storerkey = request.getParameter("storerkey");
 		String altsku = request.getParameter("altsku");
@@ -500,12 +583,16 @@ public class OrderforecastController extends BaseController {
 			sqlwhere += "o.orderkey='" + orderkey + "' ";
 		}
 		// 区域
-		if (area != null && area != "") {
-			sqlwhere += " and loc.physicalware='" + area + "'";
+		if (areaSql != null && areaSql != "") {
+			sqlwhere += " and c3.description in (" + areaSql + ")";
 		}
 		// 订单状态
 		if (orderstatus != null && orderstatus != "") {
-			sqlwhere += " and os.description='" + orderstatus + "'";
+			if ("未发运".equals(orderstatus)) {
+				sqlwhere += " and o.status>=14 and o.status<=92";
+			} else {
+				sqlwhere += " and os.description='" + orderstatus + "'";
+			}
 		}
 		// 货主代码
 		if (storerkey != null && storerkey != "") {
@@ -525,26 +612,79 @@ public class OrderforecastController extends BaseController {
 			sqlwhere += " and o.requestedshipdate between to_date('" + requestshipdatestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
-		// sql拼接
-		String sql = "select o.whseid, to_char(o.requestedshipdate,'yyyy-MM-dd HH24:mi:ss'), os.description orderstatus, loc.physicalware,o.orderkey,s.susr3 Storer,s1.susr3 Vendor,cl.description,"
-				+ "  count(distinct pk.sku),count(distinct l.loc),count(distinct l2.loc),count(distinct pk.id),o.performancedata01,"
-				+ "  to_char(o.pickstartdate,'yyyy-MM-dd HH24:mi:ss'),o.monthtime / 60,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24,'yyyy-MM-dd HH24:mi:ss'),"
-				+ "  to_char(o.pickenddate,'yyyy-MM-dd HH24:mi:ss')  from " + wh + "_orders o left join " + wh
-				+ "_pickdetail pk on pk.orderkey = o.orderkey " + "  left join " + wh
-				+ "_loc loc on pk.loc = loc.loc  left join " + wh
-				+ "_loc l on pk.fromloc = l.loc and l.locnature <> 'S' " + "  left join " + wh
-				+ "_loc l2 on pk.fromloc = l2.loc and l2.locnature = 'S' left join " + wh
-				+ "_storer s on o.storerkey = s.storerkey and s.type = '1' " + "  left join " + wh
-				+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' left join " + wh
-				+ "_codelkup cl on o.type = cl.listname and cl.listname = 'ORDERTYPE' " + "left join " + wh
-				+ "_orderstatussetup os on os.code=o.status" + "  " + sqlwhere
-				+ " group by o.whseid,o.requestedshipdate,os.description,loc.physicalware, "
-				+ "  o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate, "
-				+ "  o.pickstartdate,o.monthtime,o.daytime";
 		List<OrderforecastEntity> orderforecasts = new ArrayList<>();
+		
 		if (warehouse != null && warehouse != "") {
+			// sql拼接
+			String sql = "select  o.whseid, "
+					+ "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, "
+					+ "os.description orderstatus, " + "lp.physicalware, " + "o.orderkey, " + "s.susr3 Storer, "
+					+ "s1.susr3 Vendor, " + "cl.description,  " + "count(distinct pk.sku), " + "count(distinct l.loc), "
+					+ "count(distinct l2.loc), " + "count(distinct pk.id),o.performancedata01,  "
+					+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickdate1, "
+					+ "o.monthtime / 60 pickdate2,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss') pickdate3, "
+					+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss') pickdate4,  "
+					+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickdate5 " + "from " + wh + "_orders o "
+					+ "left join " + wh + "_pickdetail pk on pk.orderkey = o.orderkey "
+					+ "left join (select orderkey,listagg(to_char(physicalware),'\\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
+					+ "          from " + wh + "_Pickdetail pd left join " + wh
+					+ "_loc loc on nvl(trim(pd.fromloc),pd.loc) = loc.loc left join " + wh
+					+ "_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null)group by orderkey) lp "
+					+ "          on lp.orderkey=o.orderkey " + "left join " + wh
+					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S'   " + "left join " + wh
+					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
+					+ "_storer s on o.storerkey = s.storerkey and s.type = '1'   " + "left join " + wh
+					+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' " + "left join " + wh
+					+ "_codelkup cl on o.type = cl.code and cl.listname = 'ORDERTYPE' " + "left join " + wh
+					+ "_orderstatussetup os on os.code=o.status  " + "left join " + wh
+					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
+					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
+					+ " group by o.whseid,o.requestedshipdate,os.description,lp.physicalware,o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate,   o.pickstartdate,o.monthtime,o.daytime";
+			orderforecasts = exportSQL(sql);
+		} else {
+			String sql = "";
+			List<UsercontactwhEntity> entities = ordersService.getwarehouse();
+			if (entities != null && entities.size() > 0) {
+				List<String> list = new ArrayList<>();
+				for (UsercontactwhEntity u : entities) {
+					list.add(u.getWarehouse().toString());
+				}
+			}
+			for (int i = 0; i < entities.size(); i++) {
+				wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
+				if (i != 0) {
+					sql += " union all ";
+				}
+				// sql拼接
+				sql += "select  o.whseid, "
+						+ "to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, "
+						+ "os.description orderstatus, " + "lp.physicalware, " + "o.orderkey, " + "s.susr3 Storer, "
+						+ "s1.susr3 Vendor, " + "cl.description,  " + "count(distinct pk.sku), "
+						+ "count(distinct l.loc), " + "count(distinct l2.loc), "
+						+ "count(distinct pk.id),o.performancedata01,  "
+						+ "to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickdate1, "
+						+ "o.monthtime / 60 pickdate2,to_char(o.pickstartdate + 1 / 3 + o.monthtime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss') pickdate3, "
+						+ "to_char(o.pickstartdate + 1 / 3 + o.daytime / 3600 / 24*(count(distinct l.loc)+count(distinct l2.loc)),'yyyy-MM-dd HH24:mi:ss') pickdate4,  "
+						+ "to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickdate5 " + "from " + wh + "_orders o "
+						+ "left join " + wh + "_pickdetail pk on pk.orderkey = o.orderkey "
+						+ "left join (select orderkey,listagg(to_char(physicalware),'\\') within group(order by  physicalware) as physicalware from (select distinct  pd.orderkey,c2.description as physicalware "
+						+ "          from " + wh + "_Pickdetail pd left join " + wh
+						+ "_loc loc on nvl(trim(pd.fromloc),pd.loc) = loc.loc left join " + wh
+						+ "_Codelkup c2 on loc.physicalware=c2.code and c2.listname='PHYSICALWH'  where loc.physicalware is not null)group by orderkey) lp "
+						+ "          on lp.orderkey=o.orderkey " + "left join " + wh
+						+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S'   " + "left join " + wh
+						+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
+						+ "_storer s on o.storerkey = s.storerkey and s.type = '1'   " + "left join " + wh
+						+ "_storer s1 on o.susr35 = s1.storerkey and s1.type = '1' " + "left join " + wh
+						+ "_codelkup cl on o.type = cl.code and cl.listname = 'ORDERTYPE' " + "left join " + wh
+						+ "_orderstatussetup os on os.code=o.status  " + "left join " + wh
+						+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
+						+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  " + sqlwhere + ""
+						+ " group by o.whseid,o.requestedshipdate,os.description,lp.physicalware,o.orderkey,s.susr3,s1.susr3,cl.description,o.performancedata01,o.pickstartdate,o.pickenddate,   o.pickstartdate,o.monthtime,o.daytime";
+			}
 			orderforecasts = exportSQL(sql);
 		}
+		
 		modelMap.put(NormalExcelConstants.FILE_NAME, "订单预估");
 		modelMap.put(NormalExcelConstants.CLASS, OrderforecastEntity.class);
 		modelMap.put(NormalExcelConstants.PARAMS,

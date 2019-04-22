@@ -99,10 +99,15 @@
     <bean id="jeecgTemplateWordView" class="org.jeecgframework.poi.excel.view.JeecgTemplateWordView" />
     <bean id="jeecgMapExcelView" class="org.jeecgframework.poi.excel.view.JeecgMapExcelView" />
 	<!-- 方言 -->
-	<bean id="dialect"
+	<!-- <bean id="dialect"
 		class="org.jeecgframework.core.common.hibernate.dialect.DialectFactoryBean">
 		<property name="dbType" value="${jdbc.dbType}" />
+	</bean> -->
+	<bean id="xdialect"
+		class="org.ltd3000framework.hibernate.dialect.XDialectFactoryBean">
+		<property name="dbType" value="${jdbc.dbType}" />
 	</bean>
+	
 	<!-- 异常处理类 -->
 	<bean id="exceptionHandler"
 		class="org.jeecgframework.core.common.exception.GlobalExceptionResolver" />

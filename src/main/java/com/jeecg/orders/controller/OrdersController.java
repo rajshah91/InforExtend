@@ -95,10 +95,10 @@ public class OrdersController extends BaseController {
 		if(orderkey!=null&&orderkey!="") {
 		    sqlwhere="where o.orderkey='"+orderkey+"'";
 		}
-		String sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
-				"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
-				"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss'), " + 
-				"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss'),to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss'),c.description "+
+		String sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss') adddate,to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, " + 
+				"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickstartdate,to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickenddate, " + 
+				"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingstartdate,to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingenddate, " + 
+				"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckstartdate,to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckenddate,c.description "+
 				"from "+wh+"_orders o " + 
 				"left join "+wh+"_orderstatussetup c on c.code=o.status "+sqlwhere;
 		

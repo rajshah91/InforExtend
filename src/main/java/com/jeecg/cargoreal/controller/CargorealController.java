@@ -206,27 +206,27 @@ public class CargorealController extends BaseController {
 		// TODO Auto-generated method stub
 		 List<String> areaSql=new ArrayList<>();
 		 
-		 if(!areas.equals("")) {
+		 if(!("").equals(areas)&&areas!=null) {
 		    String[] areaList=areas.split(",");
 			for (String area : areaList) {
 				TSDepart depart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", area);
 				areaSql.add("'"+depart.getDepartname()+"'");
 			}
-		}else if (!offices.equals("")){
+		}else if (!("").equals(offices)&&offices!=null){
 			String[] officeList=offices.split(",");
 			for (String office : officeList) {
 				TSDepart depart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", office);
 				areaSql.addAll(getAreaByDepart(depart));
 			}
 			
-		}else if (!departments.equals("")){
+		}else if (!("").equals(departments)&&departments!=null){
 			String[] departmentList=departments.split(",");
 			for (String department : departmentList) {
 				TSDepart depart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", department);
 				areaSql.addAll(getAreaByDepart(depart));
 			}
 			
-		}else if (!regions.equals("")){
+		}else if (!("").equals(regions)&&regions!=null){
 			String[] regiontList=regions.split(",");
 			for (String region : regiontList) {
 				TSDepart depart=cargorealService.findUniqueByProperty(TSDepart.class, "orgCode", region);

@@ -127,6 +127,7 @@
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderstatus">
 				    <el-select v-model="filters.orderstatus" v-model="orderstatus" placeholder="请选择状态" clearable style="width:175px">
+	                 <el-option value="未发运" label="未发运"></el-option>
 	                 <el-option v-for="status in orderstatus"  :value="status"></el-option>
 	                </el-select>
 					<!-- <el-input v-model="filters.orderstatus" auto-complete="off" placeholder="请输入订单状态" style="width:175px"></el-input> -->
@@ -751,6 +752,7 @@
 				fields.push('storerkey');
 				fields.push('altsku');
 				fields.push('ordertype');
+				console.log(this.filters.area+"||"+this.filters.region+"||"+this.filters.department+"||"+this.filters.office);
 				var para = {
 					params: {
 						page: this.page,
@@ -759,7 +761,10 @@
 						sort:this.sort.sort,
 						order:this.sort.order,
 					 	orderkey:this.filters.orderkey,
-					 	area:this.filters.area,//库区
+					 	region:this.filters.region,
+						department:this.filters.department[0],
+						office:this.filters.office[0],
+					 	seracharea:this.filters.area[0],
 					 	warehouse:this.filters.warehouse,//仓库
 					 	orderstatus:this.filters.orderstatus,//订单状态
 					 	storerkey:this.filters.storerkey,//货主代码
@@ -897,7 +902,7 @@
 			ExportXls: function() {
 					var	requestshipdatestart=!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd');//请求出货时间起
 					var	requestshipdateend=!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd');//请求出货时间至
-				    var urllist="&warehouse="+this.filters.warehouse+"&orderstatus="+this.filters.orderstatus+"&orderkey="+this.filters.orderkey+"&area="+this.filters.area+"&storerkey="+this.filters.storerkey+"&altsku="+this.filters.altsku+"&ordertype="+this.filters.ordertype+"&requestshipdatestart="+requestshipdatestart+"&requestshipdateend="+requestshipdateend
+				    var urllist="&warehouse="+this.filters.warehouse+"&orderstatus="+this.filters.orderstatus+"&orderkey="+this.filters.orderkey+"&area="+this.filters.area+"&storerkey="+this.filters.storerkey+"&altsku="+this.filters.altsku+"&ordertype="+this.filters.ordertype+"&requestshipdatestart="+requestshipdatestart+"&requestshipdateend="+requestshipdateend+"&region="+this.filters.region+"&department="+this.filters.department[0]+"&office="+this.filters.office[0]+"&seracharea="+this.filters.area[0]
 				    window.location.href = this.url.exportXls+urllist;
 			},
 			//导入
@@ -922,7 +927,7 @@
 		},
 		mounted:function() {
 			this.initDictsData();
-			this.getOrderforecasts();
+			//this.getOrderforecasts();不初始化查询
 			this.getorderstatus();//初始化订单状态
 			this.getordertype();//初始化订单状态
 			this.getwarehouse();

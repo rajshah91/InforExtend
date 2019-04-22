@@ -481,9 +481,9 @@
 						sort:this.sort.sort,
 						order:this.sort.order,
 						region:this.filters.region,
-						department:this.filters.department.join(','),
-						office:this.filters.office.join(','),
-					 	area:this.filters.area.join(','),
+						department:this.filters.department[0],
+						office:this.filters.office[0],
+					 	area:this.filters.area[0],
 						field:fields.join(',')
 					}
 				};
