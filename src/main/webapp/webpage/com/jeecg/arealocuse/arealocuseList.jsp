@@ -36,38 +36,52 @@
 		<!--工具条-->
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
-			<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.region" placeholder="请选择分区" clearable style="width:175px">
-	                 <el-option label="昆山区" value="昆山区"></el-option>
-	             </el-select>
+				<el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.region" clearable placeholder="请选择分区" @change="changeRegion" style="width:175px">
+					    <el-option
+					      v-for="item in regions"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.department" clearable multiple collapse-tags @change="changeDepartment" placeholder="请选择操作部" style="width:175px">
+					    <el-option
+					      v-for="item in departments"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.office" clearable multiple collapse-tags @change="changeOffice" placeholder="请选择操作科" style="width:175px">
+					    <el-option
+					      v-for="item in offices"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.area" clearable multiple collapse-tags placeholder="请选择库区" style="width:175px">
+					    <el-option
+					      v-for="item in areas"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+				<br>
+				<el-form-item style="margin-bottom: 8px;" prop="selectdate">
+					<el-date-picker type="date" placeholder="选择日期起" v-model="filters.selectdatestart" style="width:175px"></el-date-picker>
 				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.operatdepart" placeholder="请选择操作部" clearable style="width:175px">
-	                 <el-option label="操作一部" value="depart1"></el-option>
-	                 <el-option label="操作二部" value="depart2"></el-option>
-	                 <el-option label="操作三部" value="depart3"></el-option>
-	                 <el-option label="客服部" value="operation4"></el-option>
-	            </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.operatsection" placeholder="请选择操作科" clearable style="width:175px">
-	                 <el-option label="操作一部一科" value="section1"></el-option>
-	                 <el-option label="操作一部二科" value="section2"></el-option>
-	                 <el-option label="操作一部三科" value="section3"></el-option>
-	                 <el-option label="操作一部五科" value="section4"></el-option>
-	                 <el-option label="操作一部六科" value="section5"></el-option>
-	                 <el-option label="操作二部" value="section6"></el-option>
-	                 <el-option label="操作三部" value="section7"></el-option>
-	                 <el-option label="客服部一科" value="section8"></el-option>
-	                 <el-option label="客服部二科" value="section9"></el-option>
-	                 <el-option label="客服部三科" value="section10"></el-option>
-	                 <el-option label="客服部五科" value="section11"></el-option>
-	            </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="area">
-					<el-select v-model="filters.area" placeholder="请选择库区" clearable style="width:175px">
-	                 <el-option label="" value=""></el-option>
-	                 </el-select>
+				<el-form-item style="margin-bottom: 8px;" prop="selectdate">
+					<el-date-picker type="date" placeholder="选择日期至" v-model="filters.selectdateend" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<br>
 				<el-form-item>
@@ -108,7 +122,7 @@
               </el-dropdown>
 		</el-row>
 		<!--列表-->
-		<el-table :data="arealocuses" border stripe size="mini" :span-method="objectSpanMethod" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
+		<el-table :data="arealocuses" border stripe size="mini"  highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
 <!-- 			<el-table-column type="selection" width="55"></el-table-column>
 			<el-table-column type="index" width="60"></el-table-column> -->
 			<!-- <el-table-column prop="bpmStatus" label="流程状态" v-if="columnshow.bpmStatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
@@ -180,6 +194,12 @@
 		data:function() {
 			return {
 				filters: {
+					region:'',
+					department:[],
+					office:[],
+					area:[],
+					selectdatestart:'',
+					selectdateend:'',
 				},
 				url:{
 					list:'${webRoot}/arealocuseController.do?datagrid',
@@ -191,7 +211,9 @@
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
 					exportXls:'${webRoot}/arealocuseController.do?exportXls&id=',
-					ImportXls:'${webRoot}/arealocuseController.do?upload'
+					ImportXls:'${webRoot}/arealocuseController.do?upload',
+					findRegion:'${webRoot}/cargorealController.do?doFindRegion',
+					findDepartment:'${webRoot}/cargorealController.do?doFindDepartment'
 				},
 				arealocuses: [],
 				total: 0,
@@ -236,68 +258,14 @@
 					totalrate:true,
 					lpn:true,
 				},
-				
-				//模拟数据
-				arealocuses:[{
-					  selectdate:'2019/4/4',
-					  region:'昆山区',
-					  operatdepart:'操作一部',
-					  operatsection: '操作一科',
-			          area: 1
-			        }, {
-			           selectdate: '2019/4/4',
-					   region: '昆山区',
-					   operatdepart: '操作一部',
-					   operatsection: '操作一科',
-				       area: 1
-			        }, {
-			           selectdate: '2019/4/4',
-					   region: '昆山区',
-					   operatdepart: '操作一部',
-					   operatsection: '操作一科',
-				       area: 1
-			        }, {
-			           selectdate: '2019/4/4',
-					   region: '昆山区',
-					   operatdepart: '操作一部',
-					   operatsection: '操作一科',
-				       area: 1
-			        }, {
-			        	selectdate: '2019/4/4',
-						region: '昆山区',
-						operatdepart: '操作一部',
-						operatsection: '操作一科',
-				        area: 1
-			        }]
+				regions:[],
+			    departments:[],
+			    offices:[],
+			    areas:[],
 				//数据字典 
 			}
 		},
 		methods: {
-			//列表合并
-			 objectSpanMethod:function(row) {
-				console.log(row.rowIndex);
-				console.log(row.columnIndex);
-				console.log(row.column.property);
-				if(row.column.property=='selectdate'){
-					return{
-						rowspan: 3,
-						colspan: 1
-					};
-				}
-		       /*  if (row.columnIndex === 0) {
-		          if (row.rowIndex % 2 === 0) {
-		            return {
-		              rowspan: 2,
-		              colspan: 1
-		            };
-		          } else {
-		            return {
-		              rowspan: 0,
-		              colspan: 0
-		            };
-		          }
-		        } */
-            },
 		    //列展示切换
 			show:function(value){
 				if(value=="selectdate"){
@@ -356,7 +324,63 @@
 			},
 			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
+		        this.page = 1;
+		        this.$set(this.filters,"region",[]);
+		        this.departments=[];
+		    	this.$set(this.filters,"department",[]);
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"selectdatestart","");
+			    this.$set(this.filters,"selectdateend","");
 		        this.getArealocuses();
+		    },
+		    findRegions:function(){
+		    	this.$http.get(this.url.findRegion).then(function(res)  {
+					this.regions = res.data;
+				});
+		    },
+		    findDepartments:function(){
+		    	if(this.filters.region!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.region}}).then(function(res)  {
+						this.departments = res.data;
+					});
+		    	}
+		    },
+		    findOffices:function(){
+		    	if(this.filters.department!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.department.join(',')}}).then(function(res)  {
+						this.offices = res.data;
+					});
+		    	}
+		    },
+		    findAreas:function(){
+		    	if(this.filters.office!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.office.join(',')}}).then(function(res)  {
+						this.areas = res.data;
+					});
+		    	}
+		    },
+		    changeRegion:function(){
+		        this.departments=[];
+		    	this.$set(this.filters,"department",[]);
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findDepartments();
+		    }, 
+		    changeDepartment:function(){
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findOffices();
+		    },
+		    changeOffice:function(){
+		    	this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findAreas();
 		    },
 			//获取用户列表
 			getArealocuses:function() {
@@ -388,6 +412,12 @@
 						//排序
 						sort:this.sort.sort,
 						order:this.sort.order,
+						selectdatestart:!this.filters.selectdatestart ? '' : utilFormatDate(new Date(this.filters.selectdatestart), 'yyyy-MM-dd'),//请求出货时间起
+						selectdateend:!this.filters.selectdateend ? '' : utilFormatDate(new Date(this.filters.selectdateend), 'yyyy-MM-dd'),//请求出货时间至
+						region:this.filters.region,
+						department:this.filters.department.join(','),
+						office:this.filters.office.join(','),
+					 	area:this.filters.area.join(','),
 						field:fields.join(',')
 					}
 				};
@@ -519,6 +549,7 @@
 		},
 		mounted:function() {
 			this.initDictsData();
+			this.findRegions();
 			/* this.getArealocuses(); */
 		}
 	});
