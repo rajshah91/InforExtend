@@ -900,8 +900,8 @@
 			},
 			//导出
 			ExportXls: function() {
-					var	requestshipdatestart=!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd');//请求出货时间起
-					var	requestshipdateend=!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd');//请求出货时间至
+					var	requestshipdatestart=!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd hh:mm:ss');//请求出货时间起
+					var	requestshipdateend=!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd hh:mm:ss');//请求出货时间至
 				    var urllist="&warehouse="+this.filters.warehouse+"&orderstatus="+this.filters.orderstatus+"&orderkey="+this.filters.orderkey+"&area="+this.filters.area+"&storerkey="+this.filters.storerkey+"&altsku="+this.filters.altsku+"&ordertype="+this.filters.ordertype+"&requestshipdatestart="+requestshipdatestart+"&requestshipdateend="+requestshipdateend+"&region="+this.filters.region+"&department="+this.filters.department.join(',')+"&office="+this.filters.office.join(',')+"&seracharea="+this.filters.area.join(',')
 				    window.location.href = this.url.exportXls+urllist;
 			},
