@@ -33,7 +33,7 @@ public class AchieveArealocuseTask implements Job{
 		ArealocuseEntity arealocuseEntity =new ArealocuseEntity();
 		arealocuseEntity.setSelectdate(new Date());
 		try {
-			arealocuseService.save(arealocuseEntity);
+			arealocuseService.achieveArealocuse();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -123,10 +123,10 @@
 		</el-row>
 		<!--列表-->
 		<el-table :data="arealocuses" border stripe size="mini"  highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
-<!-- 			<el-table-column type="selection" width="55"></el-table-column>
-			<el-table-column type="index" width="60"></el-table-column> -->
+<!-- 			<el-table-column type="selection" width="55"></el-table-column> -->
+<!-- 			<el-table-column type="index" label="序号" width="60"></el-table-column> -->
 			<!-- <el-table-column prop="bpmStatus" label="流程状态" v-if="columnshow.bpmStatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
-			<el-table-column prop="selectdate" label="日期" v-if="columnshow.selectdate" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="selectdate" label="日期" v-if="columnshow.selectdate" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatDate"></el-table-column>
 			<el-table-column prop="region" label="分区" v-if="columnshow.region" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="operatdepart" label="业务部" v-if="columnshow.operatdepart" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="operatsection" label="操作科" v-if="columnshow.operatsection" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -137,8 +137,8 @@
 			<el-table-column prop="lpn" label="lpn数" v-if="columnshow.lpn" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
-					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-					<!-- <el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button> -->
+<!-- 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button> -->
+					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -308,10 +308,12 @@
 				window.open(downUrl);
 			},
 			formatDate: function(row,column,cellValue, index){
-				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd'):'';
+// 				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd'):'';
+				return !!cellValue?cellValue.substring(0,10):'';
 			},
 			formatDateTime: function(row,column,cellValue, index){
-				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
+// 				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
+				return !!cellValue?cellValue.substring(0,10):'';
 			},
 			handleCurrentChange:function(val) {
 				this.page = val;

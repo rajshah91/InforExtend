@@ -1,24 +1,12 @@
 package com.jeecg.arealocuse.entity;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.lang.String;
-import java.io.UnsupportedEncodingException;
-import java.lang.Double;
-import java.lang.Integer;
-import java.math.BigDecimal;
-import javax.xml.soap.Text;
-import java.sql.Blob;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
 import org.jeecgframework.poi.excel.annotation.Excel;
 
 /**   
@@ -54,7 +42,7 @@ public class ArealocuseEntity implements java.io.Serializable {
 	/**流程状态*/
 	private java.lang.String bpmStatus;
 	/**日期*/
-	@Excel(name="日期",width=15,format = "yyyy-MM-dd HH:mm:ss")
+	@Excel(name="日期",width=15,format = "yyyy-MM-dd")
 	private java.util.Date selectdate;
 	/**分区*/
 	@Excel(name="分区",width=15)

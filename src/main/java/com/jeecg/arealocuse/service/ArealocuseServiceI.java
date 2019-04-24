@@ -12,4 +12,5 @@ public interface ArealocuseServiceI extends CommonService{
  	
  	public void saveOrUpdate(ArealocuseEntity entity) throws Exception;
  	
+ 	public void achieveArealocuse() throws Exception;
 }
