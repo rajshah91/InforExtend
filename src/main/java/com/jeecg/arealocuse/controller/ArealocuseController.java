@@ -1,5 +1,7 @@
 package com.jeecg.arealocuse.controller;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +17,13 @@ import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.MyBeanUtils;
 import org.jeecgframework.core.util.ResourceUtil;
+import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.entity.vo.NormalExcelConstants;
 import org.jeecgframework.tag.core.easyui.TagUtil;
+import org.jeecgframework.web.system.pojo.base.TSDepart;
 import org.jeecgframework.web.system.service.SystemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.google.common.base.Joiner;
 import com.jeecg.arealocuse.entity.ArealocuseEntity;
 import com.jeecg.arealocuse.service.ArealocuseServiceI;
 
@@ -77,11 +82,94 @@ public class ArealocuseController extends BaseController {
 	@RequestMapping(params = "datagrid")
 	public void datagrid(ArealocuseEntity arealocuse,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
 		CriteriaQuery cq = new CriteriaQuery(ArealocuseEntity.class, dataGrid);
+		
+		String regionlist = request.getParameter("regionlist");
+		String departmentlist = request.getParameter("departmentlist");
+		String officelist = request.getParameter("officelist");
+		String arealist = request.getParameter("arealist");
+		String[] areas = getAllArea(regionlist, departmentlist, officelist, arealist);
+		
 		//查询条件组装器
 		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, arealocuse, request.getParameterMap());
+		cq.in("area", areas);
+		try {
+			String selectdatestart = request.getParameter("selectdatestart");
+			String selectdateend = request.getParameter("selectdateend");
+			if (StringUtil.isNotEmpty(selectdatestart)) {
+				cq.ge("selectdate", new SimpleDateFormat("yyyy-MM-dd").parse(selectdatestart));
+			}
+			if (StringUtil.isNotEmpty(selectdateend)) {
+				cq.le("selectdate", new SimpleDateFormat("yyyy-MM-dd").parse(selectdateend));
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		cq.add();
 		this.arealocuseService.getDataGridReturn(cq, true);
 		TagUtil.datagrid(response, dataGrid);
+	}
+	
+	/**
+	 * 
+	 * 获取所有库区
+	 * 
+	 * @param regions
+	 * @param departments
+	 * @param offices
+	 * @param areas
+	 * @return
+	 */
+	private String[] getAllArea(String regions, String departments, String offices, String areas) {
+		// TODO Auto-generated method stub
+		List<String> areaSql = new ArrayList<>();
+
+		if (!("").equals(areas) && areas != null) {
+			String[] areaList = areas.split(",");
+			for (String area : areaList) {
+				TSDepart depart = arealocuseService.findUniqueByProperty(TSDepart.class, "orgCode", area);
+				areaSql.add(depart.getDepartname());
+			}
+		} else if (!("").equals(offices) && offices != null) {
+			String[] officeList = offices.split(",");
+			for (String office : officeList) {
+				TSDepart depart = arealocuseService.findUniqueByProperty(TSDepart.class, "orgCode", office);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+
+		} else if (!("").equals(departments) && departments != null) {
+			String[] departmentList = departments.split(",");
+			for (String department : departmentList) {
+				TSDepart depart = arealocuseService.findUniqueByProperty(TSDepart.class, "orgCode", department);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+
+		} else if (!("").equals(regions) && regions != null) {
+			String[] regiontList = regions.split(",");
+			for (String region : regiontList) {
+				TSDepart depart = arealocuseService.findUniqueByProperty(TSDepart.class, "orgCode", region);
+				areaSql.addAll(getAreaByDepart(depart));
+			}
+		}
+
+		String[] area = new String[areaSql.size()];
+		return areaSql.toArray(area);
+	}
+
+	private List<String> getAreaByDepart(TSDepart depart) {
+		// TODO Auto-generated method stub
+		List<String> areaSql = new ArrayList<>();
+		List<TSDepart> departs = arealocuseService.findHql("from TSDepart where TSPDepart.id=?", depart.getId());
+		for (TSDepart tsDepart : departs) {
+			List<TSDepart> tdeparts = arealocuseService.findHql("from TSDepart where TSPDepart.id=?", tsDepart.getId());
+			if (tdeparts.size() > 0) {
+				areaSql.addAll(getAreaByDepart(tsDepart));
+			} else {
+				areaSql.add(tsDepart.getDepartname());
+			}
+		}
+		return areaSql;
 	}
 	
 	/**

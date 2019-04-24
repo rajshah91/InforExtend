@@ -416,10 +416,10 @@
 						order:this.sort.order,
 						selectdatestart:!this.filters.selectdatestart ? '' : utilFormatDate(new Date(this.filters.selectdatestart), 'yyyy-MM-dd'),//请求出货时间起
 						selectdateend:!this.filters.selectdateend ? '' : utilFormatDate(new Date(this.filters.selectdateend), 'yyyy-MM-dd'),//请求出货时间至
-						region:this.filters.region,
-						department:this.filters.department.join(','),
-						office:this.filters.office.join(','),
-					 	area:this.filters.area.join(','),
+						regionlist:this.filters.region,
+						departmentlist:this.filters.department.join(','),
+						officelist:this.filters.office.join(','),
+					 	arealist:this.filters.area.join(','),
 						field:fields.join(',')
 					}
 				};
@@ -552,7 +552,7 @@
 		mounted:function() {
 			this.initDictsData();
 			this.findRegions();
-			/* this.getArealocuses(); */
+			this.getArealocuses();
 		}
 	});
 	
