@@ -150,7 +150,7 @@ public class OrderforecastController extends BaseController {
 		// 请求出货时间
 		if (requestshipdatestart != null && !"".equals(requestshipdatestart) && requestshipdateend != null
 				&& !"".equals(requestshipdateend)) {
-			sqlwhere += " and o.requestedshipdate between to_date('" + requestshipdatestart
+			sqlwhere += " and o.requestedshipdate+8/24 between to_date('" + requestshipdatestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
 
@@ -367,7 +367,7 @@ public class OrderforecastController extends BaseController {
 		return value;
 	}
 
-	//
+	// 导出执行sql
 	private List<OrderforecastEntity> exportSQL(String sql) {
 
 		List<OrderforecastEntity> list = new ArrayList<>();
@@ -609,7 +609,7 @@ public class OrderforecastController extends BaseController {
 		// 请求出货时间
 		if (requestshipdatestart != null && requestshipdatestart != "" && requestshipdateend != null
 				&& requestshipdateend != "") {
-			sqlwhere += " and o.requestedshipdate between to_date('" + requestshipdatestart
+			sqlwhere += " and o.requestedshipdate+8/24 between to_date('" + requestshipdatestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
 		List<OrderforecastEntity> orderforecasts = new ArrayList<>();
@@ -820,10 +820,10 @@ public class OrderforecastController extends BaseController {
 					if (i != 0) {
 						sql += " union all ";
 					}
-					sql += "select  s.storerkey,s.company from "+wh+"_Storer s where s.type='1' and s.storerkey like '"
-							+ storerkey + "%'";
+					sql += "select  s.storerkey,s.company from " + wh
+							+ "_Storer s where s.type='1' and s.storerkey like '" + storerkey + "%'";
 				}
-				List<Object[]> list = systemService.findListbySql("select distinct * from ("+sql+")");
+				List<Object[]> list = systemService.findListbySql("select distinct * from (" + sql + ")");
 				int j = 1;
 				for (Object[] objects : list) {
 					if (j <= 10) {
