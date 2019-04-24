@@ -229,7 +229,7 @@
 					edit:'${webRoot}/cargorealController.do?doUpdate',
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
-					exportXls:'${webRoot}/cargorealController.do?exportXls&id=',
+					exportXls:'${webRoot}/cargorealController.do?exportXls',
 					ImportXls:'${webRoot}/cargorealController.do?upload',
 					findRegion:'${webRoot}/cargorealController.do?doFindRegion',
 					findDepartment:'${webRoot}/cargorealController.do?doFindDepartment'
@@ -591,8 +591,8 @@
 			},
 			//导出
 			ExportXls: function() {
-					var ids = '';
-					window.location.href = this.url.exportXls+ids;
+			    var urllist="&region="+this.filters.region+"&department="+this.filters.department.join(',')+"&office="+this.filters.office.join(',')+"&seracharea="+this.filters.area.join(',')
+                window.location.href = this.url.exportXls+urllist;
 			},
 			//导入
 			ImportXls: function(){

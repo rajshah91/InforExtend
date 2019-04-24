@@ -269,9 +269,23 @@ public class CargorealController extends BaseController {
 		String totalSql = "select count(0) from ("+sql+")";
 		List<String> totalList= cargorealService.findListbySql(totalSql);
 		int total=Integer.parseInt(String.valueOf(totalList.get(0)));
-		
-		List<CargorealEntity> cargorealEntities=new ArrayList<>();
 		String resultSql=pagingByOracle(sql,page,rows);
+		List<CargorealEntity> cargorealEntities=achieveCargoreaBySql(resultSql);
+		dataGrid.setPage(page);
+	    dataGrid.setRows(rows);
+	    dataGrid.setTotal(total);
+	    dataGrid.setResults(cargorealEntities);
+		return dataGrid;
+	}
+	
+	/**
+	 * 根据sql 获取数据
+	 * @param resultSql
+	 * @return
+	 */
+	private List<CargorealEntity> achieveCargoreaBySql(String resultSql) {
+		List<CargorealEntity> cargorealEntities=new ArrayList<>();
+		// TODO Auto-generated method stub
 		List<Object[]> resultList= cargorealService.findListbySql(resultSql);
 		
 		SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -295,13 +309,9 @@ public class CargorealController extends BaseController {
 			cargorealEntity.setOperator(String.valueOf(result[8]));
 			cargorealEntities.add(cargorealEntity);
 		}
-		dataGrid.setPage(page);
-	    dataGrid.setRows(rows);
-	    dataGrid.setTotal(total);
-	    dataGrid.setResults(cargorealEntities);
-		return dataGrid;
+		return cargorealEntities;
 	}
-	
+
 	/**
 	 * 拼接分页sql
 	 * @param sql
@@ -452,9 +462,112 @@ public class CargorealController extends BaseController {
 	@RequestMapping(params = "exportXls")
 	public String exportXls(CargorealEntity cargoreal,HttpServletRequest request,HttpServletResponse response
 			, DataGrid dataGrid,ModelMap modelMap) {
-		CriteriaQuery cq = new CriteriaQuery(CargorealEntity.class, dataGrid);
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, cargoreal, request.getParameterMap());
-		List<CargorealEntity> cargoreals = this.cargorealService.getListByCriteriaQuery(cq,false);
+		String regions =request.getParameter("region");
+		String departments=request.getParameter("department");
+		String offices=request.getParameter("office");
+		String areas=request.getParameter("area");
+		String areaSql=getAllArea(regions,departments,offices,areas);
+ 		TSUser user= ResourceUtil.getSessionUser();// 操作人
+ 		List<CargorealEntity> cargoreals=new ArrayList<>();
+ 		if(!"".equals(areaSql)) {
+			List<UsercontactwhEntity> usercontactwhEntities=cargorealService.findHql("from UsercontactwhEntity where userid=?",user.getId());
+			if(usercontactwhEntities.size()>0) {
+				String sql="";
+				
+				for (int i = 0; i < usercontactwhEntities.size(); i++) {
+					if(usercontactwhEntities.get(i).getWarehouse().contains("FEILI_wmwhse")) {
+						String wh=typeNameToTypeCode(usercontactwhEntities.get(i).getWarehouse(), "仓库");
+					if(i!=0) {
+						 sql+=" union all ";
+					 }
+				
+				 sql+="select o.whseid,cu.description as descr,o.orderkey," + 
+				 		"       (select s.susr3 from "+wh+"_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3," + 
+				 		"       (select s2.susr3 from "+wh+"_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3," + 
+				 		"       to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate," + 
+				 		"       case when o.susr35='CSKJY0101' then " + 
+				 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+				 		"         when o.susr35='MSDNY0102' then " + 
+				 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-210" + 
+				 		"         when o.susr35='SSDZY0600' then " + 
+				 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-60" + 
+				 		"         when o.susr35='KSDZY0201' then " + 
+				 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+				 		"         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15" + 
+				 		"         end as earlywarndate," + 
+				 		"        os.description,o.performancedata01 from "+wh+"_orders o" + 
+				 		" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
+				 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
+				 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+				 		" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
+				 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+				 		" where o.priority='1' and o.status>=14 and o.status<95 and cu.description in ("+areaSql+")" + 
+				 		" union all" + 
+				 		" select r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3," + 
+				 		"       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate," + 
+				 		"       r.description,r.performancedata01 from" + 
+				 		" (select o.whseid,cu.description as descr,o.orderkey," + 
+				 		"       (select s.susr3 from "+wh+"_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3," + 
+				 		"       (select s2.susr3 from "+wh+"_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3," + 
+				 		"       o.requestedshipdate," + 
+				 		"       case when o.susr35='CSKJY0101' then " + 
+				 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+				 		"         when o.susr35='MSDNY0102' then " + 
+				 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-210" + 
+				 		"         when o.susr35='SSDZY0600' then " + 
+				 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-60" + 
+				 		"         when o.susr35='KSDZY0201' then " + 
+				 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+				 		"         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15" + 
+				 		"         end as earlywarndate," + 
+				 		"        os.description,o.performancedata01," + 
+				 		"        case when o.susr35='CSKJY0101' then " + 
+				 		"         o.requestedshipdate - 3.5/24" + 
+				 		"         when o.susr35='MSDNY0102' then " + 
+				 		"         o.requestedshipdate - 4/24" + 
+				 		"         when o.susr35='SSDZY0600' then " + 
+				 		"         o.requestedshipdate - 1.5/24" + 
+				 		"         when o.susr35='KSDZY0201' then " + 
+				 		"         o.requestedshipdate - 3.5/24" + 
+				 		"         else o.requestedshipdate" + 
+				 		"         end as enddate from "+wh+"_orders o" + 
+				 		" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
+				 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
+				 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+				 		" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
+				 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+				 		" where o.priority <> '1' and o.status>=14 and o.status<55 and cu.description in ("+areaSql+")" + 
+				 		" and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
+				 		" where sysdate>r.enddate" + 
+				 		" union all" + 
+				 		" select r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3," + 
+				 		"       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate," + 
+				 		"       r.description,r.performancedata01 from" + 
+				 		" (select o.whseid,cu.description as descr,o.orderkey," + 
+				 		"       (select s.susr3 from "+wh+"_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3," + 
+				 		"       (select s2.susr3 from "+wh+"_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3," + 
+				 		"       o.requestedshipdate," + 
+				 		"       CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15 as earlywarndate," + 
+				 		"       os.description,o.performancedata01," + 
+				 		"        case when o.status>=14 and o.status<55 then " + 
+				 		"         o.requestedshipdate - 1/24" + 
+				 		"         when o.status>=55 and o.status<95 then " + 
+				 		"         o.requestedshipdate - 0.5/24" + 
+				 		"         else o.requestedshipdate" + 
+				 		"         end as enddate from "+wh+"_orders o" + 
+				 		" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
+				 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
+				 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+				 		" left join "+wh+"_orderstatussetup os on os.code=o.status " + 
+				 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+				 		" where o.priority <> '1' and o.status>=14 and o.status<95 and cu.description in ("+areaSql+")" + 
+				 		" and o.susr35 not in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
+				 		" where sysdate>r.enddate";
+					}
+				}
+			    cargoreals=achieveCargoreaBySql(sql);
+			}
+ 		}
 		modelMap.put(NormalExcelConstants.FILE_NAME,"急货实时");
 		modelMap.put(NormalExcelConstants.CLASS,CargorealEntity.class);
 		modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("急货实时列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
