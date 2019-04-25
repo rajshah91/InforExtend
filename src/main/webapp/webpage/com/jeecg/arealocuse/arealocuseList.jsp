@@ -122,7 +122,7 @@
               </el-dropdown>
 		</el-row>
 		<!--列表-->
-		<el-table :data="arealocuses" border stripe size="mini"  :span-method="objectSpanMethod" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
+		<el-table :data="arealocuses" border stripe size="mini"  highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
 <!-- 			<el-table-column type="selection" width="55"></el-table-column> -->
 <!-- 			<el-table-column type="index" label="序号" width="60"></el-table-column> -->
 			<!-- <el-table-column prop="bpmStatus" label="流程状态" v-if="columnshow.bpmStatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
@@ -263,50 +263,50 @@
 			    offices:[],
 			    areas:[],
 			    
-			    rowList: [],
-			    spanArr: [],
-			    position: 0,
+// 			    rowList: [],
+// 			    spanArr: [],
+// 			    position: 0,
 				//数据字典 
 			}
 		},
 		methods: {
-			rowspan:function() {
-				 console.log("daio",this.arealocuses);
-			  		this.arealocuses.map(function(item,index)  {
-			  			console.log("daif",item);
-			  			console.log("daif",index);
-				    	if( index === 0){
-				    		this.spanArr.push(1);
-				    		this.position = 0;
-				    	}else{
-				    		console.log("dai2",item.region);
-				    		console.log("dai3",this.arealocuses[index-1].region);
-				    		if(this.arealocuses[index].region === this.arealocuses[index-1].region ){
-				    			this.spanArr[this.position] += 1;
-				    			this.spanArr.push(0);
-				    			 console.log("dai",this.spanArr);
-				    		}else{
-				    			this.spanArr.push(1);
-				    			this.position = index;
-				    		}
-				    	}
-				    })
-			  	},
-			    objectSpanMethod:function( row, column, rowIndex, columnIndex ) {  //表格合并行
-			    	//console.log("dai1",row.column);
-			    	////console.log("dai2",row.columnIndex);
-			    	//console.log("dai3",row.rowIndex);
-			    	if(row.columnIndex === 1){
-			    		//console.log("dai1",row);
-			    		console.log("dai4",this.spanArr);
-			            const _row = this.spanArr[row.rowIndex]
-			            const _col = _row > 0 ? 1 : 0;
-			            return {
-			                rowspan: _row,
-			                colspan: _col
-			            }
-			        }
-			  },
+// 			rowspan:function() {
+// 				 console.log("daio",this.arealocuses);
+// 			  		this.arealocuses.map(function(item,index)  {
+// 			  			console.log("daif",item);
+// 			  			console.log("daif",index);
+// 				    	if( index === 0){
+// 				    		this.spanArr.push(1);
+// 				    		this.position = 0;
+// 				    	}else{
+// 				    		console.log("dai2",item.region);
+// 				    		console.log("dai3",this.arealocuses[index-1].region);
+// 				    		if(this.arealocuses[index].region === this.arealocuses[index-1].region ){
+// 				    			this.spanArr[this.position] += 1;
+// 				    			this.spanArr.push(0);
+// 				    			 console.log("dai",this.spanArr);
+// 				    		}else{
+// 				    			this.spanArr.push(1);
+// 				    			this.position = index;
+// 				    		}
+// 				    	}
+// 				    })
+// 			  	},
+// 			    objectSpanMethod:function( row, column, rowIndex, columnIndex ) {  //表格合并行
+// 			    	//console.log("dai1",row.column);
+// 			    	////console.log("dai2",row.columnIndex);
+// 			    	//console.log("dai3",row.rowIndex);
+// 			    	if(row.columnIndex === 1){
+// 			    		//console.log("dai1",row);
+// 			    		console.log("dai4",this.spanArr);
+// 			            const _row = this.spanArr[row.rowIndex]
+// 			            const _col = _row > 0 ? 1 : 0;
+// 			            return {
+// 			                rowspan: _row,
+// 			                colspan: _col
+// 			            }
+// 			        }
+// 			  },
 		    //列展示切换
 			show:function(value){
 				if(value=="selectdate"){
@@ -473,7 +473,7 @@
 					}
 					this.arealocuses = datas;
 					this.listLoading = false;
-					this.rowspan();
+					//this.rowspan();
 				});
 			},
 			//删除
