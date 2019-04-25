@@ -131,9 +131,9 @@
 			<el-table-column prop="operatdepart" label="业务部" v-if="columnshow.operatdepart" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="operatsection" label="操作科" v-if="columnshow.operatsection" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="area" label="库区" v-if="columnshow.area" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="bloc" label="大储位使用" v-if="columnshow.bloc" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="sloc" label="小储位使用" v-if="columnshow.sloc" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="totalrate" label="总使用率" v-if="columnshow.totalrate" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="bloc" label="大储位使用率(%)" v-if="columnshow.bloc" min-width="150" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="sloc" label="小储位使用率(%)" v-if="columnshow.sloc" min-width="150" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="totalrate" label="总使用率(%)" v-if="columnshow.totalrate" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="lpn" label="lpn数" v-if="columnshow.lpn" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">

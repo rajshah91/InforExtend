@@ -43,51 +43,68 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 		List<UsercontactwhEntity> usercontactwhEntities=this.findHql("from UsercontactwhEntity where username=?","admin");
 		if(usercontactwhEntities.size()>0) {
 			
+			String totalSql="";
+			String smallSql="";
+			String smallAllSql="";
+			String bigSql="";
+			String bigAllSql="";
 			
 			for (int i = 0; i < usercontactwhEntities.size(); i++) {
 				if(usercontactwhEntities.get(i).getWarehouse().contains("FEILI_wmwhse")) {
 					String wh=typeNameToTypeCode(usercontactwhEntities.get(i).getWarehouse(), "仓库");
+					if(i!=0) {
+						totalSql+=" union all ";
+						smallSql+=" union all ";
+						smallAllSql+=" union all ";
+						bigSql+=" union all ";
+						bigAllSql+=" union all ";
+					}
+					totalSql+=" select loc.loc,cu.description," + 
+							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.loc = loc.loc) as countloc" + 
+							"       from "+wh+"_loc loc " + 
+							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+							" where  loc.disuse <> '0'";
+					smallSql+=" select loc.loc,cu.description," + 
+							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.loc = loc.loc) as countloc" + 
+							"       from "+wh+"_loc loc " + 
+							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+							" where loc.locnature='S' and loc.disuse <> '0'" ;
+					smallAllSql+=" select loc.loc,cu.description" + 
+							"       from "+wh+"_loc loc " + 
+							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+							" where loc.locnature='S' and loc.disuse <> '0'";
+					bigSql+=" select loc.loc,cu.description," + 
+							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.loc = loc.loc) as countloc" + 
+							"       from "+wh+"_loc loc " + 
+							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+							" where loc.locnature <> 'S' and loc.disuse <> '0'";
+					bigAllSql+=" select loc.loc,cu.description" + 
+							"       from "+wh+"_loc loc " + 
+							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+							" where loc.locnature <> 'S' and loc.disuse <> '0'";
 				}
 			}
 			
-			String sql="select a2.description,ROUND(b1.bigcount/b2.bigcountall,1) as bloc," + 
-					" ROUND(s1.smallcount/s2.smallcountall,1) as sloc," + 
-					" ROUND((b1.bigcount+s1.smallcount)/(b2.bigcountall+s2.smallcountall),1) as totalrate,a2.totalcountall from ("+ 
+			String sql="select a2.description,ROUND(100*b1.bigcount/b2.bigcountall,1) as bloc," + 
+					" ROUND(100*s1.smallcount/s2.smallcountall,1) as sloc," + 
+					" ROUND(100*(nvl(b1.bigcount,0)+nvl(s1.smallcount,0))/totalcount,1) as totalrate,a2.totalcountall from ("+ 
 					" select sum(a.countloc) as totalcountall,count(distinct a.loc) as totalcount,a.description from (" + 
-					" select loc.loc,cu.description," + 
-					"       (select count(distinct l.lot) from w01_lotxlocxid l where l.loc = loc.loc) as countloc" + 
-					"       from w01_loc loc " + 
-					" left join w01_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
-					" where  loc.disuse <> '0'" + 
+					totalSql+ 
 					" ) a group by a.description ) a2 left join (" + 
 					" select count(distinct s.loc) as smallcount,s.description from (" + 
-					" select loc.loc,cu.description," + 
-					"       (select count(distinct l.lot) from w01_lotxlocxid l where l.loc = loc.loc) as countloc" + 
-					"       from w01_loc loc " + 
-					" left join w01_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
-					" where loc.locnature='S' and loc.disuse <> '0'" + 
+					smallSql+ 
 					" ) s where  s.countloc>0 group by s.description ) s1  on  a2.description=s1.description" + 
 					" left join (" + 
 					" select count(distinct s.loc) as smallcountall,s.description from (" + 
-					" select loc.loc,cu.description" + 
-					"       from w01_loc loc " + 
-					" left join w01_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
-					" where loc.locnature='S' and loc.disuse <> '0'" + 
+					smallAllSql+ 
 					" ) s group by s.description ) s2 on a2.description=s2.description " + 
 					" left join (" + 
 					" select count(distinct b.loc) as bigcount,b.description from (" + 
-					" select loc.loc,cu.description," + 
-					"       (select count(distinct l.lot) from w01_lotxlocxid l where l.loc = loc.loc) as countloc" + 
-					"       from w01_loc loc " + 
-					" left join w01_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
-					" where loc.locnature <> 'S' and loc.disuse <> '0'" + 
+					bigSql+ 
 					" ) b where  b.countloc>0 group by b.description ) b1  on  a2.description=b1.description" + 
 					" left join (" + 
 					" select count(distinct b.loc) as bigcountall,b.description from (" + 
-					" select loc.loc,cu.description" + 
-					"       from w01_loc loc " + 
-					" left join w01_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
-					" where loc.locnature <> 'S' and loc.disuse <> '0'" + 
+					bigAllSql + 
 					" ) b group by b.description ) b2 on a2.description=b2.description";
 			
 			List<Object[]> resultList= this.findListbySql(sql);

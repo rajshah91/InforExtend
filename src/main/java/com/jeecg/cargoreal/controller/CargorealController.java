@@ -122,7 +122,6 @@ public class CargorealController extends BaseController {
 			 		"         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15" + 
 			 		"         end as earlywarndate," + 
 			 		"        os.description,o.performancedata01 from "+wh+"_orders o" + 
-			 		" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
 			 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
 			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
@@ -157,7 +156,6 @@ public class CargorealController extends BaseController {
 			 		"         o.requestedshipdate - 3.5/24" + 
 			 		"         else o.requestedshipdate" + 
 			 		"         end as enddate from "+wh+"_orders o" + 
-			 		" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
 			 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
 			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
@@ -181,7 +179,6 @@ public class CargorealController extends BaseController {
 			 		"         o.requestedshipdate - 0.5/24" + 
 			 		"         else o.requestedshipdate" + 
 			 		"         end as enddate from "+wh+"_orders o" + 
-			 		" left join "+wh+"_orderdetail od on od.orderkey=o.orderkey" + 
 			 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
 			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status " + 
