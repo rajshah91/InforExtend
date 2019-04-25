@@ -275,10 +275,12 @@ public class WorkamountController extends BaseController {
 			WorkamountEntity entity = new WorkamountEntity();
 			if(String.valueOf(result[0])!="null") {
 				entity.setUsername(String.valueOf(result[0]));
-			}else if(String.valueOf(result[1])!="null"){
-				entity.setUsername(String.valueOf(result[1]));
-			}else {
-				entity.setUsername(String.valueOf(result[2]));
+			}
+			if(String.valueOf(result[1])!="null"){
+				entity.setPickname(String.valueOf(result[1]));
+			}
+			if(String.valueOf(result[2])!="null"){
+				entity.setRecheckname(String.valueOf(result[2]));
 			}
 			entity.setSonamesum(String.valueOf(result[3]));
 			entity.setSoskusum(String.valueOf(result[4]));
@@ -451,10 +453,12 @@ public class WorkamountController extends BaseController {
 			WorkamountEntity entity = new WorkamountEntity();
 			if(String.valueOf(result[0])!="null") {
 				entity.setUsername(String.valueOf(result[0]));
-			}else if(String.valueOf(result[1])!="null"){
-				entity.setUsername(String.valueOf(result[1]));
-			}else {
-				entity.setUsername(String.valueOf(result[2]));
+			}
+			if(String.valueOf(result[1])!="null"){
+				entity.setPickname(String.valueOf(result[1]));
+			}
+			if(String.valueOf(result[2])!="null"){
+				entity.setRecheckname(String.valueOf(result[2]));
 			}
 			entity.setSonamesum(String.valueOf(result[3]));
 			entity.setSoskusum(String.valueOf(result[4]));
@@ -472,7 +476,6 @@ public class WorkamountController extends BaseController {
 			entity.setRcslocsum(String.valueOf(result[16]));
 			entity.setRclpnsum(String.valueOf(result[17]));
 			list.add(entity);
-
 		}
 		return list;
 	}
