@@ -36,38 +36,51 @@
 		<!--工具条-->
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
-			<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.region" placeholder="请选择分区" clearable style="width:175px">
-	                 <el-option label="昆山区" value="昆山区"></el-option>
-	             </el-select>
+			 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	            <el-select v-model="filters.region" clearable placeholder="请选择分区" @change="changeRegion" style="width:175px">
+					    <el-option
+					      v-for="item in regions"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.department" clearable multiple collapse-tags @change="changeDepartment" placeholder="请选择操作部" style="width:175px">
+					    <el-option
+					      v-for="item in departments"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.office" clearable multiple collapse-tags @change="changeOffice" placeholder="请选择操作科" style="width:175px">
+					    <el-option
+					      v-for="item in offices"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="area"> 
+	                <el-select v-model="filters.area" clearable multiple collapse-tags placeholder="请选择库区" style="width:175px">
+					    <el-option
+					      v-for="item in areas"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+ 					</el-select>
+	        	 </el-form-item>
+	        	 <el-form-item style="margin-bottom: 8px;" prop="datestart">
+					<el-date-picker type="datetime" placeholder="选择日期起" v-model="filters.datestart" style="width:175px"></el-date-picker>
 				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.operatdepart" placeholder="请选择操作部" clearable style="width:175px">
-	                 <el-option label="操作一部" value="depart1"></el-option>
-	                 <el-option label="操作二部" value="depart2"></el-option>
-	                 <el-option label="操作三部" value="depart3"></el-option>
-	                 <el-option label="客服部" value="operation4"></el-option>
-	            </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-select v-model="filters.operatsection" placeholder="请选择操作科" clearable style="width:175px">
-	                 <el-option label="操作一部一科" value="section1"></el-option>
-	                 <el-option label="操作一部二科" value="section2"></el-option>
-	                 <el-option label="操作一部三科" value="section3"></el-option>
-	                 <el-option label="操作一部五科" value="section4"></el-option>
-	                 <el-option label="操作一部六科" value="section5"></el-option>
-	                 <el-option label="操作二部" value="section6"></el-option>
-	                 <el-option label="操作三部" value="section7"></el-option>
-	                 <el-option label="客服部一科" value="section8"></el-option>
-	                 <el-option label="客服部二科" value="section9"></el-option>
-	                 <el-option label="客服部三科" value="section10"></el-option>
-	                 <el-option label="客服部五科" value="section11"></el-option>
-	            </el-select>
-				</el-form-item>
-				<el-form-item style="margin-bottom: 8px;" prop="area">
-					<el-select v-model="filters.area" placeholder="请选择库区" clearable style="width:175px">
-	                 <el-option label="" value=""></el-option>
-	                 </el-select>
+				<el-form-item style="margin-bottom: 8px;" prop="dateend">
+					<el-date-picker type="datetime" placeholder="选择日期至" v-model="filters.dateend" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<br>
 				<el-form-item>
@@ -113,7 +126,7 @@
 			<!-- <el-table-column type="selection" width="55"></el-table-column>
 			<el-table-column type="index" width="60"></el-table-column> -->
 			<el-table-column prop="username" label="员工姓名" v-if="columnshow.username" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column label="出货">
+			<el-table-column label="收货">
 				<el-table-column prop="sonamesum" label="票数" v-if="columnshow.sonamesum" min-width="70" sortable="custom" show-overflow-tooltip></el-table-column>
 				<el-table-column prop="soskusum" label="料号数" v-if="columnshow.soskusum" min-width="90" sortable="custom" show-overflow-tooltip></el-table-column>
 				<el-table-column prop="soblocsum" label="大储位数" v-if="columnshow.soblocsum" min-width="100" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -214,6 +227,12 @@
 		data:function() {
 			return {
 				filters: {
+					datestart:'',
+					dateend:'',
+					region:'',
+					department:[],
+					office:[],
+					area:[],
 				},
 				url:{
 					list:'${webRoot}/workamountController.do?datagrid',
@@ -224,8 +243,10 @@
 					edit:'${webRoot}/workamountController.do?doUpdate',
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
-					exportXls:'${webRoot}/workamountController.do?exportXls&id=',
-					ImportXls:'${webRoot}/workamountController.do?upload'
+					exportXls:'${webRoot}/workamountController.do?exportXls',
+					ImportXls:'${webRoot}/workamountController.do?upload',
+					findRegion:'${webRoot}/cargorealController.do?doFindRegion',
+					findDepartment:'${webRoot}/cargorealController.do?doFindDepartment'
 				},
 				workamounts: [],
 				total: 0,
@@ -249,16 +270,6 @@
 				//显示列
 				checkList:[],
 				detailList:{
-					id:'id',
-					createName:'createName',
-					createBy:'createBy',
-					createDate:'createDate',
-					updateName:'updateName',
-					updateBy:'updateBy',
-					updateDate:'updateDate',
-					sysOrgCode:'sysOrgCode',
-					sysCompanyCode:'sysCompanyCode',
-					bpmStatus:'bpmStatus',
 					sonamesum:'sonamesum',
 					soskusum:'soskusum',
 					soblocsum:'soblocsum',
@@ -277,16 +288,6 @@
 					username:'username',
 				},
 				columnshow:{
-					id:true,
-					createName:true,
-					createBy:true,
-					createDate:true,
-					updateName:true,
-					updateBy:true,
-					updateDate:true,
-					sysOrgCode:true,
-					sysCompanyCode:true,
-					bpmStatus:true,
 					sonamesum:true,
 					soskusum:true,
 					soblocsum:true,
@@ -305,11 +306,61 @@
 					username:true,
 				},
 				
-				
+				regions:[],
+			    departments:[],
+			    offices:[],
+			    areas:[],
 				//数据字典 
 			}
 		},
 		methods: {
+			findRegions:function(){
+		    	this.$http.get(this.url.findRegion).then(function(res)  {
+					this.regions = res.data;
+				});
+		    },
+		    findDepartments:function(){
+		    	if(this.filters.region!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.region}}).then(function(res)  {
+						this.departments = res.data;
+					});
+		    	}
+		    },
+		    findOffices:function(){
+		    	if(this.filters.department!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.department.join(',')}}).then(function(res)  {
+						this.offices = res.data;
+					});
+		    	}
+		    },
+		    findAreas:function(){
+		    	if(this.filters.office!=''){
+			    	this.$http.get(this.url.findDepartment,{params:{regions:this.filters.office.join(',')}}).then(function(res)  {
+						this.areas = res.data;
+					});
+		    	}
+		    },
+		    changeRegion:function(){
+		        this.departments=[];
+		    	this.$set(this.filters,"department",[]);
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findDepartments();
+		    }, 
+		    changeDepartment:function(){
+		    	this.offices=[];
+			    this.$set(this.filters,"office",[]);
+			    this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findOffices();
+		    },
+		    changeOffice:function(){
+		    	this.areas=[];
+			    this.$set(this.filters,"area",[]);
+		    	this.findAreas();
+		    },
 		    //列展示切换
 			show:function(value){
 				if(value=="id"){
@@ -451,6 +502,7 @@
 				fields.push('rcslocsum');
 				fields.push('rclpnsum');
 				fields.push('username');
+				console.log(this.filters.datestart);
 				var para = {
 					params: {
 						page: this.page,
@@ -458,7 +510,13 @@
 						//排序
 						sort:this.sort.sort,
 						order:this.sort.order,
-						field:fields.join(',')
+						datestart:!this.filters.datestart ? '' : utilFormatDate(new Date(this.filters.datestart), 'yyyy-MM-dd hh:mm:ss'),
+						dateend:!this.filters.dateend ? '' : utilFormatDate(new Date(this.filters.dateend), 'yyyy-MM-dd hh:mm:ss'),
+						region:this.filters.region,
+						department:this.filters.department[0],
+						office:this.filters.office[0],
+					 	seracharea:this.filters.area[0],
+						field:fields.join(',') 
 					}
 				};
 				this.listLoading = true;
@@ -571,8 +629,10 @@
 			},
 			//导出
 			ExportXls: function() {
-					var ids = '';
-					window.location.href = this.url.exportXls+ids;
+				    var datestart=this.filters.datestart ? '' : utilFormatDate(new Date(this.filters.datestart), 'yyyy-MM-dd hh:mm:ss');
+					var	dateend=this.filters.dateend ? '' : utilFormatDate(new Date(this.filters.dateend), 'yyyy-MM-dd hh:mm:ss');
+					var urllist = "&dateend="+dateend+"&datestart="+datestart+"&region="+this.filters.region+"&department="+this.filters.department.join(',')+"&office="+this.filters.office.join(',')+"&seracharea="+this.filters.area.join(',');
+					window.location.href = this.url.exportXls+urllist;
 			},
 			//导入
 			ImportXls: function(){
@@ -596,7 +656,8 @@
 		},
 		mounted:function() {
 			this.initDictsData();
-			this.getWorkamounts();
+			/* this.getWorkamounts(); */
+			this.findRegions();//初始化区
 		}
 	});
 	
