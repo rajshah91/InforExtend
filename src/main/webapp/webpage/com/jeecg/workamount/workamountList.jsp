@@ -133,6 +133,7 @@
 				<el-table-column prop="soslocsum" label="小储位数" v-if="columnshow.soslocsum" min-width="100" sortable="custom" show-overflow-tooltip></el-table-column>
 				<el-table-column prop="solpnsum" label="lpn数" v-if="columnshow.solpnsum" min-width="90" sortable="custom" show-overflow-tooltip></el-table-column>
 			</el-table-column>
+			<el-table-column prop="pickname" label="拣货员"  min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column label="拣货">
 				<el-table-column prop="picknamesum" label="票数" v-if="columnshow.picknamesum" min-width="70" sortable="custom" show-overflow-tooltip></el-table-column>
 				<el-table-column prop="pickskusum" label="料号数" v-if="columnshow.pickskusum" min-width="90" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -140,6 +141,7 @@
 				<el-table-column prop="pickslocsum" label="小储位数" v-if="columnshow.pickslocsum" min-width="100" sortable="custom" show-overflow-tooltip></el-table-column>
 				<el-table-column prop="picklpnsum" label="lpn数" v-if="columnshow.picklpnsum" min-width="90" sortable="custom" show-overflow-tooltip></el-table-column>
 			</el-table-column>
+			<el-table-column prop="recheckname" label="复检员"  min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column label="复检">
 				<el-table-column prop="rcnamesum" label="票数" v-if="columnshow.rcnamesum" min-width="70" sortable="custom" show-overflow-tooltip></el-table-column>
 				<el-table-column prop="rcskusum" label="料号数" v-if="columnshow.rcskusum" min-width="90" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -476,7 +478,6 @@
 			getWorkamounts:function() {
 				var fields=[];
 				fields.push('id');
-				fields.push('id');
 				fields.push('createName');
 				fields.push('createBy');
 				fields.push('createDate');
@@ -502,7 +503,8 @@
 				fields.push('rcslocsum');
 				fields.push('rclpnsum');
 				fields.push('username');
-				console.log(this.filters.datestart);
+				fields.push('pickname');
+				fields.push('recheckname');
 				var para = {
 					params: {
 						page: this.page,
