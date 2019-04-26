@@ -26,7 +26,9 @@ public class InforWebService {
 	private ApilogServiceI apilogService;
 
 	// 接口地址
-	private String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
+	private String url = "http://sce.feili.com/WMSWebService/services/WmsWebService";
+	//测试
+//	private String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
 
 	/**
 	 * 检查info用户是否正确
