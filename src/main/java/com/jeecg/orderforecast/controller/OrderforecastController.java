@@ -130,7 +130,7 @@ public class OrderforecastController extends BaseController {
 		// 订单状态
 		if (orderstatus != null && !"".equals(orderstatus)) {
 			if ("未发运".equals(orderstatus)) {
-				sqlwhere += " and o.status>=14 and o.status<=92";
+				sqlwhere += " and o.status>='14' and o.status<='92'";
 			} else {
 				sqlwhere += " and os.description='" + orderstatus + "'";
 			}
@@ -589,7 +589,7 @@ public class OrderforecastController extends BaseController {
 		// 订单状态
 		if (orderstatus != null && orderstatus != "") {
 			if ("未发运".equals(orderstatus)) {
-				sqlwhere += " and o.status>=14 and o.status<=92";
+				sqlwhere += " and o.status>='14' and o.status<='92'";
 			} else {
 				sqlwhere += " and os.description='" + orderstatus + "'";
 			}
