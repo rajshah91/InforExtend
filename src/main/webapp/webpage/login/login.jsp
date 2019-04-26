@@ -49,7 +49,7 @@
           <div class="center">
             <h1 id="id-text2" class="white">
               <i class="ace-icon fa fa-leaf green"></i>
-               Infor 扩展系统
+               Infor 辅助系统
             </h1>
             <h4 class="orange" id="id-company-text">www.sce.feili.com</h4>
           </div>
