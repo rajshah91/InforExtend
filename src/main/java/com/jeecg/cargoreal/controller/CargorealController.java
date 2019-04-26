@@ -107,7 +107,7 @@ public class CargorealController extends BaseController {
 					 sql+=" union all ";
 				 }
 			
-			 sql+="select o.whseid,cu.description as descr,o.orderkey," + 
+			 sql+="select distinct o.whseid,cu.description as descr,o.orderkey," + 
 			 		"       (select s.susr3 from "+wh+"_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3," + 
 			 		"       (select s2.susr3 from "+wh+"_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3," + 
 			 		"       to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate," + 
@@ -128,7 +128,7 @@ public class CargorealController extends BaseController {
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 			 		" where o.priority='1' and o.status>=14 and o.status<95 and cu.description in ("+areaSql+")" + 
 			 		" union all" + 
-			 		" select r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3," + 
+			 		" select distinct r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3," + 
 			 		"       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate," + 
 			 		"       r.description,r.performancedata01 from" + 
 			 		" (select o.whseid,cu.description as descr,o.orderkey," + 
@@ -164,7 +164,7 @@ public class CargorealController extends BaseController {
 			 		" and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
 			 		" where sysdate>r.enddate" + 
 			 		" union all" + 
-			 		" select r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3," + 
+			 		" select distinct r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3," + 
 			 		"       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate," + 
 			 		"       r.description,r.performancedata01 from" + 
 			 		" (select o.whseid,cu.description as descr,o.orderkey," + 
