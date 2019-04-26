@@ -580,7 +580,7 @@ public class OrderforecastController extends BaseController {
 		}
 		// 订单
 		if (orderkey != null && orderkey != "") {
-			sqlwhere += "o.orderkey='" + orderkey + "' ";
+			sqlwhere += " o.orderkey='" + orderkey + "' ";
 		}
 		// 区域
 		if (areaSql != null && areaSql != "") {
