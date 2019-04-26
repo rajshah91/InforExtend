@@ -53,6 +53,9 @@ public class WorkamountEntity implements java.io.Serializable {
 	private java.lang.String sysCompanyCode;
 	/**流程状态*/
 	private java.lang.String bpmStatus;
+	/**员工姓名*/
+	@Excel(name="员工姓名",width=15)
+	private java.lang.String username;
 	/**出货票数*/
 	@Excel(name="出货票数",width=15)
 	private java.lang.String sonamesum;
@@ -98,9 +101,12 @@ public class WorkamountEntity implements java.io.Serializable {
 	/**复检lpn数*/
 	@Excel(name="复检lpn数",width=15)
 	private java.lang.String rclpnsum;
-	/**员工姓名*/
-	@Excel(name="员工姓名",width=15)
-	private java.lang.String username;
+	/**拣货员姓名*/
+	@Excel(name="拣货员姓名",width=15)
+	private java.lang.String pickname;
+	/**复检员姓名*/
+	@Excel(name="复检员姓名",width=15)
+	private java.lang.String recheckname;
 	
 	/**
 	 *方法: 取得java.lang.String
@@ -571,6 +577,24 @@ public class WorkamountEntity implements java.io.Serializable {
 	 */
 	public void setUsername(java.lang.String username){
 		this.username = username;
+	}
+
+	@Column(name ="PICKNAME",nullable=true,length=32)
+	public java.lang.String getPickname() {
+		return pickname;
+	}
+
+	public void setPickname(java.lang.String pickname) {
+		this.pickname = pickname;
+	}
+
+	@Column(name ="RECHECKNAME",nullable=true,length=32)
+	public java.lang.String getRecheckname() {
+		return recheckname;
+	}
+
+	public void setRecheckname(java.lang.String recheckname) {
+		this.recheckname = recheckname;
 	}
 	
 }
