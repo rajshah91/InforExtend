@@ -126,7 +126,7 @@ public class CargorealController extends BaseController {
 			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
-			 		" where o.priority='1' and o.status>=14 and o.status<95 and cu.description in ("+areaSql+")" + 
+			 		" where o.priority='1' and o.status>='14' and o.status<'95' and cu.description in ("+areaSql+")" + 
 			 		" union all" + 
 			 		" select distinct r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3," + 
 			 		"       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate," + 
@@ -160,7 +160,7 @@ public class CargorealController extends BaseController {
 			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
-			 		" where o.priority <> '1' and o.status>=14 and o.status<55 and cu.description in ("+areaSql+")" + 
+			 		" where o.priority <> '1' and o.status>='14' and o.status<'55' and cu.description in ("+areaSql+")" + 
 			 		" and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
 			 		" where sysdate>r.enddate" + 
 			 		" union all" + 
@@ -173,9 +173,9 @@ public class CargorealController extends BaseController {
 			 		"       o.requestedshipdate," + 
 			 		"       CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15 as earlywarndate," + 
 			 		"       os.description,o.performancedata01," + 
-			 		"        case when o.status>=14 and o.status<55 then " + 
+			 		"        case when o.status>='14' and o.status<'55' then " + 
 			 		"         o.requestedshipdate - 1/24" + 
-			 		"         when o.status>=55 and o.status<95 then " + 
+			 		"         when o.status>='55' and o.status<'95' then " + 
 			 		"         o.requestedshipdate - 0.5/24" + 
 			 		"         else o.requestedshipdate" + 
 			 		"         end as enddate from "+wh+"_orders o" + 
@@ -183,7 +183,7 @@ public class CargorealController extends BaseController {
 			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status " + 
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
-			 		" where o.priority <> '1' and o.status>=14 and o.status<95 and cu.description in ("+areaSql+")" + 
+			 		" where o.priority <> '1' and o.status>='14' and o.status<'95' and cu.description in ("+areaSql+")" + 
 			 		" and o.susr35 not in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
 			 		" where sysdate>r.enddate";
 				}
