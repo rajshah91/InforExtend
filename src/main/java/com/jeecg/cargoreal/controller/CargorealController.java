@@ -123,7 +123,7 @@ public class CargorealController extends BaseController {
 			 		"         end as earlywarndate," + 
 			 		"        os.description,o.performancedata01 from "+wh+"_orders o" + 
 			 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
-			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+			 		" left join "+wh+"_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 			 		" where o.priority='1' and o.status>='14' and o.status<'95' and cu.description in ("+areaSql+")" + 
@@ -157,7 +157,7 @@ public class CargorealController extends BaseController {
 			 		"         else o.requestedshipdate" + 
 			 		"         end as enddate from "+wh+"_orders o" + 
 			 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
-			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+			 		" left join "+wh+"_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status" + 
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 			 		" where o.priority <> '1' and o.status>='14' and o.status<'55' and cu.description in ("+areaSql+")" + 
@@ -180,7 +180,7 @@ public class CargorealController extends BaseController {
 			 		"         else o.requestedshipdate" + 
 			 		"         end as enddate from "+wh+"_orders o" + 
 			 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
-			 		" left join "+wh+"_loc loc on loc.loc=pd.loc" + 
+			 		" left join "+wh+"_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + 
 			 		" left join "+wh+"_orderstatussetup os on os.code=o.status " + 
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 			 		" where o.priority <> '1' and o.status>='14' and o.status<'95' and cu.description in ("+areaSql+")" + 
