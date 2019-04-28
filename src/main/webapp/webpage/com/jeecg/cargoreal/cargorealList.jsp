@@ -156,7 +156,7 @@
 			<el-table-column prop="storer" label="货主简称" v-if="columnshow.storer" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="vendor" label="收货人简称" v-if="columnshow.vendor" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="requestshipdate" label="请求出货日期" v-if="columnshow.requestshipdate" min-width="140" sortable="custom" show-overflow-tooltip :formatter="formatDateTime"></el-table-column>
-			<el-table-column prop="warningtime" label="预警时间" v-if="columnshow.warningtime" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="warningtime" label="预警时间(min)" v-if="columnshow.warningtime" min-width="140" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="orderstatus" label="订单状态" v-if="columnshow.orderstatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="operator" label="操作人" v-if="columnshow.operator" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column label="操作" width="150">
