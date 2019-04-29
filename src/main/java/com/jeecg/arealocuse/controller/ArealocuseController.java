@@ -91,7 +91,9 @@ public class ArealocuseController extends BaseController {
 		
 		//查询条件组装器
 		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, arealocuse, request.getParameterMap());
-		cq.in("area", areas);
+		if(areas.length>0) {
+			cq.in("area", areas);
+		}
 		try {
 			String selectdatestart = request.getParameter("selectdatestart");
 			String selectdateend = request.getParameter("selectdateend");
