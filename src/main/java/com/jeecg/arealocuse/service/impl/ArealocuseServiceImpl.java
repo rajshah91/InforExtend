@@ -3,6 +3,9 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.print.DocFlavor.STRING;
+
+import org.apache.bcel.generic.LoadClass;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.web.system.pojo.base.TSDepart;
 import org.jeecgframework.web.system.pojo.base.TSType;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jeecg.arealocuse.entity.ArealocuseEntity;
 import com.jeecg.arealocuse.service.ArealocuseServiceI;
 import com.jeecg.cargoreal.entity.CargorealEntity;
+import com.jeecg.location.entity.LocationEntity;
 import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
 @Service("arealocuseService")
@@ -48,6 +52,7 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 			String smallAllSql="";
 			String bigSql="";
 			String bigAllSql="";
+			String lpnSql="";
 			
 			for (int i = 0; i < usercontactwhEntities.size(); i++) {
 				if(usercontactwhEntities.get(i).getWarehouse().contains("FEILI_wmwhse")) {
@@ -58,9 +63,9 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 						smallAllSql+=" union all ";
 						bigSql+=" union all ";
 						bigAllSql+=" union all ";
+						lpnSql+=" union all ";
 					}
-					totalSql+=" select loc.loc,cu.description," + 
-							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.loc = loc.loc) as countloc" + 
+					totalSql+=" select loc.loc,cu.description" + 
 							"       from "+wh+"_loc loc " + 
 							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 							" where  loc.disuse <> '0'";
@@ -82,30 +87,39 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 							"       from "+wh+"_loc loc " + 
 							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 							" where loc.locnature <> 'S' and loc.disuse <> '0'";
+					lpnSql+=" select loc.loc,cu.description," + 
+							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.loc = loc.loc) as countloc" + 
+							"       from "+wh+"_loc loc " + 
+							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
+							" where  loc.disuse <> '0' and loc.loc in ("+getLoction()+")";
 				}
 			}
 			
-			String sql="select a2.description,ROUND(100*b1.bigcount/b2.bigcountall,1) as bloc," + 
+			String sql="select a1.description,ROUND(100*b1.bigcount/b2.bigcountall,1) as bloc," + 
 					" ROUND(100*s1.smallcount/s2.smallcountall,1) as sloc," + 
-					" ROUND(100*(nvl(b1.bigcount,0)+nvl(s1.smallcount,0))/totalcount,1) as totalrate,a2.totalcountall from ("+ 
-					" select sum(a.countloc) as totalcountall,count(distinct a.loc) as totalcount,a.description from (" + 
+					" ROUND(100*(nvl(b1.bigcount,0)+nvl(s1.smallcount,0))/a1.totalcount,1) as totalrate,a2.totalcountall from ("+ 
+					" select count(distinct a.loc) as totalcount,a.description from (" + 
 					totalSql+ 
-					" ) a group by a.description ) a2 left join (" + 
+					" ) a group by a.description ) a1 left join (" + 
 					" select count(distinct s.loc) as smallcount,s.description from (" + 
 					smallSql+ 
-					" ) s where  s.countloc>0 group by s.description ) s1  on  a2.description=s1.description" + 
+					" ) s where  s.countloc>0 group by s.description ) s1  on  a1.description=s1.description" + 
 					" left join (" + 
 					" select count(distinct s.loc) as smallcountall,s.description from (" + 
 					smallAllSql+ 
-					" ) s group by s.description ) s2 on a2.description=s2.description " + 
+					" ) s group by s.description ) s2 on a1.description=s2.description " + 
 					" left join (" + 
 					" select count(distinct b.loc) as bigcount,b.description from (" + 
 					bigSql+ 
-					" ) b where  b.countloc>0 group by b.description ) b1  on  a2.description=b1.description" + 
+					" ) b where  b.countloc>0 group by b.description ) b1  on  a1.description=b1.description" + 
 					" left join (" + 
 					" select count(distinct b.loc) as bigcountall,b.description from (" + 
 					bigAllSql + 
-					" ) b group by b.description ) b2 on a2.description=b2.description";
+					" ) b group by b.description ) b2 on a1.description=b2.description" +
+					" left join (" + 
+					" select sum(a.countloc) as totalcountall,a.description from (" +
+					lpnSql+
+					" ) a group by a.description ) a2 on a1.description=a2.description";
 			
 			List<Object[]> resultList= this.findListbySql(sql);
 			for (Object[] result : resultList) {
@@ -134,6 +148,20 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 		}
 	}
  	
+	private String getLoction() {
+		// TODO Auto-generated method stub
+		String location="";
+		List<LocationEntity> locationEntities=this.findHql("from LocationEntity where locType='unshelvedstorage'");
+		for (LocationEntity locationEntity : locationEntities) {
+			if(location.equals("")) {
+				location+="'"+locationEntity.getLocCode()+"'";
+			}else {
+				location+=",'"+locationEntity.getLocCode()+"'";
+			}
+		}
+		return location;
+	}
+
 	//仓库字典code 转换
 	private String typeNameToTypeCode(String typeName,String typegroupname) {
 		List<TSTypegroup> tsTypegroup=this.findHql("from TSTypegroup where typegroupname=?", typegroupname);

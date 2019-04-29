@@ -2,7 +2,6 @@ package com.jeecg.arealocuse.controller;
 
 import java.util.Date;
 
-import org.jeecgframework.web.system.sms.service.TSSmsServiceI;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
