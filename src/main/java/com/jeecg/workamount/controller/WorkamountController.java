@@ -140,13 +140,11 @@ public class WorkamountController extends BaseController {
 				list.add(u.getWarehouse().toString());
 			}
 		}
+		List<WorkamountEntity> worklist = new ArrayList<>();
+		Map<String, List<WorkamountEntity>> workmap = new HashMap<>();
 		for (int i = 0; i < entities.size(); i++) {
 			wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
-			if (i != 0) {
-				sql += " union all ";
-			}
-
-			sql += "select * from (select op.fully_qualified_id,count(distinct r.receiptkey) sonamesum,"
+			sql = "select * from (select op.fully_qualified_id,count(distinct r.receiptkey) sonamesum,"
 					+ "count(distinct r.sku) soskusum," + "count(distinct l.loc) soblocsum,"
 					+ "count(distinct l2.loc) soslocsum," + "count(distinct r.toid) solpnsum " + "from " + wh
 					+ "_Receiptdetail r " + "left join (select i.toloc,i.addwho from " + wh
@@ -175,15 +173,148 @@ public class WorkamountController extends BaseController {
 					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
 					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware " + "" + sqlwhere
 					+ sqlrecheck + " group by o.performancedata04) c on  a.fully_qualified_id=c.performancedata04";
-
+			workmap.put(wh, listbypage(sql));
 		}
-		sql = "select d.fully_qualified_id,d.performancedata01,d.performancedata04,sum(distinct d.sonamesum),sum(d.soskusum),sum(d.soblocsum),sum(d.soslocsum),sum(d.solpnsum)," + 
-				" sum(distinct d.picknamesum),sum(d.pickskusum),sum(d.pickblocsum),sum(d.pickslocsum),sum(d.picklpnsum)," + 
-				" sum(distinct d.rcnamesum),sum(d.rcskusum),sum(d.rcblocsum),sum(d.rcslocsum),sum(d.rclpnsum) from (" + sql + ") d group by d.fully_qualified_id,d.performancedata01,d.performancedata04";
-		dataGrid = paging(sql, page, rows, dataGrid);
+		List<WorkamountEntity> lists = new ArrayList<>();
+		
+		List<WorkamountEntity> listspage = new ArrayList<>();
+		// 第一层循环拿每个仓的list
+		for (List<WorkamountEntity> work : workmap.values()) {
+			// 第二层循环拿到每个仓的数据
+			for (WorkamountEntity workamountEntity : work) {
+				lists.add(workamountEntity);
+			}
+		}
+		//拿到名字的map集合用以去重
+		Map<String, String> nameMap=new HashMap<>();
+        for(int i = 0; i < lists.size() ; i++) {
+        	if(!"null".equals(lists.get(i).getUsername())&&lists.get(i).getUsername()!=null) {
+        		nameMap.put(lists.get(i).getUsername(),String.valueOf(i));
+        	}else if(!"null".equals(lists.get(i).getPickname())&&lists.get(i).getPickname()!=null) {
+        		nameMap.put(lists.get(i).getPickname(),String.valueOf(i));
+        	}else if(!"null".equals(lists.get(i).getRecheckname())&&lists.get(i).getPickname()!=null){
+        		nameMap.put(lists.get(i).getRecheckname(),String.valueOf(i));
+        	}else {
+        		//操作员为空的情况
+        		nameMap.put(lists.get(i).getRecheckname(),String.valueOf(i));
+        	}
+        }
+        for (String s : nameMap.keySet()) {
+			WorkamountEntity entity=new WorkamountEntity();
+			for(int i = 0; i < lists.size(); i++) {
+				 if(!"null".equals(lists.get(i).getUsername())&&lists.get(i).getUsername()!=null&&s.equals(lists.get(i).getUsername())) {
+					 entity.setUsername(s);
+					 entity.setSonamesum(sumbyinfor(entity.getSonamesum(), lists.get(i).getSonamesum()));
+					 entity.setSoskusum(sumbyinfor(entity.getSoskusum(), lists.get(i).getSoskusum()));
+					 entity.setSoblocsum(sumbyinfor(entity.getSoblocsum(), lists.get(i).getSoblocsum()));
+					 entity.setSoslocsum(sumbyinfor(entity.getSoslocsum(), lists.get(i).getSoslocsum()));
+					 entity.setSolpnsum(sumbyinfor(entity.getSolpnsum(), lists.get(i).getSolpnsum()));
+				 }
+				 if(!"null".equals(lists.get(i).getPickname())&&lists.get(i).getPickname()!=null&&s.equals(lists.get(i).getPickname())) {
+					 entity.setPickname(s);
+					 entity.setPicknamesum(sumbyinfor(entity.getPicknamesum(), lists.get(i).getPicknamesum()));
+					 entity.setPickskusum(sumbyinfor(entity.getPickskusum(), lists.get(i).getPickskusum()));
+					 entity.setPickblocsum(sumbyinfor(entity.getPickblocsum(), lists.get(i).getPickblocsum()));
+					 entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
+					 entity.setPicklpnsum(sumbyinfor(entity.getPicklpnsum(), lists.get(i).getPicklpnsum()));
+				 }
+				 if(!"null".equals(lists.get(i).getRecheckname())&&lists.get(i).getPickname()!=null&&s.equals(lists.get(i).getRecheckname())) {
+					 entity.setRecheckname(s);
+					 entity.setRcnamesum(sumbyinfor(entity.getRcnamesum(), lists.get(i).getRcnamesum()));
+					 entity.setRcskusum(sumbyinfor(entity.getRcskusum(), lists.get(i).getRcskusum()));
+					 entity.setRcblocsum(sumbyinfor(entity.getRcblocsum(), lists.get(i).getRcblocsum()));
+					 entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
+					 entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(), lists.get(i).getRclpnsum()));
+				 }
+				 
+			}
+			worklist.add(entity);
+		}
+        
+        
+		/*// 合并的操作
+		for (int i = 0; i < lists.size() - 1; i++) {
+			for (int j = lists.size() - 1; j > i; j--) {
+				// 如果名称相同，合并并清除lists的值
+				boolean flag = false;
+				System.out.println(lists.get(i).getUsername() + "||" + lists.get(j).getUsername());
+				if (lists.get(i).getUsername() != "null" && lists.get(j).getUsername() != "null"
+						&& lists.get(i).getUsername().equals(lists.get(j).getUsername())) {
+					lists.get(i).setSonamesum(lists.get(i).getSonamesum() + lists.get(j).getSonamesum());
+					lists.get(i).setSoskusum(lists.get(i).getSoskusum() + lists.get(j).getSoskusum());
+					lists.get(i).setSoblocsum(lists.get(i).getSoblocsum() + lists.get(j).getSoblocsum());
+					lists.get(i).setSoslocsum(lists.get(i).getSoslocsum() + lists.get(j).getSoslocsum());
+					lists.get(i).setSolpnsum(lists.get(i).getSolpnsum() + lists.get(j).getSolpnsum());
+					flag = true;
+				}
+				System.out.println(lists.get(i).getPickname() + "||" + lists.get(j).getPickname());
+				if (lists.get(i).getPickname() != "null" && lists.get(j).getPickname() != "null"
+						&& lists.get(i).getPickname().equals(lists.get(j).getPickname())) {
+					lists.get(i).setPicknamesum(lists.get(i).getPicknamesum() + lists.get(j).getPicknamesum());
+					lists.get(i).setPickskusum(lists.get(i).getPickskusum() + lists.get(i).getPickskusum());
+					lists.get(i).setPickblocsum(lists.get(i).getPickblocsum() + lists.get(j).getPickblocsum());
+					lists.get(i).setPickslocsum(lists.get(i).getPickslocsum() + lists.get(j).getPickslocsum());
+					lists.get(i).setPicklpnsum(lists.get(i).getPicklpnsum() + lists.get(j).getPicklpnsum());
+					flag = true;
+				}
+				System.out.println(lists.get(i).getRecheckname() + "||" + lists.get(j).getRecheckname());
+				if (lists.get(i).getRecheckname() != "null" && lists.get(j).getRecheckname() != "null"
+						&& lists.get(i).getRecheckname().equals(lists.get(j).getRecheckname())) {
+					lists.get(i).setRcnamesum(lists.get(i).getRcnamesum() + lists.get(j).getRcnamesum());
+					lists.get(i).setRcblocsum(lists.get(i).getRcblocsum() + lists.get(j).getRcblocsum());
+					lists.get(i).setRcslocsum(lists.get(i).getRcslocsum() + lists.get(j).getRcslocsum());
+					lists.get(i).setRcskusum(lists.get(i).getRcskusum() + lists.get(j).getRcskusum());
+					lists.get(i).setRclpnsum(lists.get(i).getRclpnsum() + lists.get(j).getRclpnsum());
+					flag = true;
+				}
+				if (flag) {
+					listremove.add(lists.get(j));
+				}
+			}
+		}*/
+
+		// 分页操作page 1 rows 10 page 2 rows 10
+		if (worklist.size() > page * rows) {
+			for (int i = (page - 1) * rows; i < page * rows; i++) {
+				listspage.add(worklist.get(i));
+			}
+		} else {
+			for (int i = (page - 1) * rows; i < worklist.size(); i++) {
+				listspage.add(worklist.get(i));
+			}
+		}
+
+		/*
+		 * sql =
+		 * "select d.fully_qualified_id,d.performancedata01,d.performancedata04,sum(distinct d.sonamesum),sum(d.soskusum),sum(d.soblocsum),sum(d.soslocsum),sum(d.solpnsum),"
+		 * +
+		 * " sum(distinct d.picknamesum),sum(d.pickskusum),sum(d.pickblocsum),sum(d.pickslocsum),sum(d.picklpnsum),"
+		 * +
+		 * " sum(distinct d.rcnamesum),sum(d.rcskusum),sum(d.rcblocsum),sum(d.rcslocsum),sum(d.rclpnsum) from ("
+		 * + sql +
+		 * ") d group by d.fully_qualified_id,d.performancedata01,d.performancedata04";
+		 * dataGrid = paging(sql, page, rows, dataGrid);
+		 */
+		dataGrid.setTotal(worklist.size());
+		dataGrid.setPage(page);
+		dataGrid.setRows(rows);
+		dataGrid.setResults(listspage);
 		TagUtil.datagrid(response, dataGrid);
 	}
 
+	//计算的方法
+	private String sumbyinfor(String key1,String key2) {
+		int k1=0;
+		int k2=0;
+		if(key1!=null&&!"null".equals(key1)) {
+			k1=Integer.parseInt(key1);
+		}
+		if(key2!=null&&!"null".equals(key2)) {
+			k2=Integer.parseInt(key2);
+		}
+		return String.valueOf(k1+k2);
+	}
+	
 	/**
 	 * 
 	 * 获取所有库区
@@ -253,6 +384,51 @@ public class WorkamountController extends BaseController {
 	}
 
 	/**
+	 * 优化操作
+	 * 
+	 * @param sql
+	 * @param page
+	 * @param rows
+	 * @param dataGrid
+	 * @return
+	 */
+	private List<WorkamountEntity> listbypage(String sql) {
+		List<WorkamountEntity> list = new ArrayList<>();
+		List<Object[]> resultList = workamountService.findListbySql(sql);
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		for (Object[] result : resultList) {
+			WorkamountEntity entity = new WorkamountEntity();
+			if (String.valueOf(result[0]) != "null") {
+				entity.setUsername(String.valueOf(result[0]));
+			}
+			//
+			// so
+			entity.setSonamesum(String.valueOf(result[1]));
+			entity.setSoskusum(String.valueOf(result[2]));
+			entity.setSoblocsum(String.valueOf(result[3]));
+			entity.setSoslocsum(String.valueOf(result[4]));
+			entity.setSolpnsum(String.valueOf(result[5]));
+			// pick
+			entity.setPickname(String.valueOf(result[6]));
+			entity.setPicknamesum(String.valueOf(result[7]));
+			entity.setPickskusum(String.valueOf(result[8]));
+			entity.setPickblocsum(String.valueOf(result[9]));
+			entity.setPickslocsum(String.valueOf(result[10]));
+			entity.setPicklpnsum(String.valueOf(result[11]));
+			// reheck
+			entity.setRecheckname(String.valueOf(result[12]));
+			entity.setRcnamesum(String.valueOf(result[13]));
+			entity.setRcskusum(String.valueOf(result[14]));
+			entity.setRcblocsum(String.valueOf(result[15]));
+			entity.setRcslocsum(String.valueOf(result[16]));
+			entity.setRclpnsum(String.valueOf(result[17]));
+			list.add(entity);
+		}
+		return list;
+	}
+
+	/**
 	 * 获取分页数据
 	 * 
 	 * @param sql
@@ -273,13 +449,13 @@ public class WorkamountController extends BaseController {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		for (Object[] result : resultList) {
 			WorkamountEntity entity = new WorkamountEntity();
-			if(String.valueOf(result[0])!="null") {
+			if (String.valueOf(result[0]) != "null") {
 				entity.setUsername(String.valueOf(result[0]));
 			}
-			if(String.valueOf(result[1])!="null"){
+			if (String.valueOf(result[1]) != "null") {
 				entity.setPickname(String.valueOf(result[1]));
 			}
-			if(String.valueOf(result[2])!="null"){
+			if (String.valueOf(result[2]) != "null") {
 				entity.setRecheckname(String.valueOf(result[2]));
 			}
 			entity.setSonamesum(String.valueOf(result[3]));
@@ -325,7 +501,7 @@ public class WorkamountController extends BaseController {
 
 	// null
 	private String isnull(String value) {
-		if ("null" == value) {
+		if ("null".equals(value)) {
 			value = "";
 		}
 		return value;
@@ -451,13 +627,13 @@ public class WorkamountController extends BaseController {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		for (Object[] result : resultList) {
 			WorkamountEntity entity = new WorkamountEntity();
-			if(String.valueOf(result[0])!="null") {
+			if (String.valueOf(result[0]) != "null") {
 				entity.setUsername(String.valueOf(result[0]));
 			}
-			if(String.valueOf(result[1])!="null"){
+			if (String.valueOf(result[1]) != "null") {
 				entity.setPickname(String.valueOf(result[1]));
 			}
-			if(String.valueOf(result[2])!="null"){
+			if (String.valueOf(result[2]) != "null") {
 				entity.setRecheckname(String.valueOf(result[2]));
 			}
 			entity.setSonamesum(String.valueOf(result[3]));
@@ -513,8 +689,8 @@ public class WorkamountController extends BaseController {
 		List<WorkamountEntity> workamounts = new ArrayList<>();
 		//
 		if (datestart != null && !"".equals(datestart) && dateend != null && !"".equals(dateend)) {
-			sqlpick = " and o.pickenddate+8/24 between to_date('" + datestart + "','yyyy-MM-dd HH24:mi:ss') and to_date('"
-					+ dateend + "','yyyy-MM-dd HH24:mi:ss')";
+			sqlpick = " and o.pickenddate+8/24 between to_date('" + datestart
+					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + dateend + "','yyyy-MM-dd HH24:mi:ss')";
 			sqlrecheck = " and o.recheckenddate+8/24 between to_date('" + datestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + dateend + "','yyyy-MM-dd HH24:mi:ss')";
 
@@ -556,26 +732,27 @@ public class WorkamountController extends BaseController {
 						+ "o.performancedata01, " + "count(o.performancedata01) picknamesum, "
 						+ "count(distinct pk.sku) pickskusum, " + "count(distinct l.loc) pickblocsum, "
 						+ "count(distinct l2.loc) pickslocsum, " + "count(distinct pk.id) picklpnsum " + "from " + wh
-						+ "_orders o " + "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
-						+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
-						+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
-						+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
-						+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware " + "" + sqlwhere + sqlpick
-						+ " group by o.performancedata01) b on a.fully_qualified_id=b.performancedata01  "
+						+ "_orders o " + "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join "
+						+ wh + "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join "
+						+ wh + "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join "
+						+ wh + "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
+						+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware " + "" + sqlwhere
+						+ sqlpick + " group by o.performancedata01) b on a.fully_qualified_id=b.performancedata01  "
 						+ " full join (select  " + "o.performancedata04, " + "count(o.performancedata04) rcnamesum, "
 						+ "count(distinct pk.sku) rcskusum, " + "count(distinct l.loc) rcblocsum, "
 						+ "count(distinct l2.loc) rcslocsum, " + "count(distinct pk.id) rclpnsum " + "from " + wh
-						+ "_orders o " + "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
-						+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
-						+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
-						+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
+						+ "_orders o " + "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join "
+						+ wh + "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join "
+						+ wh + "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join "
+						+ wh + "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
 						+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware " + "" + sqlwhere
 						+ sqlrecheck + " group by o.performancedata04) c on  a.fully_qualified_id=c.performancedata04";
 
 			}
-			sql = "select d.fully_qualified_id,d.performancedata01,d.performancedata04,sum(distinct d.sonamesum),sum(d.soskusum),sum(d.soblocsum),sum(d.soslocsum),sum(d.solpnsum)," + 
-					" sum(distinct d.picknamesum),sum(d.pickskusum),sum(d.pickblocsum),sum(d.pickslocsum),sum(d.picklpnsum)," + 
-					" sum(distinct d.rcnamesum),sum(d.rcskusum),sum(d.rcblocsum),sum(d.rcslocsum),sum(d.rclpnsum) from (" + sql + ") d group by d.fully_qualified_id,d.performancedata01,d.performancedata04";
+			sql = "select d.fully_qualified_id,d.performancedata01,d.performancedata04,sum(distinct d.sonamesum),sum(d.soskusum),sum(d.soblocsum),sum(d.soslocsum),sum(d.solpnsum),"
+					+ " sum(distinct d.picknamesum),sum(d.pickskusum),sum(d.pickblocsum),sum(d.pickslocsum),sum(d.picklpnsum),"
+					+ " sum(distinct d.rcnamesum),sum(d.rcskusum),sum(d.rcblocsum),sum(d.rcslocsum),sum(d.rclpnsum) from ("
+					+ sql + ") d group by d.fully_qualified_id,d.performancedata01,d.performancedata04";
 			workamounts = exportSQL(sql);
 		}
 		modelMap.put(NormalExcelConstants.FILE_NAME, "员工操作量");
