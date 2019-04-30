@@ -70,7 +70,7 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 							" where  loc.disuse <> '0'";
 					smallSql+=" select loc.loc,cu.description," + 
-							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.loc = loc.loc) as countloc" + 
+							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.qty>0 and l.loc = loc.loc) as countloc" + 
 							"       from "+wh+"_loc loc " + 
 							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 							" where loc.locnature='S' and loc.disuse <> '0'" ;
@@ -79,7 +79,7 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 							" where loc.locnature='S' and loc.disuse <> '0'";
 					bigSql+=" select loc.loc,cu.description," + 
-							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.loc = loc.loc) as countloc" + 
+							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.qty>0 and l.loc = loc.loc) as countloc" + 
 							"       from "+wh+"_loc loc " + 
 							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 							" where loc.locnature <> 'S' and loc.disuse <> '0'";
@@ -88,7 +88,7 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 							" where loc.locnature <> 'S' and loc.disuse <> '0'";
 					lpnSql+=" select loc.loc,cu.description," + 
-							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.loc = loc.loc) as countloc" + 
+							"       (select count(distinct l.lot) from "+wh+"_lotxlocxid l where l.qty>0 and l.loc = loc.loc) as countloc" + 
 							"       from "+wh+"_loc loc " + 
 							" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 							" where  loc.disuse <> '0' and loc.loc in ("+getLoction()+")";
