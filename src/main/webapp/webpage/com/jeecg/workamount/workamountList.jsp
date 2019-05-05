@@ -229,8 +229,8 @@
 		data:function() {
 			return {
 				filters: {
-					datestart:'',
-					dateend:'',
+					datestart:new Date().getTime() - 3600 * 1000 * 24 * 1,
+					dateend:new Date(),
 					region:'',
 					department:[],
 					office:[],
