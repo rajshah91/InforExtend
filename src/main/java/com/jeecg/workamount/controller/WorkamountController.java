@@ -104,6 +104,7 @@ public class WorkamountController extends BaseController {
 		String offices = request.getParameter("office");
 		String datestart = request.getParameter("datestart");
 		String dateend = request.getParameter("dateend");
+		String employid = request.getParameter("employid");
 		String areasql = getAllArea(regions, departments, offices, areas);
 		int page = Integer.parseInt(request.getParameter("page"));
 		int rows = Integer.parseInt(request.getParameter("rows"));
@@ -130,6 +131,10 @@ public class WorkamountController extends BaseController {
 		// 仓库// 区域
 		if (areasql != null && !"".equals(areasql)) {
 			sqlwhere += " and c3.description in (" + areasql + ")";
+		}
+		// 员工工号
+		if (employid != null && !"".equals(employid)) {
+			sqlwhere += " and op.sso_user_name='" + employid + "' ";
 		}
 		String sql = "";
 		List<UsercontactwhEntity> entities = workamountService.findHql("from UsercontactwhEntity where userid=?",
@@ -162,7 +167,7 @@ public class WorkamountController extends BaseController {
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
 					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
-					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware " + "" + sqlwhere + sqlpick
+					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id " + "" + sqlwhere + sqlpick
 					+ " group by o.performancedata01) b on a.fully_qualified_id=b.performancedata01  "
 					+ " full join (select  " + "o.performancedata04, " + "count(o.performancedata04) rcnamesum, "
 					+ "count(distinct pk.sku) rcskusum, " + "count(distinct l.loc) rcblocsum, "
@@ -171,7 +176,7 @@ public class WorkamountController extends BaseController {
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
 					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
-					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware " + "" + sqlwhere
+					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id " + "" + sqlwhere
 					+ sqlrecheck + " group by o.performancedata04) c on  a.fully_qualified_id=c.performancedata04";
 			workmap.put(wh, listbypage(sql));
 		}
@@ -198,12 +203,15 @@ public class WorkamountController extends BaseController {
 				// 操作员为空的情况
 			}
 		}
-		/*nameMap.put("null", String.valueOf(-1));*/
+		/* nameMap.put("null", String.valueOf(-1)); */
 		for (String s : nameMap.keySet()) {
 			WorkamountEntity entity = new WorkamountEntity();
 			for (int i = 0; i < lists.size(); i++) {
-				/*System.out.println(s+"||"+i+"----------");*/
-				/*System.out.println("null".equals(lists.get(i).getUsername())&&"null".equals(lists.get(i).getPickname())&&"null".equals(lists.get(i).getRecheckname()));*/
+				/* System.out.println(s+"||"+i+"----------"); */
+				/*
+				 * System.out.println("null".equals(lists.get(i).getUsername())&&"null".equals(
+				 * lists.get(i).getPickname())&&"null".equals(lists.get(i).getRecheckname()));
+				 */
 				if (!"null".equals(lists.get(i).getUsername()) && lists.get(i).getUsername() != null
 						&& s.equals(lists.get(i).getUsername())) {
 					entity.setUsername(s);
@@ -231,27 +239,42 @@ public class WorkamountController extends BaseController {
 					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
 					entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(), lists.get(i).getRclpnsum()));
 				}
-				/*if (("null".equals(lists.get(i).getUsername()) || lists.get(i).getUsername() == null)
-						&& ("null".equals(lists.get(i).getPickname()) || lists.get(i).getPickname() == null)
-						&& ("null".equals(lists.get(i).getRecheckname()) || lists.get(i).getPickname() == null)) {
-					entity.setSonamesum(sumbyinfor(entity.getSonamesum(), lists.get(i).getSonamesum()));
-					entity.setSoskusum(sumbyinfor(entity.getSoskusum(), lists.get(i).getSoskusum()));
-					entity.setSoblocsum(sumbyinfor(entity.getSoblocsum(), lists.get(i).getSoblocsum()));
-					entity.setSoslocsum(sumbyinfor(entity.getSoslocsum(), lists.get(i).getSoslocsum()));
-					entity.setSolpnsum(sumbyinfor(entity.getSolpnsum(), lists.get(i).getSolpnsum()));
-					//
-					entity.setPicknamesum(sumbyinfor(entity.getPicknamesum(), lists.get(i).getPicknamesum()));
-					entity.setPickskusum(sumbyinfor(entity.getPickskusum(), lists.get(i).getPickskusum()));
-					entity.setPickblocsum(sumbyinfor(entity.getPickblocsum(), lists.get(i).getPickblocsum()));
-					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
-					entity.setPicklpnsum(sumbyinfor(entity.getPicklpnsum(), lists.get(i).getPicklpnsum()));
-					//
-					entity.setRcnamesum(sumbyinfor(entity.getRcnamesum(), lists.get(i).getRcnamesum()));
-					entity.setRcskusum(sumbyinfor(entity.getRcskusum(), lists.get(i).getRcskusum()));
-					entity.setRcblocsum(sumbyinfor(entity.getRcblocsum(), lists.get(i).getRcblocsum()));
-					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
-					entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(), lists.get(i).getRclpnsum()));
-				}*/
+				/*
+				 * if (("null".equals(lists.get(i).getUsername()) || lists.get(i).getUsername()
+				 * == null) && ("null".equals(lists.get(i).getPickname()) ||
+				 * lists.get(i).getPickname() == null) &&
+				 * ("null".equals(lists.get(i).getRecheckname()) || lists.get(i).getPickname()
+				 * == null)) { entity.setSonamesum(sumbyinfor(entity.getSonamesum(),
+				 * lists.get(i).getSonamesum()));
+				 * entity.setSoskusum(sumbyinfor(entity.getSoskusum(),
+				 * lists.get(i).getSoskusum()));
+				 * entity.setSoblocsum(sumbyinfor(entity.getSoblocsum(),
+				 * lists.get(i).getSoblocsum()));
+				 * entity.setSoslocsum(sumbyinfor(entity.getSoslocsum(),
+				 * lists.get(i).getSoslocsum()));
+				 * entity.setSolpnsum(sumbyinfor(entity.getSolpnsum(),
+				 * lists.get(i).getSolpnsum())); //
+				 * entity.setPicknamesum(sumbyinfor(entity.getPicknamesum(),
+				 * lists.get(i).getPicknamesum()));
+				 * entity.setPickskusum(sumbyinfor(entity.getPickskusum(),
+				 * lists.get(i).getPickskusum()));
+				 * entity.setPickblocsum(sumbyinfor(entity.getPickblocsum(),
+				 * lists.get(i).getPickblocsum()));
+				 * entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(),
+				 * lists.get(i).getPickslocsum()));
+				 * entity.setPicklpnsum(sumbyinfor(entity.getPicklpnsum(),
+				 * lists.get(i).getPicklpnsum())); //
+				 * entity.setRcnamesum(sumbyinfor(entity.getRcnamesum(),
+				 * lists.get(i).getRcnamesum()));
+				 * entity.setRcskusum(sumbyinfor(entity.getRcskusum(),
+				 * lists.get(i).getRcskusum()));
+				 * entity.setRcblocsum(sumbyinfor(entity.getRcblocsum(),
+				 * lists.get(i).getRcblocsum()));
+				 * entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(),
+				 * lists.get(i).getPickslocsum()));
+				 * entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(),
+				 * lists.get(i).getRclpnsum())); }
+				 */
 			}
 			worklist.add(entity);
 		}

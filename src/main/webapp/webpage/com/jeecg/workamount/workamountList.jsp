@@ -77,10 +77,13 @@
  					</el-select>
 	        	 </el-form-item>
 	        	 <el-form-item style="margin-bottom: 8px;" prop="datestart">
-					<el-date-picker type="datetime" placeholder="选择日期起" v-model="filters.datestart" style="width:175px"></el-date-picker>
+					<el-date-picker type="datetime" placeholder="选择日期起" default-time="08:00:00"  v-model="filters.datestart" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="dateend">
-					<el-date-picker type="datetime" placeholder="选择日期至" v-model="filters.dateend" style="width:175px"></el-date-picker>
+					<el-date-picker type="datetime" placeholder="选择日期至" default-time="08:00:00" v-model="filters.dateend" style="width:175px"></el-date-picker>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="employid">
+					<el-input  placeholder="员工工号"  v-model="filters.employid" style="width:175px"></el-input>
 				</el-form-item>
 				<br>
 				<el-form-item>
@@ -235,6 +238,7 @@
 					department:[],
 					office:[],
 					area:[],
+					employid:'',
 				},
 				url:{
 					list:'${webRoot}/workamountController.do?datagrid',
@@ -512,12 +516,13 @@
 						//排序
 						sort:this.sort.sort,
 						order:this.sort.order,
+						employid:this.filters.employid,
 						datestart:!this.filters.datestart ? '' : utilFormatDate(new Date(this.filters.datestart), 'yyyy-MM-dd hh:mm:ss'),
 						dateend:!this.filters.dateend ? '' : utilFormatDate(new Date(this.filters.dateend), 'yyyy-MM-dd hh:mm:ss'),
 						region:this.filters.region,
-						department:this.filters.department[0],
-						office:this.filters.office[0],
-					 	seracharea:this.filters.area[0],
+						department:this.filters.department.join(','),
+						office:this.filters.office.join(','),
+					 	seracharea:this.filters.area.join(','),
 						field:fields.join(',') 
 					}
 				};
