@@ -198,10 +198,12 @@ public class WorkamountController extends BaseController {
 				// 操作员为空的情况
 			}
 		}
-		/*nameMap.put("", String.valueOf(-1));*/
+		/*nameMap.put("null", String.valueOf(-1));*/
 		for (String s : nameMap.keySet()) {
 			WorkamountEntity entity = new WorkamountEntity();
 			for (int i = 0; i < lists.size(); i++) {
+				/*System.out.println(s+"||"+i+"----------");*/
+				/*System.out.println("null".equals(lists.get(i).getUsername())&&"null".equals(lists.get(i).getPickname())&&"null".equals(lists.get(i).getRecheckname()));*/
 				if (!"null".equals(lists.get(i).getUsername()) && lists.get(i).getUsername() != null
 						&& s.equals(lists.get(i).getUsername())) {
 					entity.setUsername(s);
@@ -220,7 +222,7 @@ public class WorkamountController extends BaseController {
 					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
 					entity.setPicklpnsum(sumbyinfor(entity.getPicklpnsum(), lists.get(i).getPicklpnsum()));
 				}
-				if (!"null".equals(lists.get(i).getRecheckname()) && lists.get(i).getPickname() != null
+				if (!"null".equals(lists.get(i).getRecheckname()) && lists.get(i).getRecheckname() != null
 						&& s.equals(lists.get(i).getRecheckname())) {
 					entity.setRecheckname(s);
 					entity.setRcnamesum(sumbyinfor(entity.getRcnamesum(), lists.get(i).getRcnamesum()));
@@ -229,14 +231,26 @@ public class WorkamountController extends BaseController {
 					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
 					entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(), lists.get(i).getRclpnsum()));
 				}
-				/*if ("null".equals(lists.get(i).getUsername()) && lists.get(i).getUsername() == null
-						&& "null".equals(lists.get(i).getPickname()) && lists.get(i).getPickname() == null
-						&& "null".equals(lists.get(i).getRecheckname()) && lists.get(i).getPickname() == null) {
-					entity.setSonamesum(lists.get(i).getSonamesum());
-					entity.setSoskusum(lists.get(i).getSoskusum());
-					entity.setSoblocsum(lists.get(i).getSoblocsum());
-					entity.setSoslocsum(lists.get(i).getSoslocsum());
-					entity.setSolpnsum(lists.get(i).getSolpnsum());
+				/*if (("null".equals(lists.get(i).getUsername()) || lists.get(i).getUsername() == null)
+						&& ("null".equals(lists.get(i).getPickname()) || lists.get(i).getPickname() == null)
+						&& ("null".equals(lists.get(i).getRecheckname()) || lists.get(i).getPickname() == null)) {
+					entity.setSonamesum(sumbyinfor(entity.getSonamesum(), lists.get(i).getSonamesum()));
+					entity.setSoskusum(sumbyinfor(entity.getSoskusum(), lists.get(i).getSoskusum()));
+					entity.setSoblocsum(sumbyinfor(entity.getSoblocsum(), lists.get(i).getSoblocsum()));
+					entity.setSoslocsum(sumbyinfor(entity.getSoslocsum(), lists.get(i).getSoslocsum()));
+					entity.setSolpnsum(sumbyinfor(entity.getSolpnsum(), lists.get(i).getSolpnsum()));
+					//
+					entity.setPicknamesum(sumbyinfor(entity.getPicknamesum(), lists.get(i).getPicknamesum()));
+					entity.setPickskusum(sumbyinfor(entity.getPickskusum(), lists.get(i).getPickskusum()));
+					entity.setPickblocsum(sumbyinfor(entity.getPickblocsum(), lists.get(i).getPickblocsum()));
+					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
+					entity.setPicklpnsum(sumbyinfor(entity.getPicklpnsum(), lists.get(i).getPicklpnsum()));
+					//
+					entity.setRcnamesum(sumbyinfor(entity.getRcnamesum(), lists.get(i).getRcnamesum()));
+					entity.setRcskusum(sumbyinfor(entity.getRcskusum(), lists.get(i).getRcskusum()));
+					entity.setRcblocsum(sumbyinfor(entity.getRcblocsum(), lists.get(i).getRcblocsum()));
+					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
+					entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(), lists.get(i).getRclpnsum()));
 				}*/
 			}
 			worklist.add(entity);
@@ -809,7 +823,7 @@ public class WorkamountController extends BaseController {
 					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
 					entity.setPicklpnsum(sumbyinfor(entity.getPicklpnsum(), lists.get(i).getPicklpnsum()));
 				}
-				if (!"null".equals(lists.get(i).getRecheckname()) && lists.get(i).getPickname() != null
+				if (!"null".equals(lists.get(i).getRecheckname()) && lists.get(i).getRecheckname() != null
 						&& s.equals(lists.get(i).getRecheckname())) {
 					entity.setRecheckname(s);
 					entity.setRcnamesum(sumbyinfor(entity.getRcnamesum(), lists.get(i).getRcnamesum()));
