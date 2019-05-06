@@ -378,10 +378,10 @@
 				window.open(downUrl);
 			},
 			formatDate: function(row,column,cellValue, index){
-				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd'):'';
+				return !!cellValue?utilFormatDate(dateToGMT(cellValue), 'yyyy-MM-dd'):'';
 			},
 			formatDateTime: function(row,column,cellValue, index){
-				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
+				return !!cellValue?utilFormatDate(dateToGMT(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
 			},
 			handleCurrentChange:function(val) {
 				this.page = val;
@@ -642,6 +642,12 @@
 	};
 	function reloadTable(){
 		
+	}
+	function dateToGMT(strDate){
+	    var dateStr=strDate.split(" ");  
+	    var strGMT = dateStr[0]+" "+dateStr[1]+" "+dateStr[2]+" "+dateStr[5]+" "+dateStr[3]+" GMT+0800";  
+	    var date = new Date(Date.parse(strGMT));
+	    return date;
 	}
 </script>
 </html>
