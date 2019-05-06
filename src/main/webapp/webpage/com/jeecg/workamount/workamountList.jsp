@@ -636,8 +636,8 @@
 			},
 			//导出
 			ExportXls: function() {
-				    var datestart=this.filters.datestart ? '' : utilFormatDate(new Date(this.filters.datestart), 'yyyy-MM-dd hh:mm:ss');
-					var	dateend=this.filters.dateend ? '' : utilFormatDate(new Date(this.filters.dateend), 'yyyy-MM-dd hh:mm:ss');
+				    var datestart=!this.filters.datestart ? '' : utilFormatDate(new Date(this.filters.datestart), 'yyyy-MM-dd hh:mm:ss');
+					var	dateend=!this.filters.dateend ? '' : utilFormatDate(new Date(this.filters.dateend), 'yyyy-MM-dd hh:mm:ss');
 					var urllist = "&dateend="+dateend+"&datestart="+datestart+"&region="+this.filters.region+"&department="+this.filters.department.join(',')+"&office="+this.filters.office.join(',')+"&seracharea="+this.filters.area.join(',');
 					window.location.href = this.url.exportXls+urllist;
 			},

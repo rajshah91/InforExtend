@@ -150,9 +150,9 @@ public class WorkamountController extends BaseController {
 		for (int i = 0; i < entities.size(); i++) {
 			wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
 			sql = "select * from (select op.fully_qualified_id,count(distinct r.receiptkey) sonamesum,"
-					+ "count(distinct r.sku) soskusum," + "count(distinct l.loc) soblocsum,"
-					+ "count(distinct l2.loc) soslocsum," + "count(distinct r.toid) solpnsum " + "from " + wh
-					+ "_Receiptdetail r " + "left join (select i.toloc,i.addwho from " + wh
+					+ "count(distinct r.sku) soskusum," + "count( l.loc) soblocsum," + "count( l2.loc) soslocsum,"
+					+ "count( r.toid) solpnsum " + "from " + wh + "_Receiptdetail r "
+					+ "left join (select i.toloc,i.addwho from " + wh
 					+ "_Itrn i  where i.sourcetype in ('NSPRFRL01','NSPRFPA02') " + sqlItrn
 					+ ") s on r.addwho=s.addwho " + "left join " + wh
 					+ "_loc l on s.toloc = l.loc and l.locnature <> 'S' " + "left join " + wh
@@ -160,24 +160,26 @@ public class WorkamountController extends BaseController {
 					+ "_Loc l3 on s.toloc=l3.loc " + "left join " + wh
 					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware left join oper.e_sso_user op on op.sso_user_name=r.addwho "
 					+ "" + sqlwhere + sqlso + " group by op.fully_qualified_id) a  " + " full join  (select  "
-					+ "o.performancedata01, " + "count(o.performancedata01) picknamesum, "
-					+ "count(distinct pk.sku) pickskusum, " + "count(distinct l.loc) pickblocsum, "
-					+ "count(distinct l2.loc) pickslocsum, " + "count(distinct pk.id) picklpnsum " + "from " + wh
-					+ "_orders o " + "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
+					+ "o.performancedata01, " + "count(distinct o.orderkey) picknamesum, "
+					+ "count(distinct pk.sku) pickskusum, " + "count( l.loc) pickblocsum, "
+					+ "count( l2.loc) pickslocsum, " + "count( pk.id) picklpnsum " + "from " + wh + "_orders o "
+					+ "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
 					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
-					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id " + "" + sqlwhere + sqlpick
+					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id "
+					+ "" + sqlwhere + sqlpick
 					+ " group by o.performancedata01) b on a.fully_qualified_id=b.performancedata01  "
-					+ " full join (select  " + "o.performancedata04, " + "count(o.performancedata04) rcnamesum, "
-					+ "count(distinct pk.sku) rcskusum, " + "count(distinct l.loc) rcblocsum, "
-					+ "count(distinct l2.loc) rcslocsum, " + "count(distinct pk.id) rclpnsum " + "from " + wh
-					+ "_orders o " + "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
+					+ " full join (select  " + "o.performancedata04, " + "count(distinct o.orderkey) rcnamesum, "
+					+ "count(distinct pk.sku) rcskusum, " + "count( l.loc) rcblocsum, " + "count( l2.loc) rcslocsum, "
+					+ "count( pk.id) rclpnsum " + "from " + wh + "_orders o " + "left join " + wh
+					+ "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
 					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
-					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id " + "" + sqlwhere
-					+ sqlrecheck + " group by o.performancedata04) c on  a.fully_qualified_id=c.performancedata04";
+					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id "
+					+ "" + sqlwhere + sqlrecheck
+					+ " group by o.performancedata04) c on  a.fully_qualified_id=c.performancedata04";
 			workmap.put(wh, listbypage(sql));
 		}
 		List<WorkamountEntity> lists = new ArrayList<>();
@@ -207,11 +209,6 @@ public class WorkamountController extends BaseController {
 		for (String s : nameMap.keySet()) {
 			WorkamountEntity entity = new WorkamountEntity();
 			for (int i = 0; i < lists.size(); i++) {
-				/* System.out.println(s+"||"+i+"----------"); */
-				/*
-				 * System.out.println("null".equals(lists.get(i).getUsername())&&"null".equals(
-				 * lists.get(i).getPickname())&&"null".equals(lists.get(i).getRecheckname()));
-				 */
 				if (!"null".equals(lists.get(i).getUsername()) && lists.get(i).getUsername() != null
 						&& s.equals(lists.get(i).getUsername())) {
 					entity.setUsername(s);
@@ -239,93 +236,9 @@ public class WorkamountController extends BaseController {
 					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
 					entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(), lists.get(i).getRclpnsum()));
 				}
-				/*
-				 * if (("null".equals(lists.get(i).getUsername()) || lists.get(i).getUsername()
-				 * == null) && ("null".equals(lists.get(i).getPickname()) ||
-				 * lists.get(i).getPickname() == null) &&
-				 * ("null".equals(lists.get(i).getRecheckname()) || lists.get(i).getPickname()
-				 * == null)) { entity.setSonamesum(sumbyinfor(entity.getSonamesum(),
-				 * lists.get(i).getSonamesum()));
-				 * entity.setSoskusum(sumbyinfor(entity.getSoskusum(),
-				 * lists.get(i).getSoskusum()));
-				 * entity.setSoblocsum(sumbyinfor(entity.getSoblocsum(),
-				 * lists.get(i).getSoblocsum()));
-				 * entity.setSoslocsum(sumbyinfor(entity.getSoslocsum(),
-				 * lists.get(i).getSoslocsum()));
-				 * entity.setSolpnsum(sumbyinfor(entity.getSolpnsum(),
-				 * lists.get(i).getSolpnsum())); //
-				 * entity.setPicknamesum(sumbyinfor(entity.getPicknamesum(),
-				 * lists.get(i).getPicknamesum()));
-				 * entity.setPickskusum(sumbyinfor(entity.getPickskusum(),
-				 * lists.get(i).getPickskusum()));
-				 * entity.setPickblocsum(sumbyinfor(entity.getPickblocsum(),
-				 * lists.get(i).getPickblocsum()));
-				 * entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(),
-				 * lists.get(i).getPickslocsum()));
-				 * entity.setPicklpnsum(sumbyinfor(entity.getPicklpnsum(),
-				 * lists.get(i).getPicklpnsum())); //
-				 * entity.setRcnamesum(sumbyinfor(entity.getRcnamesum(),
-				 * lists.get(i).getRcnamesum()));
-				 * entity.setRcskusum(sumbyinfor(entity.getRcskusum(),
-				 * lists.get(i).getRcskusum()));
-				 * entity.setRcblocsum(sumbyinfor(entity.getRcblocsum(),
-				 * lists.get(i).getRcblocsum()));
-				 * entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(),
-				 * lists.get(i).getPickslocsum()));
-				 * entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(),
-				 * lists.get(i).getRclpnsum())); }
-				 */
 			}
 			worklist.add(entity);
 		}
-
-		/*
-		 * // 合并的操作 for (int i = 0; i < lists.size() - 1; i++) { for (int j =
-		 * lists.size() - 1; j > i; j--) { // 如果名称相同，合并并清除lists的值 boolean flag = false;
-		 * System.out.println(lists.get(i).getUsername() + "||" +
-		 * lists.get(j).getUsername()); if (lists.get(i).getUsername() != "null" &&
-		 * lists.get(j).getUsername() != "null" &&
-		 * lists.get(i).getUsername().equals(lists.get(j).getUsername())) {
-		 * lists.get(i).setSonamesum(lists.get(i).getSonamesum() +
-		 * lists.get(j).getSonamesum());
-		 * lists.get(i).setSoskusum(lists.get(i).getSoskusum() +
-		 * lists.get(j).getSoskusum());
-		 * lists.get(i).setSoblocsum(lists.get(i).getSoblocsum() +
-		 * lists.get(j).getSoblocsum());
-		 * lists.get(i).setSoslocsum(lists.get(i).getSoslocsum() +
-		 * lists.get(j).getSoslocsum());
-		 * lists.get(i).setSolpnsum(lists.get(i).getSolpnsum() +
-		 * lists.get(j).getSolpnsum()); flag = true; }
-		 * System.out.println(lists.get(i).getPickname() + "||" +
-		 * lists.get(j).getPickname()); if (lists.get(i).getPickname() != "null" &&
-		 * lists.get(j).getPickname() != "null" &&
-		 * lists.get(i).getPickname().equals(lists.get(j).getPickname())) {
-		 * lists.get(i).setPicknamesum(lists.get(i).getPicknamesum() +
-		 * lists.get(j).getPicknamesum());
-		 * lists.get(i).setPickskusum(lists.get(i).getPickskusum() +
-		 * lists.get(i).getPickskusum());
-		 * lists.get(i).setPickblocsum(lists.get(i).getPickblocsum() +
-		 * lists.get(j).getPickblocsum());
-		 * lists.get(i).setPickslocsum(lists.get(i).getPickslocsum() +
-		 * lists.get(j).getPickslocsum());
-		 * lists.get(i).setPicklpnsum(lists.get(i).getPicklpnsum() +
-		 * lists.get(j).getPicklpnsum()); flag = true; }
-		 * System.out.println(lists.get(i).getRecheckname() + "||" +
-		 * lists.get(j).getRecheckname()); if (lists.get(i).getRecheckname() != "null"
-		 * && lists.get(j).getRecheckname() != "null" &&
-		 * lists.get(i).getRecheckname().equals(lists.get(j).getRecheckname())) {
-		 * lists.get(i).setRcnamesum(lists.get(i).getRcnamesum() +
-		 * lists.get(j).getRcnamesum());
-		 * lists.get(i).setRcblocsum(lists.get(i).getRcblocsum() +
-		 * lists.get(j).getRcblocsum());
-		 * lists.get(i).setRcslocsum(lists.get(i).getRcslocsum() +
-		 * lists.get(j).getRcslocsum());
-		 * lists.get(i).setRcskusum(lists.get(i).getRcskusum() +
-		 * lists.get(j).getRcskusum());
-		 * lists.get(i).setRclpnsum(lists.get(i).getRclpnsum() +
-		 * lists.get(j).getRclpnsum()); flag = true; } if (flag) {
-		 * listremove.add(lists.get(j)); } } }
-		 */
 
 		// 分页操作page 1 rows 10 page 2 rows 10
 		if (worklist.size() >= page * rows) {
@@ -732,6 +645,7 @@ public class WorkamountController extends BaseController {
 		String offices = request.getParameter("office");
 		String datestart = request.getParameter("datestart");
 		String dateend = request.getParameter("dateend");
+		String employid = request.getParameter("employid");
 		String areasql = getAllArea(regions, departments, offices, areas);
 		TSUser user = ResourceUtil.getSessionUser();
 		String wh = "";
@@ -757,6 +671,10 @@ public class WorkamountController extends BaseController {
 		if (areasql != null && !"".equals(areasql)) {
 			sqlwhere += " and c3.description in (" + areasql + ")";
 		}
+		// 员工工号
+		if (employid != null && !"".equals(employid)) {
+			sqlwhere += " and op.sso_user_name='" + employid + "' ";
+		}
 		String sql = "";
 		List<UsercontactwhEntity> entities = workamountService.findHql("from UsercontactwhEntity where userid=?",
 				user.getId());
@@ -771,9 +689,9 @@ public class WorkamountController extends BaseController {
 		for (int i = 0; i < entities.size(); i++) {
 			wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
 			sql = "select * from (select op.fully_qualified_id,count(distinct r.receiptkey) sonamesum,"
-					+ "count(distinct r.sku) soskusum," + "count(distinct l.loc) soblocsum,"
-					+ "count(distinct l2.loc) soslocsum," + "count(distinct r.toid) solpnsum " + "from " + wh
-					+ "_Receiptdetail r " + "left join (select i.toloc,i.addwho from " + wh
+					+ "count(distinct r.sku) soskusum," + "count( l.loc) soblocsum," + "count( l2.loc) soslocsum,"
+					+ "count( r.toid) solpnsum " + "from " + wh + "_Receiptdetail r "
+					+ "left join (select i.toloc,i.addwho from " + wh
 					+ "_Itrn i  where i.sourcetype in ('NSPRFRL01','NSPRFPA02') " + sqlItrn
 					+ ") s on r.addwho=s.addwho " + "left join " + wh
 					+ "_loc l on s.toloc = l.loc and l.locnature <> 'S' " + "left join " + wh
@@ -781,29 +699,30 @@ public class WorkamountController extends BaseController {
 					+ "_Loc l3 on s.toloc=l3.loc " + "left join " + wh
 					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware left join oper.e_sso_user op on op.sso_user_name=r.addwho "
 					+ "" + sqlwhere + sqlso + " group by op.fully_qualified_id) a  " + " full join  (select  "
-					+ "o.performancedata01, " + "count(o.performancedata01) picknamesum, "
-					+ "count(distinct pk.sku) pickskusum, " + "count(distinct l.loc) pickblocsum, "
-					+ "count(distinct l2.loc) pickslocsum, " + "count(distinct pk.id) picklpnsum " + "from " + wh
-					+ "_orders o " + "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
+					+ "o.performancedata01, " + "count(distinct o.orderkey) picknamesum, "
+					+ "count(distinct pk.sku) pickskusum, " + "count( l.loc) pickblocsum, "
+					+ "count( l2.loc) pickslocsum, " + "count( pk.id) picklpnsum " + "from " + wh + "_orders o "
+					+ "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
 					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
-					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware " + "" + sqlwhere + sqlpick
+					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id "
+					+ "" + sqlwhere + sqlpick
 					+ " group by o.performancedata01) b on a.fully_qualified_id=b.performancedata01  "
-					+ " full join (select  " + "o.performancedata04, " + "count(o.performancedata04) rcnamesum, "
-					+ "count(distinct pk.sku) rcskusum, " + "count(distinct l.loc) rcblocsum, "
-					+ "count(distinct l2.loc) rcslocsum, " + "count(distinct pk.id) rclpnsum " + "from " + wh
-					+ "_orders o " + "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
+					+ " full join (select  " + "o.performancedata04, " + "count(distinct o.orderkey) rcnamesum, "
+					+ "count(distinct pk.sku) rcskusum, " + "count( l.loc) rcblocsum, " + "count( l2.loc) rcslocsum, "
+					+ "count( pk.id) rclpnsum " + "from " + wh + "_orders o " + "left join " + wh
+					+ "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
 					+ "_Loc l3 on nvl(trim(pk.fromloc),pk.loc)=l3.loc " + "left join " + wh
-					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware " + "" + sqlwhere
-					+ sqlrecheck + " group by o.performancedata04) c on  a.fully_qualified_id=c.performancedata04";
+					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware  left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id "
+					+ "" + sqlwhere + sqlrecheck
+					+ " group by o.performancedata04) c on  a.fully_qualified_id=c.performancedata04";
 			workmap.put(wh, listbypage(sql));
 		}
 		List<WorkamountEntity> lists = new ArrayList<>();
 
-		List<WorkamountEntity> listspage = new ArrayList<>();
 		// 第一层循环拿每个仓的list
 		for (List<WorkamountEntity> work : workmap.values()) {
 			// 第二层循环拿到每个仓的数据
@@ -822,9 +741,9 @@ public class WorkamountController extends BaseController {
 				nameMap.put(lists.get(i).getRecheckname(), String.valueOf(i));
 			} else {
 				// 操作员为空的情况
-				nameMap.put(lists.get(i).getRecheckname(), String.valueOf(i));
 			}
 		}
+		/* nameMap.put("null", String.valueOf(-1)); */
 		for (String s : nameMap.keySet()) {
 			WorkamountEntity entity = new WorkamountEntity();
 			for (int i = 0; i < lists.size(); i++) {
@@ -855,7 +774,6 @@ public class WorkamountController extends BaseController {
 					entity.setPickslocsum(sumbyinfor(entity.getPickslocsum(), lists.get(i).getPickslocsum()));
 					entity.setRclpnsum(sumbyinfor(entity.getRclpnsum(), lists.get(i).getRclpnsum()));
 				}
-
 			}
 			worklist.add(entity);
 		}

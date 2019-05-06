@@ -71,6 +71,9 @@ public class WorkamountEntity implements java.io.Serializable {
 	/**出货lpn数*/
 	@Excel(name="出货lpn数",width=15)
 	private java.lang.String solpnsum;
+	/**拣货员姓名*/
+	@Excel(name="拣货员姓名",width=15)
+	private java.lang.String pickname;
 	/**拣货票数*/
 	@Excel(name="拣货票数",width=15)
 	private java.lang.String picknamesum;
@@ -86,6 +89,9 @@ public class WorkamountEntity implements java.io.Serializable {
 	/**拣货lpn数*/
 	@Excel(name="拣货lpn数",width=15)
 	private java.lang.String picklpnsum;
+	/**复检员姓名*/
+	@Excel(name="复检员姓名",width=15)
+	private java.lang.String recheckname;
 	/**复检票数*/
 	@Excel(name="复检票数",width=15)
 	private java.lang.String rcnamesum;
@@ -101,12 +107,6 @@ public class WorkamountEntity implements java.io.Serializable {
 	/**复检lpn数*/
 	@Excel(name="复检lpn数",width=15)
 	private java.lang.String rclpnsum;
-	/**拣货员姓名*/
-	@Excel(name="拣货员姓名",width=15)
-	private java.lang.String pickname;
-	/**复检员姓名*/
-	@Excel(name="复检员姓名",width=15)
-	private java.lang.String recheckname;
 	
 	/**
 	 *方法: 取得java.lang.String
