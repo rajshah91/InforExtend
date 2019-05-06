@@ -150,8 +150,8 @@ public class WorkamountController extends BaseController {
 		for (int i = 0; i < entities.size(); i++) {
 			wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
 			sql = "select * from (select op.fully_qualified_id,count(distinct r.receiptkey) sonamesum,"
-					+ "count(distinct r.sku) soskusum," + "count( l.loc) soblocsum," + "count( l2.loc) soslocsum,"
-					+ "count( r.toid) solpnsum " + "from " + wh + "_Receiptdetail r "
+					+ "count(distinct r.sku) soskusum," + "count(distinct l.loc) soblocsum," + "count(distinct l2.loc) soslocsum,"
+					+ "count(distinct r.toid) solpnsum " + "from " + wh + "_Receiptdetail r "
 					+ "left join (select i.toloc,i.addwho from " + wh
 					+ "_Itrn i  where i.sourcetype in ('NSPRFRL01','NSPRFPA02') " + sqlItrn
 					+ ") s on r.addwho=s.addwho " + "left join " + wh
@@ -161,8 +161,8 @@ public class WorkamountController extends BaseController {
 					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware left join oper.e_sso_user op on op.sso_user_name=r.addwho "
 					+ "" + sqlwhere + sqlso + " group by op.fully_qualified_id) a  " + " full join  (select  "
 					+ "o.performancedata01, " + "count(distinct o.orderkey) picknamesum, "
-					+ "count(distinct pk.sku) pickskusum, " + "count( l.loc) pickblocsum, "
-					+ "count( l2.loc) pickslocsum, " + "count( pk.id) picklpnsum " + "from " + wh + "_orders o "
+					+ "count(distinct pk.sku) pickskusum, " + "count(distinct l.loc) pickblocsum, "
+					+ "count(distinct l2.loc) pickslocsum, " + "count(distinct pk.id) picklpnsum " + "from " + wh + "_orders o "
 					+ "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
@@ -171,8 +171,8 @@ public class WorkamountController extends BaseController {
 					+ "" + sqlwhere + sqlpick
 					+ " group by o.performancedata01) b on a.fully_qualified_id=b.performancedata01  "
 					+ " full join (select  " + "o.performancedata04, " + "count(distinct o.orderkey) rcnamesum, "
-					+ "count(distinct pk.sku) rcskusum, " + "count( l.loc) rcblocsum, " + "count( l2.loc) rcslocsum, "
-					+ "count( pk.id) rclpnsum " + "from " + wh + "_orders o " + "left join " + wh
+					+ "count(distinct pk.sku) rcskusum, " + "count(distinct l.loc) rcblocsum, " + "count(distinct l2.loc) rcslocsum, "
+					+ "count(distinct pk.id) rclpnsum " + "from " + wh + "_orders o " + "left join " + wh
 					+ "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
@@ -689,8 +689,8 @@ public class WorkamountController extends BaseController {
 		for (int i = 0; i < entities.size(); i++) {
 			wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
 			sql = "select * from (select op.fully_qualified_id,count(distinct r.receiptkey) sonamesum,"
-					+ "count(distinct r.sku) soskusum," + "count( l.loc) soblocsum," + "count( l2.loc) soslocsum,"
-					+ "count( r.toid) solpnsum " + "from " + wh + "_Receiptdetail r "
+					+ "count(distinct r.sku) soskusum," + "count(distinct l.loc) soblocsum," + "count(distinct l2.loc) soslocsum,"
+					+ "count(distinct r.toid) solpnsum " + "from " + wh + "_Receiptdetail r "
 					+ "left join (select i.toloc,i.addwho from " + wh
 					+ "_Itrn i  where i.sourcetype in ('NSPRFRL01','NSPRFPA02') " + sqlItrn
 					+ ") s on r.addwho=s.addwho " + "left join " + wh
@@ -700,8 +700,8 @@ public class WorkamountController extends BaseController {
 					+ "_Codelkup c3 on c3.listname='PHYSICALWH' and c3.code=l3.physicalware left join oper.e_sso_user op on op.sso_user_name=r.addwho "
 					+ "" + sqlwhere + sqlso + " group by op.fully_qualified_id) a  " + " full join  (select  "
 					+ "o.performancedata01, " + "count(distinct o.orderkey) picknamesum, "
-					+ "count(distinct pk.sku) pickskusum, " + "count( l.loc) pickblocsum, "
-					+ "count( l2.loc) pickslocsum, " + "count( pk.id) picklpnsum " + "from " + wh + "_orders o "
+					+ "count(distinct pk.sku) pickskusum, " + "count(distinct l.loc) pickblocsum, "
+					+ "count(distinct l2.loc) pickslocsum, " + "count(distinct pk.id) picklpnsum " + "from " + wh + "_orders o "
 					+ "left join " + wh + "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
@@ -710,8 +710,8 @@ public class WorkamountController extends BaseController {
 					+ "" + sqlwhere + sqlpick
 					+ " group by o.performancedata01) b on a.fully_qualified_id=b.performancedata01  "
 					+ " full join (select  " + "o.performancedata04, " + "count(distinct o.orderkey) rcnamesum, "
-					+ "count(distinct pk.sku) rcskusum, " + "count( l.loc) rcblocsum, " + "count( l2.loc) rcslocsum, "
-					+ "count( pk.id) rclpnsum " + "from " + wh + "_orders o " + "left join " + wh
+					+ "count(distinct pk.sku) rcskusum, " + "count(distinct l.loc) rcblocsum, " + "count(distinct l2.loc) rcslocsum, "
+					+ "count(distinct pk.id) rclpnsum " + "from " + wh + "_orders o " + "left join " + wh
 					+ "_Pickdetail pk on o.orderkey=pk.orderkey " + "left join " + wh
 					+ "_loc l on nvl(trim(pk.fromloc),pk.loc) = l.loc and l.locnature <> 'S' " + "left join " + wh
 					+ "_loc l2 on nvl(trim(pk.fromloc),pk.loc) = l2.loc and l2.locnature = 'S' " + "left join " + wh
