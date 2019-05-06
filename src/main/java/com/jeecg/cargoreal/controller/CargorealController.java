@@ -112,14 +112,14 @@ public class CargorealController extends BaseController {
 			 		"       (select s2.susr3 from "+wh+"_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3," + 
 			 		"       to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate," + 
 			 		"       case when o.susr35='CSKJY0101' then " + 
-			 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+			 		"         ROUND((o.requestedshipdate - sysdate) * 24 -3,2)" + 
 			 		"         when o.susr35='MSDNY0102' then " + 
-			 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-210" + 
+			 		"         ROUND((o.requestedshipdate - sysdate) * 24 -3.5,2)" + 
 			 		"         when o.susr35='SSDZY0600' then " + 
-			 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-60" + 
+			 		"         ROUND((o.requestedshipdate - sysdate) * 24 -1,2)" + 
 			 		"         when o.susr35='KSDZY0201' then " + 
-			 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
-			 		"         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15" + 
+			 		"         ROUND((o.requestedshipdate - sysdate) * 24 -3,2)" + 
+			 		"         else ROUND((o.requestedshipdate - sysdate) * 24 -15/60,2)" + 
 			 		"         end as earlywarndate," + 
 			 		"        os.description,o.performancedata01 from "+wh+"_orders o" + 
 			 		" left join "+wh+"_pickdetail pd on pd.orderkey=o.orderkey" + 
@@ -136,14 +136,14 @@ public class CargorealController extends BaseController {
 			 		"       (select s2.susr3 from "+wh+"_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3," + 
 			 		"       o.requestedshipdate," + 
 			 		"       case when o.susr35='CSKJY0101' then " + 
-			 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
+			 		"         ROUND((o.requestedshipdate - sysdate) * 24 -3,2)" + 
 			 		"         when o.susr35='MSDNY0102' then " + 
-			 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-210" + 
+			 		"         ROUND((o.requestedshipdate - sysdate) * 24 -3.5,2)" + 
 			 		"         when o.susr35='SSDZY0600' then " + 
-			 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-60" + 
+			 		"         ROUND((o.requestedshipdate - sysdate) * 24 -1,2)" + 
 			 		"         when o.susr35='KSDZY0201' then " + 
-			 		"         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180" + 
-			 		"         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15" + 
+			 		"         ROUND((o.requestedshipdate - sysdate) * 24 -3,2)" + 
+			 		"         else ROUND((o.requestedshipdate - sysdate) * 24 -15/60,2)" + 
 			 		"         end as earlywarndate," + 
 			 		"        os.description,o.performancedata01," + 
 			 		"        case when o.susr35='CSKJY0101' then " + 
@@ -171,7 +171,7 @@ public class CargorealController extends BaseController {
 			 		"       (select s.susr3 from "+wh+"_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3," + 
 			 		"       (select s2.susr3 from "+wh+"_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3," + 
 			 		"       o.requestedshipdate," + 
-			 		"       CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15 as earlywarndate," + 
+			 		"       ROUND((o.requestedshipdate - sysdate) * 24 -15/60,2) as earlywarndate," + 
 			 		"       os.description,o.performancedata01," + 
 			 		"        case when o.status>='14' and o.status<'55' then " + 
 			 		"         o.requestedshipdate - 1/24" + 
