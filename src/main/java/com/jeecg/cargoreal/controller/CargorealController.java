@@ -162,7 +162,7 @@ public class CargorealController extends BaseController {
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 			 		" where o.priority <> '1' and o.status>='14' and o.status<'55' and cu.description in ("+areaSql+")" + 
 			 		" and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
-			 		" where sysdate>r.enddate" + 
+			 		" where sysdate>r.enddate + 8/24" + 
 			 		" union all" + 
 			 		" select distinct r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3," + 
 			 		"       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate," + 
@@ -185,7 +185,7 @@ public class CargorealController extends BaseController {
 			 		" left join "+wh+"_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware" + 
 			 		" where o.priority <> '1' and o.status>='14' and o.status<'95' and cu.description in ("+areaSql+")" + 
 			 		" and o.susr35 not in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r " + 
-			 		" where sysdate>r.enddate";
+			 		" where sysdate>r.enddate + 8/24";
 				}
 			}
 			dataGrid=paging(sql, page, rows, dataGrid);
