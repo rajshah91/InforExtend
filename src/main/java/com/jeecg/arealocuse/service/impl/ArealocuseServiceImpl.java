@@ -123,27 +123,30 @@ public class ArealocuseServiceImpl extends CommonServiceImpl implements Arealocu
 			
 			List<Object[]> resultList= this.findListbySql(sql);
 			for (Object[] result : resultList) {
-				ArealocuseEntity arealocuseEntity=new ArealocuseEntity();
-				arealocuseEntity.setSelectdate(new Date());
-				arealocuseEntity.setArea(String.valueOf(result[0]));
-				TSDepart areaDepart=this.findUniqueByProperty(TSDepart.class, "departname", arealocuseEntity.getArea());
-				if(areaDepart!=null) {
-					TSDepart operatsection=this.get(TSDepart.class, areaDepart.getTSPDepart().getId());
-					arealocuseEntity.setOperatsection(operatsection.getDepartname());
-					if(operatsection!=null) {
-						TSDepart operatdepart=this.get(TSDepart.class, operatsection.getTSPDepart().getId());
-						arealocuseEntity.setOperatdepart(operatdepart.getDepartname());
-						if(operatdepart!=null) {
-							TSDepart region=this.get(TSDepart.class, operatdepart.getTSPDepart().getId());
-							arealocuseEntity.setRegion(region.getDepartname());
+				if(!String.valueOf(result[0]).equals("null")||!String.valueOf(result[3]).equals("0")) {
+					//库区和使用率至少有一个不为空
+					ArealocuseEntity arealocuseEntity=new ArealocuseEntity();
+					arealocuseEntity.setSelectdate(new Date());
+					arealocuseEntity.setArea(String.valueOf(result[0]));
+					TSDepart areaDepart=this.findUniqueByProperty(TSDepart.class, "departname", arealocuseEntity.getArea());
+					if(areaDepart!=null) {
+						TSDepart operatsection=this.get(TSDepart.class, areaDepart.getTSPDepart().getId());
+						arealocuseEntity.setOperatsection(operatsection.getDepartname());
+						if(operatsection!=null) {
+							TSDepart operatdepart=this.get(TSDepart.class, operatsection.getTSPDepart().getId());
+							arealocuseEntity.setOperatdepart(operatdepart.getDepartname());
+							if(operatdepart!=null) {
+								TSDepart region=this.get(TSDepart.class, operatdepart.getTSPDepart().getId());
+								arealocuseEntity.setRegion(region.getDepartname());
+							}
 						}
 					}
+					arealocuseEntity.setBloc(String.valueOf(result[1]));
+					arealocuseEntity.setSloc(String.valueOf(result[2]));
+					arealocuseEntity.setTotalrate(String.valueOf(result[3]));
+					arealocuseEntity.setLpn(String.valueOf(result[4]));
+					this.save(arealocuseEntity);
 				}
-				arealocuseEntity.setBloc(String.valueOf(result[1]));
-				arealocuseEntity.setSloc(String.valueOf(result[2]));
-				arealocuseEntity.setTotalrate(String.valueOf(result[3]));
-				arealocuseEntity.setLpn(String.valueOf(result[4]));
-				this.save(arealocuseEntity);
 			}
 		}
 	}

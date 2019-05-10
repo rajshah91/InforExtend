@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -101,7 +102,10 @@ public class ArealocuseController extends BaseController {
 				cq.ge("selectdate", new SimpleDateFormat("yyyy-MM-dd").parse(selectdatestart));
 			}
 			if (StringUtil.isNotEmpty(selectdateend)) {
-				cq.le("selectdate", new SimpleDateFormat("yyyy-MM-dd").parse(selectdateend));
+				Calendar selectdateendcalendar = Calendar.getInstance();
+				selectdateendcalendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(selectdateend));
+				selectdateendcalendar.add(Calendar.DATE, 1);
+				cq.le("selectdate", selectdateendcalendar.getTime());
 			}
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
