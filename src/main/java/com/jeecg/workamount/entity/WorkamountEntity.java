@@ -56,20 +56,20 @@ public class WorkamountEntity implements java.io.Serializable {
 	/**员工姓名*/
 	@Excel(name="员工姓名",width=15)
 	private java.lang.String username;
-	/**出货票数*/
-	@Excel(name="出货票数",width=15)
+	/**收货票数*/
+	@Excel(name="收货票数",width=15)
 	private java.lang.String sonamesum;
-	/**出货料号数*/
-	@Excel(name="出货料号数",width=15)
+	/**收货料号数*/
+	@Excel(name="收货料号数",width=15)
 	private java.lang.String soskusum;
-	/**出货大储位数*/
-	@Excel(name="出货大储位数",width=15)
+	/**收货大储位数*/
+	@Excel(name="收货大储位数",width=15)
 	private java.lang.String soblocsum;
-	/**出货小储位数*/
-	@Excel(name="出货小储位数",width=15)
+	/**收货小储位数*/
+	@Excel(name="收货小储位数",width=15)
 	private java.lang.String soslocsum;
-	/**出货lpn数*/
-	@Excel(name="出货lpn数",width=15)
+	/**收货lpn数*/
+	@Excel(name="收货lpn数",width=15)
 	private java.lang.String solpnsum;
 	/**拣货员姓名*/
 	@Excel(name="拣货员姓名",width=15)
