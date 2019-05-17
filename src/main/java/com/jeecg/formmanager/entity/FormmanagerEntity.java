@@ -25,7 +25,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
  * @Title: Entity
  * @Description: 报表配置管理
  * @author onlineGenerator
- * @date 2019-05-17 14:42:46
+ * @date 2019-05-17 15:42:06
  * @version V1.0   
  *
  */
