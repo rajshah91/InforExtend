@@ -209,7 +209,7 @@
                     <el-input v-model="pickform.operator" disabled autocomplete="off"></el-input>
                  </el-form-item>
                   <el-form-item label="出货单号">
-                    <el-input v-model="pickform.orderkey" maxlength="10" minlength="10" autocomplete="off" @change="valiorderkey(pickform.orderkey)"></el-input>
+                    <el-input v-model="pickform.orderkey" maxlength="10" minlength="10" autocomplete="off" v-on:input="valiorderkey(pickform.orderkey)"></el-input>
                  </el-form-item>
                  <br>
                  <!-- <el-form-item label="功能">
@@ -462,6 +462,7 @@
 				this.operatordisabled=false;
 			},
 			valiorderkey:function(value){
+				console.log('1');
 				//ajax
 				if(value!=null&&this.pickform.warehouse!=null&&value!=""&&this.pickform.warehouse!=""&&value.length==10){
 					this.$http.get(this.url.valiorderkey,{params:{orderkey:value,warehouse:this.pickform.warehouse}}).then(function(res)  {
@@ -486,7 +487,7 @@
 							this.pickform.orderkey="";
 						}
 					});
-				}else{
+				}else if(value==null||this.pickform.warehouse==null||value==""&&this.pickform.warehouse==""){
 					this.$message({
 						showClose:true,
 						  type: 'error',
