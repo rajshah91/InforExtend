@@ -602,7 +602,11 @@
 			},
 			//导出
 			ExportXls: function() {
-			    var urllist="&region="+this.filters.region+"&department="+this.filters.department.join(',')+"&office="+this.filters.office.join(',')+"&seracharea="+this.filters.area.join(',')
+				var requestshipdatestart=!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd hh:mm:ss');//请求出货时间起
+				var	requestshipdateend=!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd hh:mm:ss');//请求出货时间至
+				var	adddatestart=!this.filters.adddatestart ? '' : utilFormatDate(new Date(this.filters.adddatestart), 'yyyy-MM-dd hh:mm:ss');//请求出货时间至,
+				var	adddateend=!this.filters.adddateend ? '' : utilFormatDate(new Date(this.filters.adddateend), 'yyyy-MM-dd hh:mm:ss');//请求出货时间至,
+			    var urllist="&region="+this.filters.region+"&department="+this.filters.department.join(',')+"&office="+this.filters.office.join(',')+"&seracharea="+this.filters.area.join(',')+"&requestshipdatestart="+requestshipdatestart+"&requestshipdateend="+requestshipdateend+"&adddatestart="+adddatestart+"&adddateend="+adddateend+"&orderkey="+this.filters.orderkey+"&warehouse="+this.filters.warehouse;
                 window.location.href = this.url.exportXls+urllist;
 			},
 			//导入
