@@ -752,7 +752,6 @@
 				fields.push('storerkey');
 				fields.push('altsku');
 				fields.push('ordertype');
-				console.log(this.filters.area+"||"+this.filters.region+"||"+this.filters.department+"||"+this.filters.office);
 				var para = {
 					params: {
 						page: this.page,

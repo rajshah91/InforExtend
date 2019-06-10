@@ -76,39 +76,30 @@
 					    </el-option>
  					</el-select>
 	        	 </el-form-item>
-<!-- 			    <el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
-<!-- 					<el-select v-model="filters.region" placeholder="请选择分区" clearable style="width:175px"> -->
-<!-- 	                 <el-option label="昆山区" value="昆山区"></el-option> -->
-<!-- 	             </el-select> -->
-<!-- 				</el-form-item> -->
-<!-- 				<el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
-<!-- 					<el-select v-model="filters.operatdepart" placeholder="请选择操作部" clearable style="width:175px"> -->
-<!-- 	                 <el-option label="操作一部" value="depart1"></el-option> -->
-<!-- 	                 <el-option label="操作二部" value="depart2"></el-option> -->
-<!-- 	                 <el-option label="操作三部" value="depart3"></el-option> -->
-<!-- 	                 <el-option label="客服部" value="operation4"></el-option> -->
-<!-- 	            </el-select> -->
-<!-- 				</el-form-item> -->
-<!-- 				<el-form-item style="margin-bottom: 8px;" prop="warehouse"> -->
-<!-- 					<el-select v-model="filters.operatsection" placeholder="请选择操作科" clearable style="width:175px"> -->
-<!-- 	                 <el-option label="操作一部一科" value="section1"></el-option> -->
-<!-- 	                 <el-option label="操作一部二科" value="section2"></el-option> -->
-<!-- 	                 <el-option label="操作一部三科" value="section3"></el-option> -->
-<!-- 	                 <el-option label="操作一部五科" value="section4"></el-option> -->
-<!-- 	                 <el-option label="操作一部六科" value="section5"></el-option> -->
-<!-- 	                 <el-option label="操作二部" value="section6"></el-option> -->
-<!-- 	                 <el-option label="操作三部" value="section7"></el-option> -->
-<!-- 	                 <el-option label="客服部一科" value="section8"></el-option> -->
-<!-- 	                 <el-option label="客服部二科" value="section9"></el-option> -->
-<!-- 	                 <el-option label="客服部三科" value="section10"></el-option> -->
-<!-- 	                 <el-option label="客服部五科" value="section11"></el-option> -->
-<!-- 	            </el-select> -->
-<!-- 				</el-form-item> -->
-<!-- 				<el-form-item style="margin-bottom: 8px;" prop="area"> -->
-<!-- 					<el-select v-model="filters.area" placeholder="请选择库区" clearable style="width:175px"> -->
-<!-- 	                 <el-option label="" value=""></el-option> -->
-<!-- 	                 </el-select> -->
-<!-- 				</el-form-item> -->
+	        	 <el-form-item style="margin-bottom: 8px;" prop="warehouse">
+				    <el-select v-model="filters.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
+		                 <!-- <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
+	                     <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
+	                     <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
+	                     <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option> -->
+	                     <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
+		            </el-select>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
+					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入so单号" style="width:175px"></el-input>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="requestshipdate">
+					<el-date-picker type="datetime" placeholder="选择请求出货日期起" default-time="08:00:00" v-model="filters.requestshipdatestart" style="width:175px"></el-date-picker>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="requestshipdate">
+					<el-date-picker type="datetime" placeholder="选择请求出货日期至" default-time="08:00:00" v-model="filters.requestshipdateend" style="width:175px"></el-date-picker>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="adddate">
+					<el-date-picker type="datetime" placeholder="选择订单创建日期起"  v-model="filters.adddatestart" style="width:175px"></el-date-picker>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="adddate">
+					<el-date-picker type="datetime" placeholder="选择订单创建日期至"  v-model="filters.adddateend" style="width:175px"></el-date-picker>
+				</el-form-item>
 				<br>
 				<el-form-item>
 			    	<el-button type="primary" icon="el-icon-search" v-on:click="getCargoreals">查询</el-button>
@@ -219,6 +210,12 @@
 					department:[],
 					office:[],
 					area:[],
+					orderkey:'',
+					requestshipdatestart:'',
+					requestshipdateend:'',
+					adddatestart:'',
+					adddateend:'',
+					warehouse:'',
 				},
 				url:{
 					list:'${webRoot}/cargorealController.do?datagrid',
@@ -232,6 +229,7 @@
 					exportXls:'${webRoot}/cargorealController.do?exportXls',
 					ImportXls:'${webRoot}/cargorealController.do?upload',
 					findRegion:'${webRoot}/cargorealController.do?doFindRegion',
+					getwarehouse:'${webRoot}/ordersController.do?getwarehouse',
 					findDepartment:'${webRoot}/cargorealController.do?doFindDepartment'
 				},
 				cargoreals: [],
@@ -252,9 +250,10 @@
 				},
 				//表单界面数据
 				form: {},
-				
+				warehouses:[],
 				//显示列
 				checkList:[],
+				
 				detailList:{
 					id:'id',
 					createName:'createName',
@@ -306,6 +305,12 @@
 			}
 		},
 		methods: {
+			getwarehouse:function(){
+				this.$http.get(this.url.getwarehouse).then(function(res)  {
+					/* console.log(res.data.warehouse); */
+					this.warehouses=res.data.warehouse;
+				});
+			},
 		    //列展示切换
 			show:function(value){
 				if(value=="id"){
@@ -484,6 +489,12 @@
 						department:this.filters.department.join(','),
 						office:this.filters.office.join(','),
 					 	area:this.filters.area.join(','),
+					 	orderkey:this.filters.orderkey,
+					 	warehouse:this.filters.warehouse,
+					 	requestshipdatestart:!this.filters.requestshipdatestart ? '' : utilFormatDate(new Date(this.filters.requestshipdatestart), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间起
+					 	requestshipdateend:!this.filters.requestshipdateend ? '' : utilFormatDate(new Date(this.filters.requestshipdateend), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间至
+					 	adddatestart:!this.filters.adddatestart ? '' : utilFormatDate(new Date(this.filters.adddatestart), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间至,
+					 	adddateend:!this.filters.adddateend ? '' : utilFormatDate(new Date(this.filters.adddateend), 'yyyy-MM-dd hh:mm:ss'),//请求出货时间至,
 						field:fields.join(',')
 					}
 				};
@@ -618,6 +629,7 @@
 			this.initDictsData();
 			this.findRegions();
 			this.getCargoreals();
+			this.getwarehouse();
 		}
 	});
 	
