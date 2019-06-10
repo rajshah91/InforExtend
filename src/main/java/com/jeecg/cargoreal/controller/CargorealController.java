@@ -558,110 +558,212 @@ public class CargorealController extends BaseController {
 	@RequestMapping(params = "exportXls")
 	public String exportXls(CargorealEntity cargoreal, HttpServletRequest request, HttpServletResponse response,
 			DataGrid dataGrid, ModelMap modelMap) {
+		//2019/06/10
+		String warehouse = request.getParameter("warehouse");
+		String requestshipdatestart = request.getParameter("requestshipdatestart");
+		String requestshipdateend = request.getParameter("requestshipdateend");
+		String adddatestart = request.getParameter("adddatestart");
+		String adddateend = request.getParameter("adddateend");
+		String orderkey = request.getParameter("orderkey");
+		
 		String regions = request.getParameter("region");
 		String departments = request.getParameter("department");
 		String offices = request.getParameter("office");
 		String areas = request.getParameter("area");
 		String areaSql = getAllArea(regions, departments, offices, areas);
 		TSUser user = ResourceUtil.getSessionUser();// 操作人
+		
+		String sqlwhere = "";
+		if (requestshipdatestart != null && requestshipdatestart != "" && requestshipdateend != null
+				&& requestshipdateend != "") {
+			sqlwhere += " and o.requestedshipdate+8/24 between to_date('" + requestshipdatestart
+					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + requestshipdateend + "','yyyy-MM-dd HH24:mi:ss') ";
+		}
+		if (adddatestart != null && adddatestart != "" && adddateend != null && adddateend != "") {
+			sqlwhere += " and o.adddate+8/24 between to_date('" + adddatestart
+					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + adddateend + "','yyyy-MM-dd HH24:mi:ss') ";
+		}
+		if (orderkey != null && orderkey != "") {
+			sqlwhere += " and o.orderkey='" + orderkey + "' ";
+		}
+		String sql = "";
 		List<CargorealEntity> cargoreals = new ArrayList<>();
 		if (!"".equals(areaSql)) {
-			List<UsercontactwhEntity> usercontactwhEntities = cargorealService
-					.findHql("from UsercontactwhEntity where userid=?", user.getId());
-			if (usercontactwhEntities.size() > 0) {
-				String sql = "";
+			if ((warehouse != null && warehouse != "")) {
+				String wh = typeNameToTypeCode(warehouse, "仓库");
+				sql = "select distinct o.whseid,cu.description as descr,o.orderkey," + "       (select s.susr3 from "
+						+ wh + "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
+						+ "       (select s2.susr3 from " + wh
+						+ "_storer s2  where s2.storerkey=o.susr35 and s2.type='1' ) as s2susr3,"
+						+ "       to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,"
+						+ "       case when o.susr35='CSKJY0101' then "
+						+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 3 ,2)"
+						+ "         when o.susr35='MSDNY0102' then "
+						+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 3.5 ,2)"
+						+ "         when o.susr35='SSDZY0600' then "
+						+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 1 ,2)"
+						+ "         when o.susr35='KSDZY0201' then "
+						+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 -3 ,2)"
+						+ "         else ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 15/60 ,2)"
+						+ "         end as earlywarndate,"
+						+ "        os.description,o.performancedata01,o.adddate from " + wh + "_orders o"
+						+ " left join " + wh + "_pickdetail pd on pd.orderkey=o.orderkey" + " left join " + wh
+						+ "_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + " left join " + wh
+						+ "_orderstatussetup os on os.code=o.status" + " left join " + wh
+						+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
+						+ " where o.priority='1' and o.status>='14'  and o.type='0' and o.status<'95' and cu.description in ("
+						+ areaSql + ")" + sqlwhere + "" + " union all"
+						+ " select distinct r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3,"
+						+ "       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate,"
+						+ "       r.description,r.performancedata01,r.adddate from"
+						+ " (select o.whseid,cu.description as descr,o.orderkey," + "       (select s.susr3 from " + wh
+						+ "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
+						+ "       (select s2.susr3 from " + wh
+						+ "_storer s2  where s2.storerkey=o.susr35 and s2.type='1' ) as s2susr3,"
+						+ "       o.requestedshipdate," + "       case when o.susr35='CSKJY0101' then "
+						+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 3 ,2)"
+						+ "         when o.susr35='MSDNY0102' then "
+						+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 3.5 ,2)"
+						+ "         when o.susr35='SSDZY0600' then "
+						+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 1 ,2)"
+						+ "         when o.susr35='KSDZY0201' then "
+						+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 -3 ,2)"
+						+ "         else ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 15/60 ,2)"
+						+ "         end as earlywarndate," + "        os.description,o.performancedata01,"
+						+ "        case when o.susr35='CSKJY0101' then " + "         o.requestedshipdate - 3.5/24"
+						+ "         when o.susr35='MSDNY0102' then " + "         o.requestedshipdate - 4/24"
+						+ "         when o.susr35='SSDZY0600' then " + "         o.requestedshipdate - 1.5/24"
+						+ "         when o.susr35='KSDZY0201' then " + "         o.requestedshipdate - 3.5/24"
+						+ "         else o.requestedshipdate" + "         end as enddate,o.adddate from " + wh
+						+ "_orders o" + " left join " + wh + "_pickdetail pd on pd.orderkey=o.orderkey" + " left join "
+						+ wh + "_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + " left join " + wh
+						+ "_orderstatussetup os on os.code=o.status" + " left join " + wh
+						+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
+						+ " where o.priority <> '1' and o.status>='14' and o.type='0' and o.status<'55' and cu.description in ("
+						+ areaSql + ") " + sqlwhere + ""
+						+ " and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r "
+						+ " where sysdate>r.enddate + 8/24" + " union all"
+						+ " select distinct r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3,"
+						+ "       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate,"
+						+ "       r.description,r.performancedata01,r.adddate from"
+						+ " (select o.whseid,cu.description as descr,o.orderkey," + "       (select s.susr3 from " + wh
+						+ "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
+						+ "       (select s2.susr3 from " + wh
+						+ "_storer s2  where s2.storerkey=o.susr35 and s2.type='1' ) as s2susr3,"
+						+ "       o.requestedshipdate,"
+						+ "       ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 -15/60,2) as earlywarndate,"
+						+ "       os.description,o.performancedata01,"
+						+ "        case when o.status>='14' and o.status<'55' then "
+						+ "         o.requestedshipdate - 1/24" + "         when o.status>='55' and o.status<'95' then "
+						+ "         o.requestedshipdate - 0.5/24" + "         else o.requestedshipdate"
+						+ "         end as enddate,o.adddate from " + wh + "_orders o" + " left join " + wh
+						+ "_pickdetail pd on pd.orderkey=o.orderkey" + " left join " + wh
+						+ "_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + " left join " + wh
+						+ "_orderstatussetup os on os.code=o.status " + " left join " + wh
+						+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
+						+ " where o.priority <> '1' and o.status>='14' and o.type='0' and o.status<'95' and cu.description in ("
+						+ areaSql + ") " + sqlwhere + ""
+						+ " and o.susr35 not in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r "
+						+ " where sysdate>r.enddate + 8/24";
+			} else {
+				List<UsercontactwhEntity> usercontactwhEntities = cargorealService
+						.findHql("from UsercontactwhEntity where userid=?", user.getId());
+				if (usercontactwhEntities.size() > 0) {
 
-				for (int i = 0; i < usercontactwhEntities.size(); i++) {
-					if (usercontactwhEntities.get(i).getWarehouse().contains("FEILI_wmwhse")) {
-						String wh = typeNameToTypeCode(usercontactwhEntities.get(i).getWarehouse(), "仓库");
-						if (i != 0) {
-							sql += " union all ";
+					for (int i = 0; i < usercontactwhEntities.size(); i++) {
+						if (usercontactwhEntities.get(i).getWarehouse().contains("FEILI_wmwhse")) {
+							String wh = typeNameToTypeCode(usercontactwhEntities.get(i).getWarehouse(), "仓库");
+							if (i != 0) {
+								sql += " union all ";
+							}
+
+							sql += "select distinct o.whseid,cu.description as descr,o.orderkey,"
+									+ "       (select s.susr3 from " + wh
+									+ "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
+									+ "       (select s2.susr3 from " + wh
+									+ "_storer s2  where s2.storerkey=o.susr35 and s2.type='1' ) as s2susr3,"
+									+ "       to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,"
+									+ "       case when o.susr35='CSKJY0101' then "
+									+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 3 ,2)"
+									+ "         when o.susr35='MSDNY0102' then "
+									+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 3.5 ,2)"
+									+ "         when o.susr35='SSDZY0600' then "
+									+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 1 ,2)"
+									+ "         when o.susr35='KSDZY0201' then "
+									+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 -3 ,2)"
+									+ "         else ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 15/60 ,2)"
+									+ "         end as earlywarndate,"
+									+ "        os.description,o.performancedata01,o.adddate from " + wh + "_orders o"
+									+ " left join " + wh + "_pickdetail pd on pd.orderkey=o.orderkey" + " left join "
+									+ wh + "_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + " left join " + wh
+									+ "_orderstatussetup os on os.code=o.status" + " left join " + wh
+									+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
+									+ " where o.priority='1' and o.status>='14'  and o.type='0' and o.status<'95' and cu.description in ("
+									+ areaSql + ")" + sqlwhere + "" + " union all"
+									+ " select distinct r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3,"
+									+ "       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate,"
+									+ "       r.description,r.performancedata01,r.adddate from"
+									+ " (select o.whseid,cu.description as descr,o.orderkey,"
+									+ "       (select s.susr3 from " + wh
+									+ "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
+									+ "       (select s2.susr3 from " + wh
+									+ "_storer s2  where s2.storerkey=o.susr35 and s2.type='1' ) as s2susr3,"
+									+ "       o.requestedshipdate," + "       case when o.susr35='CSKJY0101' then "
+									+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 3 ,2)"
+									+ "         when o.susr35='MSDNY0102' then "
+									+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 3.5 ,2)"
+									+ "         when o.susr35='SSDZY0600' then "
+									+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 1 ,2)"
+									+ "         when o.susr35='KSDZY0201' then "
+									+ "         ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 -3 ,2)"
+									+ "         else ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 - 15/60 ,2)"
+									+ "         end as earlywarndate," + "        os.description,o.performancedata01,"
+									+ "        case when o.susr35='CSKJY0101' then "
+									+ "         o.requestedshipdate - 3.5/24"
+									+ "         when o.susr35='MSDNY0102' then " + "         o.requestedshipdate - 4/24"
+									+ "         when o.susr35='SSDZY0600' then "
+									+ "         o.requestedshipdate - 1.5/24"
+									+ "         when o.susr35='KSDZY0201' then "
+									+ "         o.requestedshipdate - 3.5/24" + "         else o.requestedshipdate"
+									+ "         end as enddate,o.adddate from " + wh + "_orders o" + " left join " + wh
+									+ "_pickdetail pd on pd.orderkey=o.orderkey" + " left join " + wh
+									+ "_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + " left join " + wh
+									+ "_orderstatussetup os on os.code=o.status" + " left join " + wh
+									+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
+									+ " where o.priority <> '1' and o.status>='14' and o.type='0' and o.status<'55' and cu.description in ("
+									+ areaSql + ") " + sqlwhere + ""
+									+ " and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r "
+									+ " where sysdate>r.enddate + 8/24" + " union all"
+									+ " select distinct r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3,"
+									+ "       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate,"
+									+ "       r.description,r.performancedata01,r.adddate from"
+									+ " (select o.whseid,cu.description as descr,o.orderkey,"
+									+ "       (select s.susr3 from " + wh
+									+ "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
+									+ "       (select s2.susr3 from " + wh
+									+ "_storer s2  where s2.storerkey=o.susr35 and s2.type='1' ) as s2susr3,"
+									+ "       o.requestedshipdate,"
+									+ "       ROUND((o.requestedshipdate + 8/24 - sysdate) * 24 -15/60,2) as earlywarndate,"
+									+ "       os.description,o.performancedata01,"
+									+ "        case when o.status>='14' and o.status<'55' then "
+									+ "         o.requestedshipdate - 1/24"
+									+ "         when o.status>='55' and o.status<'95' then "
+									+ "         o.requestedshipdate - 0.5/24" + "         else o.requestedshipdate"
+									+ "         end as enddate,o.adddate from " + wh + "_orders o" + " left join " + wh
+									+ "_pickdetail pd on pd.orderkey=o.orderkey" + " left join " + wh
+									+ "_loc loc on loc.loc=nvl(trim(pd.fromloc),pd.loc)" + " left join " + wh
+									+ "_orderstatussetup os on os.code=o.status " + " left join " + wh
+									+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
+									+ " where o.priority <> '1' and o.status>='14' and o.type='0' and o.status<'95' and cu.description in ("
+									+ areaSql + ") " + sqlwhere + ""
+									+ " and o.susr35 not in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r "
+									+ " where sysdate>r.enddate + 8/24";
 						}
-
-						sql += "select o.whseid,cu.description as descr,o.orderkey," + "       (select s.susr3 from "
-								+ wh + "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
-								+ "       (select s2.susr3 from " + wh
-								+ "_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3,"
-								+ "       to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,"
-								+ "       case when o.susr35='CSKJY0101' then "
-								+ "         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180"
-								+ "         when o.susr35='MSDNY0102' then "
-								+ "         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-210"
-								+ "         when o.susr35='SSDZY0600' then "
-								+ "         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-60"
-								+ "         when o.susr35='KSDZY0201' then "
-								+ "         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180"
-								+ "         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15"
-								+ "         end as earlywarndate," + "        os.description,o.performancedata01 from "
-								+ wh + "_orders o" + " left join " + wh + "_orderdetail od on od.orderkey=o.orderkey"
-								+ " left join " + wh + "_pickdetail pd on pd.orderkey=o.orderkey" + " left join " + wh
-								+ "_loc loc on loc.loc=pd.loc" + " left join " + wh
-								+ "_orderstatussetup os on os.code=o.status" + " left join " + wh
-								+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
-								+ " where o.priority='1' and o.status>=14 and o.status<95 and cu.description in ("
-								+ areaSql + ")" + " union all"
-								+ " select r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3,"
-								+ "       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate,"
-								+ "       r.description,r.performancedata01 from"
-								+ " (select o.whseid,cu.description as descr,o.orderkey,"
-								+ "       (select s.susr3 from " + wh
-								+ "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
-								+ "       (select s2.susr3 from " + wh
-								+ "_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3,"
-								+ "       o.requestedshipdate," + "       case when o.susr35='CSKJY0101' then "
-								+ "         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180"
-								+ "         when o.susr35='MSDNY0102' then "
-								+ "         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-210"
-								+ "         when o.susr35='SSDZY0600' then "
-								+ "         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-60"
-								+ "         when o.susr35='KSDZY0201' then "
-								+ "         CEIL((o.requestedshipdate - sysdate) * 24 * 60)-180"
-								+ "         else CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15"
-								+ "         end as earlywarndate," + "        os.description,o.performancedata01,"
-								+ "        case when o.susr35='CSKJY0101' then "
-								+ "         o.requestedshipdate - 3.5/24" + "         when o.susr35='MSDNY0102' then "
-								+ "         o.requestedshipdate - 4/24" + "         when o.susr35='SSDZY0600' then "
-								+ "         o.requestedshipdate - 1.5/24" + "         when o.susr35='KSDZY0201' then "
-								+ "         o.requestedshipdate - 3.5/24" + "         else o.requestedshipdate"
-								+ "         end as enddate from " + wh + "_orders o" + " left join " + wh
-								+ "_orderdetail od on od.orderkey=o.orderkey" + " left join " + wh
-								+ "_pickdetail pd on pd.orderkey=o.orderkey" + " left join " + wh
-								+ "_loc loc on loc.loc=pd.loc" + " left join " + wh
-								+ "_orderstatussetup os on os.code=o.status" + " left join " + wh
-								+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
-								+ " where o.priority <> '1' and o.status>=14 and o.status<55 and cu.description in ("
-								+ areaSql + ")"
-								+ " and o.susr35 in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r "
-								+ " where sysdate>r.enddate" + " union all"
-								+ " select r.whseid,r.descr,r.orderkey,r.s1susr3,r.s2susr3,"
-								+ "       to_char(r.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') as requestedshipdate,r.earlywarndate,"
-								+ "       r.description,r.performancedata01 from"
-								+ " (select o.whseid,cu.description as descr,o.orderkey,"
-								+ "       (select s.susr3 from " + wh
-								+ "_storer s  where s.storerkey=o.storerkey and s.type='1' ) as s1susr3,"
-								+ "       (select s2.susr3 from " + wh
-								+ "_storer s2  where s2.storerkey=o.storerkey and s2.type='1' ) as s2susr3,"
-								+ "       o.requestedshipdate,"
-								+ "       CEIL((o.requestedshipdate - sysdate) * 24 * 60)-15 as earlywarndate,"
-								+ "       os.description,o.performancedata01,"
-								+ "        case when o.status>=14 and o.status<55 then "
-								+ "         o.requestedshipdate - 1/24"
-								+ "         when o.status>=55 and o.status<95 then "
-								+ "         o.requestedshipdate - 0.5/24" + "         else o.requestedshipdate"
-								+ "         end as enddate from " + wh + "_orders o" + " left join " + wh
-								+ "_orderdetail od on od.orderkey=o.orderkey" + " left join " + wh
-								+ "_pickdetail pd on pd.orderkey=o.orderkey" + " left join " + wh
-								+ "_loc loc on loc.loc=pd.loc" + " left join " + wh
-								+ "_orderstatussetup os on os.code=o.status " + " left join " + wh
-								+ "_CODELKUP cu ON cu.listname='PHYSICALWH' and cu.code=loc.physicalware"
-								+ " where o.priority <> '1' and o.status>=14 and o.status<95 and cu.description in ("
-								+ areaSql + ")"
-								+ " and o.susr35 not in ('CSKJY0101','MSDNY0102','SSDZY0600','KSDZY0201')) r "
-								+ " where sysdate>r.enddate";
 					}
 				}
-				cargoreals = achieveCargoreaBySql(sql);
 			}
+			String sql1 = "select * from (" + sql + ") s order by s.earlywarndate ";
+			cargoreals = achieveCargoreaBySql(sql1);
 		}
 		modelMap.put(NormalExcelConstants.FILE_NAME, "急货实时");
 		modelMap.put(NormalExcelConstants.CLASS, CargorealEntity.class);

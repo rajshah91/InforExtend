@@ -1,9 +1,15 @@
 package com.jeecg.Util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.CharBuffer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -37,6 +43,11 @@ public class ZipUtils {
         doCompress(new File(filelName), out);
     }
     
+    public static void doCompressByUrl(String filelName, ZipOutputStream out,String name) throws IOException{
+    	doZipByUrl(filelName,out,name);
+        //doCompress(new File(url.openStream()), out);
+    }
+    
     public static void doCompress(File file, ZipOutputStream out) throws IOException{
         doCompress(file, out, "");
     }
@@ -56,6 +67,25 @@ public class ZipUtils {
         } else {
              ZipUtils.doZip(inFile, out, dir);
         }
+    }
+    
+    public static void doZipByUrl(String filelName, ZipOutputStream out, String name) throws IOException {
+    	URL url = new URL(filelName);
+        URLConnection c = url.openConnection();
+        c.connect();
+    	ZipEntry entry = new ZipEntry(name);
+        out.putNextEntry(entry);
+       
+        InputStream is = c.getInputStream();
+        
+        int len = 0 ;
+        /*FileInputStream fis = new FileInputStream(inFile);*/
+        byte[] buffer=new byte[2048];
+        while((len=is.read(buffer))!=-1){
+        	out.write(buffer,0,len);
+        }
+        out.closeEntry();
+        is.close();
     }
     
     public static void doZip(File inFile, ZipOutputStream out, String dir) throws IOException {

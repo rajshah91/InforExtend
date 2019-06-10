@@ -289,36 +289,91 @@ public class DownbyzipController extends BaseController {
     public void downLoadZipFile(HttpServletRequest request,HttpServletResponse response) throws IOException{
         String lpn=request.getParameter("lpn");
         String asn=request.getParameter("asn");
-        String zipName = asn+lpn+".zip";
-        String sql ="select t.photo_file from W01_receiptfeedback t where t.asn='"+asn+"' and t.lpn='"+lpn+"' ";
-        
-        List<FileBean> fileList = getfile(sql);//查询数据库中记录
-        response.setContentType("APPLICATION/OCTET-STREAM");  
-        response.setHeader("Content-Disposition","attachment; filename="+zipName);
-        ZipOutputStream out = new ZipOutputStream(response.getOutputStream());
-        try {
-            for(Iterator<FileBean> it = fileList.iterator();it.hasNext();){
-                FileBean file = it.next();
-                ZipUtils.doCompress(file.getFilePath()+file.getFileName(), out);
-                response.flushBuffer();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally{
-            out.close();
+        String sqlwhere="";
+        List<FileBean> fileList=new ArrayList<>();
+        if(asn!=null&&asn!="") {
+        	sqlwhere=" and t.asn='"+asn+"' ";
+        }
+        if(lpn!=null&&lpn!="") {
+        	sqlwhere=" and t.lpn='"+lpn+"'";
+        	List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from W01_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
+        	String zipName = asn+".zip";
+             
+             String sql ="select 'http://' || " + 
+             		"       (select t.long_value from W01_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
+             		"       t.photo_file,t.photo_file " + 
+             		" from W01_receiptfeedback t where 1=1 "+sqlwhere;
+             
+             fileList = getfile(sql,asn,lpn,fileList);//查询数据库中记录
+             response.setContentType("APPLICATION/OCTET-STREAM");  
+             response.setHeader("Content-Disposition","attachment; filename="+zipName);
+             ZipOutputStream out = new ZipOutputStream(response.getOutputStream());
+             try {
+             	int i=1;
+                 for(Iterator<FileBean> it = fileList.iterator();it.hasNext();){
+                 	String fileName = strlist.get(0)+"_"+lpn+"_"+i+".jpg";
+                     FileBean file = it.next();
+                     ZipUtils.doCompressByUrl(file.getFilePath(), out,fileName);
+                     response.flushBuffer();
+                     i++;
+                 }
+             } catch (Exception e) {
+                 e.printStackTrace();
+             }finally{
+                 out.close();
+             }
+        }else {
+        	List<String> lpnlist=downbyzipService.findListbySql("select distinct t.lpn from W01_Receiptfeedback t where t.asn='"+asn+"'");
+        	
+        	 String zipName =asn+".zip";
+        	for (String l : lpnlist) {
+        		sqlwhere=" and t.lpn='"+l+"'";
+        	        
+        	        String sql ="select 'http://' || " + 
+        	        		"       (select t.long_value from W01_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
+        	        		"       t.photo_file,t.photo_file " + 
+        	        		" from W01_receiptfeedback t where 1=1 "+sqlwhere;
+        	        
+        	        fileList = getfile(sql,asn,l, fileList);//查询数据库中记录
+        	        
+			}
+        	response.setContentType("APPLICATION/OCTET-STREAM");  
+	        response.setHeader("Content-Disposition","attachment; filename="+zipName);
+	        ZipOutputStream out = new ZipOutputStream(response.getOutputStream());
+	        try {
+	        	int i=1;
+	            for(Iterator<FileBean> it = fileList.iterator();it.hasNext();){
+	                FileBean file = it.next();
+	                ZipUtils.doCompressByUrl(file.getFilePath(), out,file.getFileName());
+	                response.flushBuffer();
+	                i++;
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }finally{
+	            out.close();
+	        }
         }
     }
 	
- // 导出执行sql
- 	private List<FileBean> getfile(String sql) {
-
- 		List<FileBean> list = new ArrayList<>();
+    // 导出执行sql
+ 	private List<FileBean> getfile(String sql,String asn,String lpn,List<FileBean> fileList) {
+ 		List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from W01_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
  		List<Object[]> resultList = downbyzipService.findListbySql(sql);
+ 		int i=1;
  		for (Object[] result : resultList) {
  			FileBean entity = new FileBean();
- 			entity.setFileName(String.valueOf(result[0]));
- 			list.add(entity);
+ 			entity.setFilePath(String.valueOf(result[0]));
+ 			if(strlist!=null&&strlist.size()>0) {
+ 				String fileName = strlist.get(0)+"_"+lpn+"_"+i+".jpg"; 				
+ 				entity.setFileName(fileName);
+ 			}else {
+ 				String fileName = lpn+"_"+i+".jpg"; 				
+ 				entity.setFileName(fileName);
+ 			}
+ 			fileList.add(entity);
+ 			i++;
  		}
- 		return list;
+ 		return fileList;
  	}
 }
