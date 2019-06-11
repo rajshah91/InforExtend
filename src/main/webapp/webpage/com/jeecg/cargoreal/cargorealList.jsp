@@ -484,7 +484,6 @@
 				fields.push('warningtime');
 				fields.push('orderstatus');
 				fields.push('operator');
-				console.log("1");
 				var para = {
 					params: {
 						page: this.page,
