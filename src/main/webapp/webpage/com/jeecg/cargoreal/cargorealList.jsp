@@ -400,6 +400,12 @@
 			resetForm:function(formName) {
 		        this.$refs[formName].resetFields();
 		        this.page = 1;
+		        this.filters.requestshipdatestart="";
+		        this.filters.requestshipdateend="";
+		        this.filters.adddatestart="";
+		        this.filters.adddateend="";
+		        this.filters.warehouse="";
+		        this.filters.orderkey="";
 		        this.$set(this.filters,"region",[]);
 		        this.departments=[];
 		    	this.$set(this.filters,"department",[]);
