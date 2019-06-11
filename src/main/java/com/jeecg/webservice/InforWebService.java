@@ -83,11 +83,11 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "functionOperation","");
+			//saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "functionOperation","");
 			return receiveXml;
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "functionOperation","");
+			//saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "functionOperation","");
 			return null;
 		}
 	}
