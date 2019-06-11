@@ -478,6 +478,7 @@
 				fields.push('warningtime');
 				fields.push('orderstatus');
 				fields.push('operator');
+				console.log("1");
 				var para = {
 					params: {
 						page: this.page,
@@ -632,7 +633,7 @@
 		mounted:function() {
 			this.initDictsData();
 			this.findRegions();
-			this.getCargoreals();
+			//this.getCargoreals();
 			this.getwarehouse();
 		}
 	});
