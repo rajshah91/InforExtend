@@ -88,7 +88,7 @@
 		<!--列表-->
 		<el-table :data="formmanagers" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55"></el-table-column>
-			<el-table-column type="index" width="60"></el-table-column>
+			<el-table-column type="index" label='序号' width="60"></el-table-column>
 			<el-table-column prop="whseid" label="仓库" v-if="columnshow.whseid" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatWarehouseDict"></el-table-column>
 			<el-table-column prop="ipaddress" label="服务器地址" v-if="columnshow.ipaddress" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatIpcodeDict"></el-table-column>
 			<el-table-column prop="reportaddress" label="报表路径" v-if="columnshow.reportaddress" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -110,7 +110,7 @@
 		
 		<!--新增界面-->
 		<el-dialog :title="formTitle" fullscreen z-index="800" :visible.sync="formVisible" :close-on-click-modal="false">
-			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline="true">
+			<el-form :model="form" label-width="90px" :rules="formRules" ref="form" size="mini" inline="true">
 					<el-form-item label="仓库">
 						<el-select v-model="form.whseid" placeholder="请选择仓库">
 					      <el-option :label="option.typename" :value="option.typecode" v-for="option in warehouseOptions"></el-option>

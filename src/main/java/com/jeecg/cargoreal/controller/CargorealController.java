@@ -569,7 +569,7 @@ public class CargorealController extends BaseController {
 		String regions = request.getParameter("region");
 		String departments = request.getParameter("department");
 		String offices = request.getParameter("office");
-		String areas = request.getParameter("area");
+		String areas = request.getParameter("seracharea");
 		String areaSql = getAllArea(regions, departments, offices, areas);
 		TSUser user = ResourceUtil.getSessionUser();// 操作人
 		
