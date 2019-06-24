@@ -57,8 +57,8 @@
 			style="width:175px"></el-input> </el-form-item> 
 		<!-- <el-form-item> <el-button type="primary"
 			icon="el-icon-search" v-on:click="getDownbyzips">查询</el-button> </el-form-item> <el-form-item>
-		<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button> -->
-		</el-form-item> <el-form-item> <el-button icon="el-icon-download"
+		<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button> 
+		</el-form-item>--> <el-form-item> <el-button type="primary" icon="el-icon-download"
 			@click="downloadzip">ZIP下载</el-button> </el-form-item> <!-- <el-form-item>
 			    	<el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
 			    </el-form-item>
@@ -90,8 +90,8 @@
 				</template>
 			</el-table-column>
 		</el-table> -->
-		<iframe width="100%" height="500px"
-			src="http://172.30.19.14:80/ibmcognos/cgi-bin/cognos.cgi?b_action=cognosViewer&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%27WH1TEST%27%5d%2ffolder%5b%40name%3d%27infor%27%5d%2freport%5b%40name%3d%27%e6%94%b6%e8%b4%a7%e5%bc%82%e5%b8%b8%e6%8a%a5%e8%a1%a8TEST-WH1%27%5d"></iframe>
+		<!-- <iframe width="100%" height="500px"
+			src="http://172.30.19.14:80/ibmcognos/cgi-bin/cognos.cgi?b_action=cognosViewer&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%27WH1TEST%27%5d%2ffolder%5b%40name%3d%27infor%27%5d%2freport%5b%40name%3d%27%e6%94%b6%e8%b4%a7%e5%bc%82%e5%b8%b8%e6%8a%a5%e8%a1%a8TEST-WH1%27%5d"></iframe> -->
 		<!--工具条-->
 		<!-- <el-col :span="24" class="toolbar">
 			<el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
