@@ -14,7 +14,7 @@
 	href="${webRoot}/plug-in/element-ui/css/elementui-ext.css">
 <script src="${webRoot}/plug-in/vue/vue.js"></script>
 <script src="${webRoot}/plug-in/vue/vue-resource.js"></script>
-<script src="${webRoot}/plug-in/vue/qrious.js"></script>
+<script src="${webRoot}/plug-in/vue/qrcode.js"></script>
 <script src="${webRoot}/plug-in/element-ui/index.js"></script>
 <!-- Jquery组件引用 -->
 <script src="${webRoot}/plug-in/jquery/jquery-1.9.1.js"></script>
@@ -63,53 +63,23 @@
 			@click="downloadzip">ZIP下载</el-button>  </el-form-item>
 		</el-form> </el-row>
 		
-		<template>
-			<div class="img" v-show="listShareShow">
-			<qriously :value="feedbackqrcode" :size="160" :backgroundAlpha="backgroundAlpha" v-show="true"/>
+<!-- 		<template> -->
+<!-- 			<div class="img" v-show="listShareShow"> -->
+<!-- 			<qriously :value="feedbackqrcode" :size="160" :backgroundAlpha="backgroundAlpha" v-show="true"/> -->
+<!-- 			</div> -->
+<!-- 		</template> -->
+		<div>
+			<div id="qrcode" style="margin: 10px 100px 10px"> 
 			</div>
-		</template>
-			<!-- <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
-			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="ExportXls">导出</el-button>
-			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="ImportXls">导入</el-button>
-			    </el-form-item> --> </el-form> </el-row>
-		<!-- <el-row style="padding: 10px;" size="mini">
-			  <el-dropdown trigger="click" style="float:right" label-width="80px">
-			          <el-button prop="primary"  size="mini" icon="el-icon-setting"></el-button>
-					  <el-dropdown-menu slot="dropdown">
-					  <template>
-						  <el-checkbox-group v-model="checkList" label-width="100px">
-						  </el-checkbox-group>
-					  </template>
-					  </el-dropdown-menu>
-              </el-dropdown>
-		</el-row> -->
-		<!--列表-->
-		<!-- <el-table :data="downbyzips" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
-			<el-table-column type="selection" width="55"></el-table-column>
-			<el-table-column type="index" width="60"></el-table-column>
-			<el-table-column label="操作" width="150">
-				<template scope="scope">
-					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
-				</template>
-			</el-table-column>
-		</el-table> -->
-		<!-- <iframe width="100%" height="500px"
-			src="http://172.30.19.14:80/ibmcognos/cgi-bin/cognos.cgi?b_action=cognosViewer&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%27WH1TEST%27%5d%2ffolder%5b%40name%3d%27infor%27%5d%2freport%5b%40name%3d%27%e6%94%b6%e8%b4%a7%e5%bc%82%e5%b8%b8%e6%8a%a5%e8%a1%a8TEST-WH1%27%5d"></iframe> -->
-		<!--工具条-->
-		<!-- <el-col :span="24" class="toolbar">
-			<el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
-			 <el-pagination small background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10, 20, 50, 100]"
-      			:page-size="pageSize" :total="total" layout="sizes, prev, pager, next"  style="float:right;"></el-pagination>
-		</el-col> -->
+			<div style="margin: 10px 112px 10px">
+			收货异常反馈 
+			</div>
+		</div>
+			
 	</div>
 </body>
 <script>
+	var qrcode = null;
 	var vue = new Vue({			
 		el:"#downbyzipList",
 		data:function() {
@@ -163,9 +133,21 @@
 			downloadzip: function() {
 					window.location.href = this.url.downloadzip+"&lpn="+this.filters.lpn+"&asn="+this.filters.asn;
 			},
+			showQrcode: function () {
+				console.log("dai",1);
+	            if (qrcode !== null) return
+	            qrcode = new QRCode('qrcode', {
+	            text: 'http://172.20.70.32/ReceiptFeedBack.apk',
+	            width: 100,
+	            height: 100,
+	            colorDark: '#17233d',
+	            colorLight: '#f8f8f9',
+	            correctLevel: QRCode.CorrectLevel.H
+	          })
+	       }
 		},
 		mounted:function() {
-			
+			this.showQrcode();
 		}
 	});
 </script>
