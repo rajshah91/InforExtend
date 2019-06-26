@@ -14,6 +14,7 @@
 	href="${webRoot}/plug-in/element-ui/css/elementui-ext.css">
 <script src="${webRoot}/plug-in/vue/vue.js"></script>
 <script src="${webRoot}/plug-in/vue/vue-resource.js"></script>
+<script src="${webRoot}/plug-in/vue/qrious.js"></script>
 <script src="${webRoot}/plug-in/element-ui/index.js"></script>
 <!-- Jquery组件引用 -->
 <script src="${webRoot}/plug-in/jquery/jquery-1.9.1.js"></script>
@@ -59,7 +60,15 @@
 			icon="el-icon-search" v-on:click="getDownbyzips">查询</el-button> </el-form-item> <el-form-item>
 		<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button> 
 		</el-form-item>--> <el-form-item> <el-button type="primary" icon="el-icon-download"
-			@click="downloadzip">ZIP下载</el-button> </el-form-item> <!-- <el-form-item>
+			@click="downloadzip">ZIP下载</el-button>  </el-form-item>
+		</el-form> </el-row>
+		
+		<template>
+			<div class="img" v-show="listShareShow">
+			<qriously :value="feedbackqrcode" :size="160" :backgroundAlpha="backgroundAlpha" v-show="true"/>
+			</div>
+		</template>
+			<!-- <el-form-item>
 			    	<el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
 			    </el-form-item>
 			    <el-form-item>
@@ -98,22 +107,6 @@
 			 <el-pagination small background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10, 20, 50, 100]"
       			:page-size="pageSize" :total="total" layout="sizes, prev, pager, next"  style="float:right;"></el-pagination>
 		</el-col> -->
-
-		<!--新增界面-->
-		<el-dialog :title="formTitle" fullscreen z-index="800"
-			:visible.sync="formVisible" :close-on-click-modal="false">
-		<el-form :model="form" label-width="80px" :rules="formRules"
-			ref="form" size="mini" inline="true"> <el-form-item
-			label="收货单号" prop="asn"> <el-input v-model="form.asn"
-			auto-complete="off" placeholder="请输入收货单号"></el-input> </el-form-item> <el-form-item
-			label="lpn" prop="lpn"> <el-input v-model="form.lpn"
-			auto-complete="off" placeholder="请输入lpn"></el-input> </el-form-item> </el-form>
-		<div slot="footer" class="dialog-footer">
-			<el-button @click.native="formVisible = false">取消</el-button>
-			<el-button type="primary" @click.native="formSubmit"
-				:loading="formLoading">提交</el-button>
-		</div>
-		</el-dialog>
 	</div>
 </body>
 <script>
@@ -126,16 +119,6 @@
 					lpn:'',
 				},
 				url:{
-					list:'${webRoot}/downbyzipController.do?datagrid',
-					del:'${webRoot}/downbyzipController.do?doDel',
-					batchDel:'${webRoot}/downbyzipController.do?doBatchDel',
-					queryDict:'${webRoot}/systemController.do?typeListJson',
-					save:'${webRoot}/downbyzipController.do?doAdd',
-					edit:'${webRoot}/downbyzipController.do?doUpdate',
-					upload:'${webRoot}/systemController/filedeal.do',
-					downFile:'${webRoot}/img/server/',
-					exportXls:'${webRoot}/downbyzipController.do?exportXls&id=',
-					ImportXls:'${webRoot}/downbyzipController.do?upload',
 					downloadzip:'${webRoot}/downbyzipController.do?downLoadZipFile'
 				},
 				downbyzips: [],
@@ -168,7 +151,10 @@
 					lpn:true,
 				},
 				
-				
+				feedbackqrcode:'http://172.20.70.32/ReceiptFeedBack.apk',
+	            // 背景透明度，默认透明 0 
+	            backgroundAlpha: 1,
+	            listShareShow:true,
 				//数据字典 
 			}
 		},
@@ -177,219 +163,10 @@
 			downloadzip: function() {
 					window.location.href = this.url.downloadzip+"&lpn="+this.filters.lpn+"&asn="+this.filters.asn;
 			},
-		    //列展示切换
-			show:function(value){
-				if(value=="asn"){
-				   this.columnshow.asn=!this.columnshow.asn;
-				}
-				if(value=="lpn"){
-				   this.columnshow.lpn=!this.columnshow.lpn;
-				}
-			},
-			handleSortChange:function(sort){
-				this.sort={
-					sort:sort.prop,
-					order:sort.order=='ascending'?'asc':'desc'
-				};
-				this.getDownbyzips();
-			},
-			handleDownFile:function(type,filePath){
-				var downUrl=this.url.downFile+ filePath +"?down=true";
-				window.open(downUrl);
-			},
-			formatDate: function(row,column,cellValue, index){
-				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd'):'';
-			},
-			formatDateTime: function(row,column,cellValue, index){
-				return !!cellValue?utilFormatDate(new Date(cellValue), 'yyyy-MM-dd hh:mm:ss'):'';
-			},
-			handleCurrentChange:function(val) {
-				this.page = val;
-				this.getDownbyzips();
-			},
-			handleSizeChange:function(val) {
-				this.pageSize = val;
-				this.page = 1;
-				this.getDownbyzips();
-			},
-			resetForm:function(formName) {
-		        this.$refs[formName].resetFields();
-		        this.getDownbyzips();
-		    },
-			//获取用户列表
-			getDownbyzips:function() {
-				var fields=[];
-				fields.push('id');
-				fields.push('id');
-				fields.push('createName');
-				fields.push('createBy');
-				fields.push('createDate');
-				fields.push('updateName');
-				fields.push('updateBy');
-				fields.push('updateDate');
-				fields.push('sysOrgCode');
-				fields.push('sysCompanyCode');
-				fields.push('bpmStatus');
-				fields.push('asn');
-				fields.push('lpn');
-				let para = {
-					params: {
-						page: this.page,
-						rows: this.pageSize,
-						//排序
-						sort:this.sort.sort,
-						order:this.sort.order,
-					 	asn:this.filters.asn,
-					 	lpn:this.filters.lpn,
-						field:fields.join(',')
-					}
-				};
-				this.listLoading = true;
-				this.$http.get(this.url.list,para).then(function(res)  {
-					this.total = res.data.total;
-					var datas=res.data.rows;
-					for (var i = 0; i < datas.length; i++) {
-						var data = datas[i];
-					}
-					this.downbyzips = datas;
-					this.listLoading = false;
-				});
-			},
-			//删除
-			handleDel: function (index, row) {
-				this.$confirm('确认删除该记录吗?', '提示', {
-					type: 'warning'
-				}).then(function()  {
-					this.listLoading = true;
-					let para = { id: row.id };
-					this.$http.post(this.url.del,para,{emulateJSON: true}).then(function(res)  {
-						this.listLoading = false;
-						this.$message({
-							message: '删除成功',
-							type: 'success',
-							duration:1500
-						});
-						this.getDownbyzips();
-					});
-				}).catch(function()  {
-
-				});
-			},
-			//显示编辑界面
-			handleEdit: function (index, row) {
-				this.formTitle='编辑';
-				this.formVisible = true;
-				this.form = Object.assign({}, row);
-			},
-			//显示新增界面
-			handleAdd: function () {
-				this.formTitle='新增';
-				this.formVisible = true;
-				this.form = {
-					asn:'',
-					lpn:'',
-				};
-			},
-			//新增
-			formSubmit: function () {
-				this.$refs.form.validate(function(valid)  {
-					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(function()  {
-							this.formLoading = true;
-							let para = Object.assign({}, this.form);
-							
-							
-							
-							this.$http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then(function(res)  {
-								this.formLoading = false;
-								this.$message({
-									message: '提交成功',
-									type: 'success',
-									duration:1500
-								});
-								this.$refs['form'].resetFields();
-								this.formVisible = false;
-								this.getDownbyzips();
-							});
-						});
-					}
-				});
-			},
-			selsChange: function (sels) {
-				this.sels = sels;
-			},
-			//批量删除
-			batchRemove: function () {
-				var ids = '';
-				this.$confirm('确认删除选中记录吗？', '提示', {
-					type: 'warning'
-				}).then(function()  {
-					this.listLoading = true;
-					let para = { ids: ids };
-					this.$http.post(this.url.batchDel,para,{emulateJSON: true}).then(function(res)  {
-						this.listLoading = false;
-						this.$message({
-							message: '删除成功',
-							type: 'success',
-							duration:1500
-						});
-						this.getDownbyzips();
-					});
-				}).catch(function()  {
-				});
-			},
-			//导出
-			ExportXls: function() {
-					var ids = '';
-					window.location.href = this.url.exportXls+ids;
-			},
-			//导入
-			ImportXls: function(){
-				openuploadwin('Excel导入',this.url.ImportXls, "downbyzipList");
-			},
-			//初始化数据字典
-			initDictsData:function(){
-	        	var _this = this;
-	        },
-	        initDictByCode:function(code,_this,dictOptionsName){
-	        	if(!code || !_this[dictOptionsName] || _this[dictOptionsName].length>0)
-	        		return;
-	        	this.$http.get(this.url.queryDict,{params: {typeGroupName:code}}).then(function(res)  {
-	        		var data=res.data;
-					if(data.success){
-					  _this[dictOptionsName] = data.obj;
-					  _this[dictOptionsName].splice(0, 1);//去掉请选择
-					}
-				});
-	        }
 		},
 		mounted:function() {
-			this.initDictsData();
-			this.getDownbyzips();
+			
 		}
 	});
-	
-	function utilFormatDate(date, pattern) {
-        pattern = pattern || "yyyy-MM-dd";
-        return pattern.replace(/([yMdhsm])(\1*)/g, function ($0) {
-            switch ($0.charAt(0)) {
-                case 'y': return padding(date.getFullYear(), $0.length);
-                case 'M': return padding(date.getMonth() + 1, $0.length);
-                case 'd': return padding(date.getDate(), $0.length);
-                case 'w': return date.getDay() + 1;
-                case 'h': return padding(date.getHours(), $0.length);
-                case 'm': return padding(date.getMinutes(), $0.length);
-                case 's': return padding(date.getSeconds(), $0.length);
-            }
-        });
-    };
-	function padding(s, len) {
-	    var len = len - (s + '').length;
-	    for (var i = 0; i < len; i++) { s = '0' + s; }
-	    return s;
-	};
-	function reloadTable(){
-		
-	}
 </script>
 </html>
