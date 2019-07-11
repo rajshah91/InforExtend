@@ -61,14 +61,17 @@
 			    	<el-button icon="el-icon-refresh" @click="resetForm('filters')">重置</el-button>
 			    </el-form-item>
 			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button>
+			    	<el-button type="primary" icon="el-icon-edit" v-on:click="createOrderExpresss">下单</el-button>
 			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="ExportXls">导出</el-button>
-			    </el-form-item>
-			    <el-form-item>
-			    	<el-button type="primary" icon="el-icon-edit" @click="ImportXls">导入</el-button>
-			    </el-form-item>
+<!-- 			    <el-form-item> -->
+<!-- 			    	<el-button type="primary" icon="el-icon-edit" @click="handleAdd">新增</el-button> -->
+<!-- 			    </el-form-item> -->
+<!-- 			    <el-form-item> -->
+<!-- 			    	<el-button type="primary" icon="el-icon-edit" @click="ExportXls">导出</el-button> -->
+<!-- 			    </el-form-item> -->
+<!-- 			    <el-form-item> -->
+<!-- 			    	<el-button type="primary" icon="el-icon-edit" @click="ImportXls">导入</el-button> -->
+<!-- 			    </el-form-item> -->
 			</el-form>
 		</el-row>
 		<el-row style="padding: 10px;" size="mini">
@@ -91,7 +94,7 @@
 		<!--列表-->
 		<el-table :data="orderExpresss" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55"></el-table-column>
-			<el-table-column type="index" width="60"></el-table-column>
+			<el-table-column type="index" label="序号" width="60"></el-table-column>
 			<el-table-column prop="warehouse" label="仓库" v-if="columnshow.warehouse" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="orderkey" label="出货单号" v-if="columnshow.orderkey" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="uniqueCode" label="唯一编码" v-if="columnshow.uniqueCode" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -100,7 +103,7 @@
 			<el-table-column prop="printCopies" label="打印份数" v-if="columnshow.printCopies" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
-					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+<!-- 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button> -->
 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
 			</el-table-column>
@@ -119,24 +122,42 @@
 					<el-form-item label="仓库" prop="warehouse">
 						<el-input v-model="form.warehouse" auto-complete="off" placeholder="请输入仓库"></el-input>
 					</el-form-item>
-					<el-form-item label="出货单号" prop="orderkey">
-						<el-input v-model="form.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input>
-					</el-form-item>
-					<el-form-item label="唯一编码" prop="uniqueCode">
-						<el-input v-model="form.uniqueCode" auto-complete="off" placeholder="请输入唯一编码"></el-input>
-					</el-form-item>
-					<el-form-item label="快递单号" prop="billCode">
-						<el-input v-model="form.billCode" auto-complete="off" placeholder="请输入快递单号"></el-input>
-					</el-form-item>
+<!-- 					<el-form-item label="出货单号" prop="orderkey"> -->
+<!-- 						<el-input v-model="form.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input> -->
+<!-- 					</el-form-item> -->
 					<el-form-item label="快递公司">
 						<el-select v-model="form.expressCompany" placeholder="请选择快递公司">
 					      <el-option :label="option.typename" :value="option.typecode" v-for="option in express_coOptions"></el-option>
 					    </el-select>
 					</el-form-item>
+					<br/>
+					<el-form-item label="出货单号" prop="orderkey">
+						<el-input v-model="form.orderkey"  maxlength="10" minlength="10" autocomplete="off" v-on:input="valiorderkey(form.orderkey)" placeholder="请输入出货单号"></el-input>
+					</el-form-item>
+					<el-form-item label="单号展示">
+	                 <el-input 
+						  type="textarea"
+						  autosize
+						  readonly
+						  placeholder="请输入内容"
+						  v-model="form.orderkeys">
+					 </el-input>
+					 </el-form-item>
+					 <el-form-item>
+					 	<el-button type="primary" @click="remove()">移除</el-button>
+					 </el-form-item>
+					 
+<!-- 					<el-form-item label="唯一编码" prop="uniqueCode"> -->
+<!-- 						<el-input v-model="form.uniqueCode" auto-complete="off" placeholder="请输入唯一编码"></el-input> -->
+<!-- 					</el-form-item> -->
+<!-- 					<el-form-item label="快递单号" prop="billCode"> -->
+<!-- 						<el-input v-model="form.billCode" auto-complete="off" placeholder="请输入快递单号"></el-input> -->
+<!-- 					</el-form-item> -->
 			</el-form>
 			<div slot="footer" class="dialog-footer">
+				<el-button type="primary" @click.native="submitCreateOrder" :loading="formLoading">提交</el-button>
 				<el-button @click.native="formVisible = false">取消</el-button>
-				<el-button type="primary" @click.native="formSubmit" :loading="formLoading">提交</el-button>
+<!-- 				<el-button type="primary" @click.native="formSubmit" :loading="formLoading">提交</el-button> -->
 			</div>
 		</el-dialog>
 	</div>
@@ -229,6 +250,14 @@
 			}
 		},
 		methods: {
+			//移除textarea中 的值
+			remove:function(){
+				this.form.orderkeys=this.form.orderkeys.substring(0,this.form.orderkeys.length-11);
+			},
+			valiorderkey:function(value){
+				this.form.orderkeys=this.form.orderkeys+value;
+				this.form.orderkey='';
+			},
 		    //列展示切换
 			show:function(value){
 				if(value=="id"){
@@ -409,6 +438,49 @@
 					billCode:'',
 					expressCompany:'',
 				};
+			},
+			//显示下单界面
+			createOrderExpresss: function () {
+				this.formTitle='下单';
+				this.formVisible = true;
+				this.form = {
+					warehouse:'',
+					orderkey:'',
+					orderkeys:'',
+// 					uniqueCode:'',
+// 					billCode:'',
+					expressCompany:'',
+				};
+			},
+			
+			//下单
+			submitCreateOrder: function () {
+				this.$message({
+			          message: '下单成功',
+			          type: 'success'
+			        });
+// 				this.$refs.form.validate(function(valid)  {
+// 					if (valid) {
+// 						this.$confirm('确认提交吗？', '提示', {}).then(function()  {
+// 							this.formLoading = true;
+// 							let para = Object.assign({}, this.form);
+							
+							
+							
+// 							this.$http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then(function(res)  {
+// 								this.formLoading = false;
+// 								this.$message({
+// 									message: '提交成功',
+// 									type: 'success',
+// 									duration:1500
+// 								});
+// 								this.$refs['form'].resetFields();
+// 								this.formVisible = false;
+// 								this.getOrderExpresss();
+// 							});
+// 						});
+// 					}
+// 				});
 			},
 			//新增
 			formSubmit: function () {
