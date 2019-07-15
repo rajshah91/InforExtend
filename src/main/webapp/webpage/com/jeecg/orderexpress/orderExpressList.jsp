@@ -37,7 +37,9 @@
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
 				<el-form-item style="margin-bottom: 8px;" prop="warehouse">
-					<el-input v-model="filters.warehouse" auto-complete="off" placeholder="请输入仓库" style="width:175px"></el-input>
+			    <el-select v-model="filters.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
+	                 <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
+	            </el-select>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
 					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入出货单号" style="width:175px"></el-input>
@@ -103,7 +105,7 @@
 			<el-table-column prop="printCopies" label="打印份数" v-if="columnshow.printCopies" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
-<!-- 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button> -->
+ 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">打印</el-button>
 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
 			</el-table-column>
@@ -118,22 +120,22 @@
 		
 		<!--新增界面-->
 		<el-dialog :title="formTitle" fullscreen z-index="800" :visible.sync="formVisible" :close-on-click-modal="false">
-			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline="true">
+			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;">
 					<el-form-item label="仓库" prop="warehouse">
-						<el-input v-model="form.warehouse" auto-complete="off" placeholder="请输入仓库"></el-input>
+					    <el-select v-model="form.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
+			                 <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
+			            </el-select>
+						<!-- <el-input v-model="form.warehouse" auto-complete="off" placeholder="请输入仓库"></el-input> -->
 					</el-form-item>
-<!-- 					<el-form-item label="出货单号" prop="orderkey"> -->
-<!-- 						<el-input v-model="form.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input> -->
-<!-- 					</el-form-item> -->
 					<el-form-item label="快递公司">
-						<el-select v-model="form.expressCompany" placeholder="请选择快递公司">
-					      <el-option :label="option.typename" :value="option.typecode" v-for="option in express_coOptions"></el-option>
+						<el-select v-model="form.expressCompany" placeholder="请选择快递公司" style="width:175px">
+					      <el-option :label="option.typename" :value="option.typecode" v-for="option in express_coOptions" ></el-option>
 					    </el-select>
 					</el-form-item>
-					<br/>
 					<el-form-item label="出货单号" prop="orderkey">
 						<el-input v-model="form.orderkey"  maxlength="10" minlength="10" autocomplete="off" v-on:input="valiorderkey(form.orderkey)" placeholder="请输入出货单号"></el-input>
 					</el-form-item>
+					<br>
 					<el-form-item label="单号展示">
 	                 <el-input 
 						  type="textarea"
@@ -184,8 +186,10 @@
 					upload:'${webRoot}/systemController/filedeal.do',
 					downFile:'${webRoot}/img/server/',
 					exportXls:'${webRoot}/orderExpressController.do?exportXls&id=',
-					ImportXls:'${webRoot}/orderExpressController.do?upload'
+					ImportXls:'${webRoot}/orderExpressController.do?upload',
+					getwarehouse:'${webRoot}/ordersController.do?getwarehouse'
 				},
+				warehouses:[],
 				orderExpresss: [],
 				total: 0,
 				page: 1,
@@ -208,16 +212,6 @@
 				//显示列
 				checkList:[],
 				detailList:{
-					id:'id',
-					createName:'createName',
-					createBy:'createBy',
-					createDate:'createDate',
-					updateName:'updateName',
-					updateBy:'updateBy',
-					updateDate:'updateDate',
-					sysOrgCode:'sysOrgCode',
-					sysCompanyCode:'sysCompanyCode',
-					bpmStatus:'bpmStatus',
 					warehouse:'warehouse',
 					orderkey:'orderkey',
 					uniqueCode:'uniqueCode',
@@ -226,16 +220,6 @@
 					printCopies:'printCopies',
 				},
 				columnshow:{
-					id:true,
-					createName:true,
-					createBy:true,
-					createDate:true,
-					updateName:true,
-					updateBy:true,
-					updateDate:true,
-					sysOrgCode:true,
-					sysCompanyCode:true,
-					bpmStatus:true,
 					warehouse:true,
 					orderkey:true,
 					uniqueCode:true,
@@ -250,13 +234,21 @@
 			}
 		},
 		methods: {
+			getwarehouse:function(){
+				this.$http.get(this.url.getwarehouse).then(function(res)  {
+					/* console.log(res.data.warehouse); */
+					this.warehouses=res.data.warehouse;
+				});
+			},
 			//移除textarea中 的值
 			remove:function(){
 				this.form.orderkeys=this.form.orderkeys.substring(0,this.form.orderkeys.length-11);
 			},
 			valiorderkey:function(value){
-				this.form.orderkeys=this.form.orderkeys+value;
-				this.form.orderkey='';
+				if(value!=null&&value!=""&&value.length==10){
+					this.form.orderkeys=this.form.orderkeys+value+"\n";
+					this.form.orderkey='';
+				}
 			},
 		    //列展示切换
 			show:function(value){
@@ -423,12 +415,14 @@
 			},
 			//显示编辑界面
 			handleEdit: function (index, row) {
+				this.form.warehouse='';
 				this.formTitle='编辑';
 				this.formVisible = true;
 				this.form = Object.assign({}, row);
 			},
 			//显示新增界面
 			handleAdd: function () {
+				this.form.warehouse='';
 				this.formTitle='新增';
 				this.formVisible = true;
 				this.form = {
@@ -559,6 +553,7 @@
 		mounted:function() {
 			this.initDictsData();
 			this.getOrderExpresss();
+			this.getwarehouse();
 		}
 	});
 	
