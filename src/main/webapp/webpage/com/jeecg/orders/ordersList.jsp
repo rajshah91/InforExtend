@@ -212,15 +212,6 @@
                     <el-input v-model="pickform.orderkey" maxlength="10" minlength="10" autocomplete="off" v-on:input="valiorderkey(pickform.orderkey)"></el-input>
                  </el-form-item>
                  <br>
-                 <!-- <el-form-item label="功能">
-                 <template>
-				    <el-radio-group v-model="radio2">
-				    <el-radio :label="0">请选择</el-radio>
-				    <el-radio :label="1">刷单</el-radio>
-                    </el-radio-group>
-                 </template>
-                 </el-form-item> -->
-                 
                  <el-form-item label="单号展示">
                  <el-input 
 					  type="textarea"
@@ -462,7 +453,6 @@
 				this.operatordisabled=false;
 			},
 			valiorderkey:function(value){
-				console.log('1');
 				//ajax
 				if(value!=null&&this.pickform.warehouse!=null&&value!=""&&this.pickform.warehouse!=""&&value.length==10){
 					this.$http.get(this.url.valiorderkey,{params:{orderkey:value,warehouse:this.pickform.warehouse}}).then(function(res)  {
@@ -606,86 +596,6 @@
 					this.orderss = datas;
 					this.listLoading = false;
 				});
-// 				this.$http.get(this.url.list,para).then(function(res)  {
-// 					this.orderss = res.data.orders;
-// 					var datas=res.data.orders;
-// 					/* this.orderss[0]="";
-// 					console.log(this.orderss[0]); */
-// 					if(res.data.orders.length>0){
-// 						for (var i = 0; i < res.data.orders.length; i++) {
-// 							for(var j=0;j<16;j++){
-// 								if(j==0){
-// 									this.order.warehouse=datas[i][j];
-// 								}
-// 								if(j==1){
-// 									this.order.orderkey=datas[i][j];
-// 								}
-// 								if(j==2){
-// 									this.order.storerkey=datas[i][j];
-// 								}
-// 								if(j==3){
-// 									this.order.vendor=datas[i][j];
-// 								}
-// 								if(j==4){
-									
-// 										this.order.orderdate=datas[i][j];
-									
-// 								}
-// 								if(j==5){
-									
-// 										this.order.requestshipdate=datas[i][j];
-									
-// 								}
-// 								if(j==6){
-// 									this.order.picker=datas[i][j];
-// 								}
-// 								if(j==7){
-									
-// 										this.order.pickstartdate=datas[i][j];
-									
-// 								}
-// 								if(j==8){
-									
-// 										this.order.pickenddate=datas[i][j];
-									
-// 								}
-// 								if(j==9){
-// 									this.order.labeler=datas[i][j];
-// 								}
-// 								if(j==10){
-									
-// 										this.order.labelstartdate=datas[i][j];
-									
-// 								}
-// 								if(j==11){
-									
-// 										this.order.labelenddate=datas[i][j];
-									
-// 								}
-// 								if(j==12){
-// 									this.order.reagents=datas[i][j];
-// 								}
-// 								if(j==13){
-									
-// 										this.order.reagentstartdate=datas[i][j];
-									
-// 								}
-// 								if(j==14){
-									
-// 										this.order.reagentenddate=datas[i][j];
-									
-// 								}
-// 								if(j==15){
-// 									this.order.orderstatus=datas[i][j];
-// 								}
-// 							}
-// 						}
-// 						this.orderss[0] = this.order;
-// 					}else{
-// 						this.orderss[0] ="";
-// 					}
-// 					this.listLoading = false;
-// 				});
 			},
 			//删除
 			handleDel: function (index, row) {
