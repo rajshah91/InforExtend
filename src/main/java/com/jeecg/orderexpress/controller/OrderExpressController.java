@@ -20,6 +20,8 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.entity.vo.NormalExcelConstants;
 import org.jeecgframework.tag.core.easyui.TagUtil;
+import org.jeecgframework.web.system.pojo.base.TSType;
+import org.jeecgframework.web.system.pojo.base.TSTypegroup;
 import org.jeecgframework.web.system.service.SystemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +35,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSONArray;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
+import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
 /**   
  * @Title: Controller  
@@ -269,6 +273,56 @@ public class OrderExpressController extends BaseController {
 		return j;
 	}
 	
+	/**
+	 * 获取infor业务类型
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "getorderkey")
+	@ResponseBody
+	public void getInforCustomer(HttpServletRequest request, HttpServletResponse response) {
+		/* JSONObject resultjson = new JSONObject(); */
+		JSONArray array = new JSONArray();
+		try {
+			String warehouse = request.getParameter("warehouse");
+			String orderkey = request.getParameter("orderkey");
+			// 仓库
+			if (orderkey != null && !"".equals(orderkey)) {
+				String wh = typeNameToTypeCode(warehouse, "仓库");
+				String sql ="select  o.orderkey,o.status from "+wh+"_orders o where o.orderkey like '"+orderkey+"%' and o.uniquerreqnumber is  null and o.mailno is  null order by o.orderkey";
+				List<Object[]> list = systemService.findListbySql(sql);
+				int j = 1;
+				for (Object[] objects : list) {
+					if (j <= 10) {
+						com.alibaba.fastjson.JSONObject object = new com.alibaba.fastjson.JSONObject();
+						object.put("orderkey", isnull(String.valueOf(objects[0])));
+						array.add(object);
+					}
+					j++;
+				}
+				response.getWriter().write(array.toString());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
-	
+	// 仓库字典code 转换
+	private String typeNameToTypeCode(String typeName, String typegroupname) {
+			List<TSTypegroup> tsTypegroup = systemService.findHql("from TSTypegroup where typegroupname=?", typegroupname);
+			List<TSType> tsType = systemService.findHql("from TSType where TSTypegroup.id=? and typename=?",
+					tsTypegroup.get(0).getId(), typeName);
+			return tsType.get(0).getTypecode();
+	}
+
+	// null
+	private String isnull(String value) {
+			if ("null" == value) {
+				value = "";
+			}
+			return value;
+	}
 }

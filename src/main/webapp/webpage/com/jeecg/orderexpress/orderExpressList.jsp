@@ -133,7 +133,19 @@
 					    </el-select>
 					</el-form-item>
 					<el-form-item label="出货单号" prop="orderkey">
-						<el-input v-model="form.orderkey"  maxlength="10" minlength="10" autocomplete="off" v-on:input="valiorderkey(form.orderkey)" placeholder="请输入出货单号"></el-input>
+					  <el-select v-model="form.orderkey" name="orderkey"  v-on:input="valiorderkey(form.orderkey)" clearable
+							default-first-option="true" filterable remote reserve-keyword placeholder="请输入出货单号"
+							:remote-method="orderkeyQuery" :loading="orderkey_loading" style="width: 175px;">
+							<el-option
+								v-for="item in orderkey_select"
+								:key="item.value"
+								:label="item.value"
+								:value="item.value">
+								 <span style="float: left;margin-right:10px">{{ item.value }}</span>
+                                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.label }}</span>
+							</el-option>
+						</el-select>
+						<el-input type="hidden" v-on:input="valiorderkey(orderno)" v-model="orderno"></el-input>
 					</el-form-item>
 					<br>
 					<el-form-item label="单号展示">
@@ -187,8 +199,16 @@
 					downFile:'${webRoot}/img/server/',
 					exportXls:'${webRoot}/orderExpressController.do?exportXls&id=',
 					ImportXls:'${webRoot}/orderExpressController.do?upload',
-					getwarehouse:'${webRoot}/ordersController.do?getwarehouse'
+					getwarehouse:'${webRoot}/ordersController.do?getwarehouse',
+					getorderkey:'${webRoot}/orderExpressController.do?getorderkey'
 				},
+				//出货单动态选择
+				listLoading: false,
+				orderkey_loading:false,
+				orderkey_select:[],
+				
+				orderno:"",
+				
 				warehouses:[],
 				orderExpresss: [],
 				total: 0,
@@ -234,6 +254,29 @@
 			}
 		},
 		methods: {
+			//编号查询货主的信息
+			orderkeyQuery: function(query) {
+				if (query !== ''&&this.form.warehouse!=='') {
+					this.orderkey_loading = true;
+			        this.$http.get(this.url.getorderkey,{params:{orderkey:query,warehouse:this.form.warehouse}}).then(function(res)  {
+			            this.orderkey_loading = false;
+						if(res.data.length==0){
+							 this.orderkey_select = [];
+						}else{
+							this.orderkey_loading = false;
+							this.orderkey_select = res.data.map(function(d) {
+								return {
+									value: d.orderkey, 
+									/* label: d.company */
+								};
+							}.bind(this));
+						}
+					});
+			    } else {
+			          this.orderkey_select = [];
+			    }
+                /* this.valiorderkey(query); */
+			},
 			getwarehouse:function(){
 				this.$http.get(this.url.getwarehouse).then(function(res)  {
 					/* console.log(res.data.warehouse); */
@@ -245,6 +288,7 @@
 				this.form.orderkeys=this.form.orderkeys.substring(0,this.form.orderkeys.length-11);
 			},
 			valiorderkey:function(value){
+				console.log(value+"2");
 				if(value!=null&&value!=""&&value.length==10){
 					this.form.orderkeys=this.form.orderkeys+value+"\n";
 					this.form.orderkey='';
