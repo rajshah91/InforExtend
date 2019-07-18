@@ -36,17 +36,22 @@
 		<!--工具条-->
 		<el-row style="background-color: #eee; padding: 10px 10px 0 10px;">
 			<el-form :inline="true" :model="filters" size="mini" ref="filters">
-			    <el-form-item style="margin-bottom: 8px;" prop="orderkey">
+			    <el-form-item style="margin-bottom: 8px;" prop="warehouses">
 			    <el-select v-model="filters.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
-	                 <!-- <el-option label="WH1飞仓" value="FEILI_wmwhse1"></el-option>
-	                 <el-option label="WH2飞仓品牌" value="FEILI_wmwhse2"></el-option>
-	                 <el-option label="WH5飞仓VMI" value="FEILI_wmwhse5"></el-option>
-	                 <el-option label="WH10飞仓昆山外租仓" value="FEILI_wmwhse10"></el-option> -->
 	                 <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
 	             </el-select>
 				</el-form-item>
 				<el-form-item style="margin-bottom: 8px;" prop="orderkey">
-					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入出货单号"></el-input>
+					<el-input v-model="filters.orderkey" auto-complete="off" placeholder="请输入出货单号" style="width:175px"></el-input>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="employno">
+					<el-input v-model="filters.employno" auto-complete="off" placeholder="请输入员工工号" style="width:175px"></el-input>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="adddatestart">
+					<el-date-picker type="datetime" v-model="filters.adddatestart" auto-complete="off" placeholder="请输入订单创建时间起" style="width:175px"></el-date-picker>
+				</el-form-item>
+				<el-form-item style="margin-bottom: 8px;" prop="adddateend">
+					<el-date-picker type="datetime" v-model="filters.adddateend" auto-complete="off" placeholder="请输入订单创建时间至" style="width:175px"></el-date-picker>
 				</el-form-item>
 				<el-form-item>
 			    	<el-button type="primary" icon="el-icon-search" v-on:click="search">查询</el-button>
@@ -255,6 +260,9 @@
 				filters: {
 					warehouse:'',
 					orderkey:'',
+					adddatestart:'',
+					adddateend:'',
+					employno:'',
 				},
 				url:{
 					list:'${webRoot}/ordersController.do?datagrid',
@@ -581,8 +589,11 @@
 						//排序
 						sort:this.sort.sort,
 						order:this.sort.order,
+						warehouse:this.filters.warehouse,
 					 	orderkey:this.filters.orderkey,
-					 	warehouse:this.filters.warehouse,
+					 	employno:this.filters.employno,
+					 	adddatestart:!this.filters.adddatestart ? '' : utilFormatDate(new Date(this.filters.adddatestart), 'yyyy-MM-dd hh:mm:ss'),//订单创建时间起,
+					 	adddateend:!this.filters.adddateend ? '' : utilFormatDate(new Date(this.filters.adddateend), 'yyyy-MM-dd hh:mm:ss'),//订单创建时间至,
 						field:fields.join(',')
 					}
 				};

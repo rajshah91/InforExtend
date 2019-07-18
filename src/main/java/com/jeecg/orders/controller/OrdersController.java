@@ -85,22 +85,32 @@ public class OrdersController extends BaseController {
 	public void datagrid(OrdersEntity orders,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
 		String warehouse= request.getParameter("warehouse");
 		String orderkey=request.getParameter("orderkey");
+		String employno=request.getParameter("employno");
+		String adddatestart=request.getParameter("adddatestart");
+		String adddateend=request.getParameter("adddateend");
 		int page =Integer.parseInt(request.getParameter("page"));
 		int rows =Integer.parseInt(request.getParameter("rows"));
 		String wh="";
-		String sqlwhere="";
+		String sqlwhere=" where 1=1";
 		if(warehouse!=null&&warehouse!="") {
 			wh=typeNameToTypeCode(warehouse, "仓库");
 		}
 		if(orderkey!=null&&orderkey!="") {
-		    sqlwhere="where o.orderkey='"+orderkey+"'";
+		    sqlwhere+=" and o.orderkey='"+orderkey+"' ";
+		}
+		if(employno!=null&&employno!="") {
+			sqlwhere+=" and op.sso_user_name='"+employno+"' ";
+		}
+		if(adddatestart != null && !"".equals(adddatestart) && adddateend != null && !"".equals(adddateend)) {
+			sqlwhere+=" and o.adddate+8/24 between to_date('" + adddatestart
+					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + adddateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
 		String sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss') adddate,to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, " + 
 				"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickstartdate,to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickenddate, " + 
 				"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingstartdate,to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingenddate, " + 
 				"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckstartdate,to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckenddate,c.description "+
 				"from "+wh+"_orders o " + 
-				"left join "+wh+"_orderstatussetup c on c.code=o.status "+sqlwhere;
+				"left join "+wh+"_orderstatussetup c on c.code=o.status left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id "+sqlwhere;
 		
 		if(warehouse!=null&&warehouse!=""){
 			dataGrid=paging(sql, page, rows, dataGrid);
