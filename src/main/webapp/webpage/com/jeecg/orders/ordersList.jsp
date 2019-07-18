@@ -741,7 +741,7 @@
 		},
 		mounted:function() {
 			this.initDictsData();
-			this.getOrderss();
+			//this.getOrderss();
 			this.getwarehouse();
 		}
 	});

@@ -99,20 +99,42 @@ public class OrdersController extends BaseController {
 		    sqlwhere+=" and o.orderkey='"+orderkey+"' ";
 		}
 		if(employno!=null&&employno!="") {
-			sqlwhere+=" and op.sso_user_name='"+employno+"' ";
+			sqlwhere+=" and o.performancedata01='"+employno+"' ";
 		}
 		if(adddatestart != null && !"".equals(adddatestart) && adddateend != null && !"".equals(adddateend)) {
 			sqlwhere+=" and o.adddate+8/24 between to_date('" + adddatestart
 					+ "','yyyy-MM-dd HH24:mi:ss') and to_date('" + adddateend + "','yyyy-MM-dd HH24:mi:ss')";
 		}
-		String sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss') adddate,to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, " + 
-				"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickstartdate,to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickenddate, " + 
-				"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingstartdate,to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingenddate, " + 
-				"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckstartdate,to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckenddate,c.description "+
-				"from "+wh+"_orders o " + 
-				"left join "+wh+"_orderstatussetup c on c.code=o.status left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id "+sqlwhere+" order by o.adddate desc";
-		
 		if(warehouse!=null&&warehouse!=""){
+			String sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss') adddate,to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, " + 
+					"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickstartdate,to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickenddate, " + 
+					"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingstartdate,to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingenddate, " + 
+					"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckstartdate,to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckenddate,c.description "+
+					"from "+wh+"_orders o " + 
+					"left join "+wh+"_orderstatussetup c on c.code=o.status  "+sqlwhere+"";
+			dataGrid=paging(sql, page, rows, dataGrid);
+		}else {
+			String sql = "";
+			List<UsercontactwhEntity> entities = ordersService.getwarehouse();
+			if (entities != null && entities.size() > 0) {
+				List<String> list = new ArrayList<>();
+				for (UsercontactwhEntity u : entities) {
+					list.add(u.getWarehouse().toString());
+				}
+			}
+			for (int i = 0; i < entities.size(); i++) {
+				wh = typeNameToTypeCode(entities.get(i).getWarehouse(), "仓库");
+				if (i != 0) {
+					sql += " union all ";
+				}
+				// sql拼接
+			    sql="select o.whseid,o.orderkey,o.storerkey,o.susr35,to_char(o.adddate+8/24,'yyyy-MM-dd HH24:mi:ss') adddate,to_char(o.requestedshipdate+8/24,'yyyy-MM-dd HH24:mi:ss') requestedshipdate, " + 
+						"o.performancedata01,to_char(o.pickstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') pickstartdate,to_char(o.pickenddate+8/24,'yyyy-MM-dd HH24:mi:ss') pickenddate, " + 
+						"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingstartdate,to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingenddate, " + 
+						"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckstartdate,to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckenddate,c.description "+
+						"from "+wh+"_orders o " + 
+						"left join "+wh+"_orderstatussetup c on c.code=o.status  "+sqlwhere+" order by o.adddate desc";
+			}
 			dataGrid=paging(sql, page, rows, dataGrid);
 		}
 		TagUtil.datagrid(response, dataGrid);
