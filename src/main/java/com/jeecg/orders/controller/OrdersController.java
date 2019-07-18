@@ -110,7 +110,7 @@ public class OrdersController extends BaseController {
 				"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingstartdate,to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingenddate, " + 
 				"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckstartdate,to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckenddate,c.description "+
 				"from "+wh+"_orders o " + 
-				"left join "+wh+"_orderstatussetup c on c.code=o.status left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id "+sqlwhere;
+				"left join "+wh+"_orderstatussetup c on c.code=o.status left join oper.e_sso_user op on o.performancedata01=op.fully_qualified_id "+sqlwhere+" order by o.adddate desc";
 		
 		if(warehouse!=null&&warehouse!=""){
 			dataGrid=paging(sql, page, rows, dataGrid);
