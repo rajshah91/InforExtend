@@ -40,6 +40,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.jeecg.Util.JasperUtil;
+import com.jeecg.jasperconfig.entity.JasperconfigEntity;
 import com.jeecg.ncount.service.ScmNcountServiceI;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
@@ -353,14 +355,15 @@ public class OrderExpressController extends BaseController {
 			String orderkeys = request.getParameter("orderkeys");
 			String printer = request.getParameter("printer");
 			String uniqueCode = companyCode + scmNcountService.getNextKey("uniqueCode", 10);
-			
-			//规范订单号(排重)
-			List<String> orderkeyList=getOrderKeyList(orderkeys);
-			String resultMessage=orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeyList, uniqueCode,printer);
+
+			// 规范订单号(排重)
+			List<String> orderkeyList = getOrderKeyList(orderkeys);
+			String resultMessage = orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeyList,
+					uniqueCode, printer);
 			result.put("message", resultMessage);
-			if(resultMessage.equals("下单成功！")) {
+			if (resultMessage.equals("下单成功！")) {
 				result.put("result", "success");
-			}else {
+			} else {
 				result.put("result", "error");
 			}
 		} catch (Exception e) {
@@ -374,16 +377,16 @@ public class OrderExpressController extends BaseController {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private List<String> getOrderKeyList(String orderkeys) {
 		// TODO Auto-generated method stub
-		List<String> orderkeyList=new ArrayList<>();
-		if(orderkeys.endsWith(";")) {
-			orderkeys=orderkeys.substring(0,orderkeys.length()-1);
+		List<String> orderkeyList = new ArrayList<>();
+		if (orderkeys.endsWith(";")) {
+			orderkeys = orderkeys.substring(0, orderkeys.length() - 1);
 		}
-		String[] orderkeyStr=orderkeys.split(";");
+		String[] orderkeyStr = orderkeys.split(";");
 		for (String orderkey : orderkeyStr) {
-			if(!orderkeyList.contains(orderkey)) {
+			if (!orderkeyList.contains(orderkey)) {
 				orderkeyList.add(orderkey);
 			}
 		}
@@ -399,12 +402,13 @@ public class OrderExpressController extends BaseController {
 	@RequestMapping(params = "getPrinterByWarehouse")
 	@ResponseBody
 	public void getPrinterByWarehouse(HttpServletRequest request, HttpServletResponse response) {
-		JSONObject resultjson=new JSONObject();
+		JSONObject resultjson = new JSONObject();
 		try {
 			String warehouse = request.getParameter("warehouse");
-			List<PrintconfigEntity> printconfigEntities=orderExpressService.findHql("from PrintconfigEntity where warehouse=?", warehouse);
-			
-			List<String> list=new ArrayList<>();
+			List<PrintconfigEntity> printconfigEntities = orderExpressService
+					.findHql("from PrintconfigEntity where warehouse=?", warehouse);
+
+			List<String> list = new ArrayList<>();
 			for (PrintconfigEntity printconfigEntity : printconfigEntities) {
 				list.add(printconfigEntity.getPrintname());
 			}
@@ -417,4 +421,47 @@ public class OrderExpressController extends BaseController {
 		}
 	}
 
+	@RequestMapping(params = "printJasper")
+	@ResponseBody
+	public void printJasper(HttpServletRequest request, HttpServletResponse response) {
+		JSONObject resultjson = new JSONObject();
+		try {
+			String warehouse = request.getParameter("warehouse");
+			String printername = request.getParameter("printername");
+			String mailno = request.getParameter("mailno");
+			PrintconfigEntity printconfigEntitie = (PrintconfigEntity) systemService
+					.findHql("from PrintconfigEntity where warehouse=? and printname=?", warehouse, printername).get(0);
+			List<JasperconfigEntity> jasperconfigList = systemService.findHql(
+					"from JasperconfigEntity where mailno=? and active='1' order by priorty asc", mailno, printername);
+			JasperconfigEntity jasperconfig = null;
+			for (JasperconfigEntity config : jasperconfigList) {
+				String matchrule = config.getMatchrule();
+				String sql = "select express_company,bill_code from order_express where warehouse='" + warehouse
+						+ "' and bill_code='" + mailno + "' and " + matchrule;
+				List<Map<String, Object>> list = systemService.findForJdbc(sql);
+				if (!list.isEmpty()) {
+					jasperconfig = config;
+					break;
+				}
+			}
+			if (jasperconfig != null) {
+				String _FORMAT = jasperconfig.getJasperfile();
+				String ip = printconfigEntitie.getFtpaddress();
+				String username = printconfigEntitie.getUsername();
+				String password = printconfigEntitie.getPassword();
+				String workdir = printconfigEntitie.getPath();
+				String dataquery = jasperconfig.getDataquery().replaceAll(":=id", "=" + mailno + " ");
+				List<Map<String, Object>> maplist = systemService.findForJdbc(dataquery);
+				JasperUtil.generageXMLAndDeliver(maplist, _FORMAT, printername, 1, ip, username, password, workdir);
+				String afterjob = jasperconfig.getAfterjob();
+				// TODO 打印后续工作，比如标记打印状态与时间
+			}
+
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
