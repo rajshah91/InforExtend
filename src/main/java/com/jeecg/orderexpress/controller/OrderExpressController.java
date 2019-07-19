@@ -353,7 +353,10 @@ public class OrderExpressController extends BaseController {
 			String orderkeys = request.getParameter("orderkeys");
 			String printer = request.getParameter("printer");
 			String uniqueCode = companyCode + scmNcountService.getNextKey("uniqueCode", 10);
-			String resultMessage=orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeys, uniqueCode,printer);
+			
+			//规范订单号(排重)
+			List<String> orderkeyList=getOrderKeyList(orderkeys);
+			String resultMessage=orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeyList, uniqueCode,printer);
 			result.put("message", resultMessage);
 			if(resultMessage.equals("下单成功！")) {
 				result.put("result", "success");
@@ -372,6 +375,21 @@ public class OrderExpressController extends BaseController {
 		}
 	}
 	
+	private List<String> getOrderKeyList(String orderkeys) {
+		// TODO Auto-generated method stub
+		List<String> orderkeyList=new ArrayList<>();
+		if(orderkeys.endsWith(";")) {
+			orderkeys=orderkeys.substring(0,orderkeys.length()-1);
+		}
+		String[] orderkeyStr=orderkeys.split(";");
+		for (String orderkey : orderkeyStr) {
+			if(!orderkeyList.contains(orderkey)) {
+				orderkeyList.add(orderkey);
+			}
+		}
+		return orderkeyList;
+	}
+
 	/**
 	 * 通过仓库获取打印机
 	 * 

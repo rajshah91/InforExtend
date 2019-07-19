@@ -3,6 +3,7 @@ import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.print.DocFlavor.STRING;
 
@@ -14,6 +15,6 @@ public interface OrderExpressServiceI extends CommonService{
  	
  	public void saveOrUpdate(OrderExpressEntity entity) throws Exception;
  	
- 	public String createOrderToExpress(String warehouse,String expressCompany,String orderkeys,String uniqueCode,String printer) throws Exception;
+ 	public String createOrderToExpress(String warehouse,String expressCompany,List<String> orderkeyList,String uniqueCode,String printer) throws Exception;
  	
 }

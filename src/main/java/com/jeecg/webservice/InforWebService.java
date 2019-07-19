@@ -1,6 +1,7 @@
 package com.jeecg.webservice;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -28,7 +29,7 @@ public class InforWebService {
 
 	// 接口地址
 //	private String url = "http://sce.feili.com/WMSWebService/services/WmsWebService";
-	//测试
+	// 测试
 	private String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
 
 	/**
@@ -84,11 +85,13 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			//saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "functionOperation","");
+			// saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR",
+			// "functionOperation","");
 			return receiveXml;
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			//saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "functionOperation","");
+			// saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR",
+			// "functionOperation","");
 			return null;
 		}
 	}
@@ -143,11 +146,14 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			/*saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "getUserName","");*/
+			/*
+			 * saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR",
+			 * "getUserName","");
+			 */
 			return readStringXmlForUserName(receiveXml);
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "getUserName","");
+			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "getUserName", "");
 			return null;
 		}
 	}
@@ -182,7 +188,8 @@ public class InforWebService {
 	 * @param orderKeys
 	 * @return
 	 */
-	public String startOnFromInfor(String warehouse,String userName, String opertionType, String isStartOrEnd, String orderKeys,String usernow) {
+	public String startOnFromInfor(String warehouse, String userName, String opertionType, String isStartOrEnd,
+			String orderKeys, String usernow) {
 		String sendXml = null;
 		String receiveXml = null;
 		try {
@@ -212,10 +219,10 @@ public class InforWebService {
 			method.addChild(mobileCode);
 
 			sendXml = "<Message>" + "<Head>" + "<MessageID/>" + "<Date/>" + "<MessageType>Utility</MessageType>"
-					+ "<Sender>" + "<User>"+usernow+"</User>" + "<Password>sceadmin</Password>"
+					+ "<Sender>" + "<User>" + usernow + "</User>" + "<Password>sceadmin</Password>"
 					+ "<SystemID>External</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Sender>" + "<Recipient>"
-					+ "<SystemID>"+warehouse+"</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>" + "</Head>"
-					+ "<Body>" + "<Utility>" + "<UtilityHeader>" + "<USERNAME>" + userName + "</USERNAME>"
+					+ "<SystemID>" + warehouse + "</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>"
+					+ "</Head>" + "<Body>" + "<Utility>" + "<UtilityHeader>" + "<USERNAME>" + userName + "</USERNAME>"
 					+ "<OPERTIONTYPE>" + opertionType + "</OPERTIONTYPE>" + "<ISSTARTOREND>" + isStartOrEnd
 					+ "</ISSTARTOREND>" + "<ORDERKEYS>" + orderKeys + "</ORDERKEYS>" + "</UtilityHeader>" + "</Utility>"
 					+ "</Body>" + "</Message>";
@@ -228,16 +235,15 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "storeOrderIsStartOrEnd",userName);
+			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "storeOrderIsStartOrEnd", userName);
 			return readStringXmlForStartOn(receiveXml);
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "storeOrderIsStartOrEnd",userName);
+			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "storeOrderIsStartOrEnd", userName);
 			return "失败";
 		}
 	}
-	
-	
+
 	/**
 	 * 回传mailno
 	 * 
@@ -247,7 +253,8 @@ public class InforWebService {
 	 * @param orderKeys
 	 * @return
 	 */
-	public String sendkeytoInfor(String warehouse,String userName,String mailno,String uniquerReqNumber,String orderKeys) {
+	public String sendkeytoInfor(String warehouse, String userName, String mailno, String uniquerReqNumber,
+			List<String> orderkeyList) {
 		String sendXml = null;
 		String receiveXml = null;
 		try {
@@ -278,30 +285,25 @@ public class InforWebService {
 
 			//
 			sendXml = "<Message>" + "<Head>" + "<MessageID/>" + "<Date/>" + "<MessageType>Utility</MessageType>"
-					+ "<Sender>" + "<User>"+userName+"</User>" + "<Password>sceadmin</Password>"
+					+ "<Sender>" + "<User>" + userName + "</User>" + "<Password>sceadmin</Password>"
 					+ "<SystemID>External</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Sender>" + "<Recipient>"
-					+ "<SystemID>"+warehouse+"</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>" + "</Head>"
-					+ "<Body><ShipmentOrder>";
-	        //多个订单
-			if(orderKeys!=null) { 
-				String strs[]=orderKeys.split(",");
-				for (String s : strs) {
-					//验证此单号是否已做过下单,
-					if(vailorderkey(s)) {
-						//nothing,此订单不回传
-					}else {
-						sendXml+="<ShipmentOrderHeader>" + 
-								"    <OrderKey>"+s+"</OrderKey>" + 
-								"    <MailNo>"+mailno+"</MailNo>" + 
-								"    <UniquerReqNumber>"+uniquerReqNumber+"</UniquerReqNumber>" + 
-								"   </ShipmentOrderHeader>" + 
-								"   <ShipmentOrderHeader>";
-					}
-					
+					+ "<SystemID>" + warehouse + "</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>"
+					+ "</Head>" + "<Body><ShipmentOrder>";
+			// 多个订单
+			for (String s : orderkeyList) {
+				// 验证此单号是否已做过下单,
+				if (vailorderkey(s)) {
+					// nothing,此订单不回传
+				} else {
+					sendXml += "<ShipmentOrderHeader>" + "    <OrderKey>" + s + "</OrderKey>" + "    <MailNo>" + mailno
+							+ "</MailNo>" + "    <UniquerReqNumber>" + uniquerReqNumber + "</UniquerReqNumber>"
+							+ "   </ShipmentOrderHeader>" + "   <ShipmentOrderHeader>";
 				}
+
 			}
-			sendXml="</ShipmentOrder></Body></Message>";
-			
+
+			sendXml = "</ShipmentOrder></Body></Message>";
+
 			mobileCode = fac.createOMElement("in3", omNs);
 			mobileCode.setText(sendXml);
 			method.addChild(mobileCode);
@@ -311,24 +313,25 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "sendkeytoInfor",userName);
+			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "sendkeytoInfor", userName);
 			return readStringXmlForStartOn(receiveXml);
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "sendkeytoInfor",userName);
+			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "sendkeytoInfor", userName);
 			return "失败";
 		}
 	}
 
 	private boolean vailorderkey(String orderkey) {
-	    OrderExpressEntity expressEntity=apilogService.findUniqueByProperty(OrderExpressEntity.class, "orderkey", orderkey);
-	    if(expressEntity!=null) {
-	    	return true;
-	    }
+		OrderExpressEntity expressEntity = apilogService.findUniqueByProperty(OrderExpressEntity.class, "orderkey",
+				orderkey);
+		if (expressEntity != null) {
+			return true;
+		}
 		return false;
 	}
-	
-	private  String readStringXmlForStartOn(String xml) {
+
+	private String readStringXmlForStartOn(String xml) {
 		Document doc = null;
 		String result = null;
 		try {
@@ -358,7 +361,8 @@ public class InforWebService {
 	/**
 	 * 保存接口记录
 	 */
-	private void saveLog(String sendXml, String receiveXml, boolean result, String partner, String serviceName,String username) {
+	private void saveLog(String sendXml, String receiveXml, boolean result, String partner, String serviceName,
+			String username) {
 		ApilogEntity apilogEntity = new ApilogEntity();
 		apilogEntity.setSendxml(sendXml);
 		apilogEntity.setReceivexml(receiveXml);

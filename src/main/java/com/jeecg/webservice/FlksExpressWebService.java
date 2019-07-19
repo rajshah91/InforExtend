@@ -32,7 +32,7 @@ public class FlksExpressWebService {
 	// UID: 019501adeee75f51979e0f5dd6424a29
 	// SECRET: b848c0506dc90091589e533e8b5035d7
 	// TOKEN: b848c0506dc90091589e533e8b5035d7
-	private String url = "http://172.20.37.40:8080/";
+	private String url = "http://172.20.37.40:9090/";
 	private String uid = "019501adeee75f51979e0f5dd6424a29";
 	private String token = "1fb79de6d5c23edd866604d6b8c5c37d";
 	private String secret = "b848c0506dc90091589e533e8b5035d7";
