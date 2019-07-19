@@ -302,7 +302,7 @@ public class InforWebService {
 
 			}
 
-			sendXml = "</ShipmentOrder></Body></Message>";
+			sendXml += "</ShipmentOrder></Body></Message>";
 
 			mobileCode = fac.createOMElement("in3", omNs);
 			mobileCode.setText(sendXml);
