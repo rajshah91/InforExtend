@@ -106,8 +106,8 @@
 			<el-table-column prop="printCopies" label="打印份数" v-if="columnshow.printCopies" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="printer" label="打印机" v-if="columnshow.printer"  min-width="120" sortable="custom" show-overflow-tooltip>
 			   <template scope="scope">
-			      <el-select v-if="editprinter" v-model="scope.row.printer" v-model="printers" size="mini" placeholder="请选择打印机" @change="editprint(scope.$index,scope.row)"  clearable style="width:175px">
-			            <el-option v-for="printer in printers"  :value="printer" ></el-option>
+			      <el-select v-if="editprinter" v-model="scope.row.printer" v-model="editprinters" size="mini" placeholder="请选择打印机" @change="editprint(scope.$index,scope.row)"  clearable style="width:175px">
+			            <el-option v-for="printer in editprinters"  :value="printer" ></el-option>
 			       </el-select>
 			       <span v-if="!editprinter" >{{scope.row.printer}}</span>
 			   </template>
@@ -229,6 +229,7 @@
 				
 				warehouses:[],
 				printers:[],
+				editprinters:[],
 				printer:"",
 				orderExpresss: [],
 				total: 0,
@@ -324,7 +325,7 @@
 			},
 			findPrinter:function(value){
 				this.$http.get(this.url.findPrinterByWarehouse,{params:{warehouse:value}}).then(function(res)  {
-					this.printers=res.data.printers;
+					this.editprinters=res.data.printers;
 				});
 			},
 			findPrinterByWarehouse:function(){
