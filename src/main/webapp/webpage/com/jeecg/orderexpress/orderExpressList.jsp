@@ -95,7 +95,7 @@
               </el-dropdown>
 		</el-row>
 		<!--列表-->
-		<el-table :data="orderExpresss" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
+		<el-table :data="orderExpresss"  border stripe size="mini" highlight-current-row @cell-dblclick="changePrinter" v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55"></el-table-column>
 			<el-table-column type="index" label="序号" width="60"></el-table-column>
 			<el-table-column prop="warehouse" label="仓库" v-if="columnshow.warehouse" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
@@ -104,10 +104,17 @@
 			<el-table-column prop="billCode" label="快递单号" v-if="columnshow.billCode" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="expressCompany" label="快递公司" v-if="columnshow.expressCompany" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatExpress_coDict"></el-table-column>
 			<el-table-column prop="printCopies" label="打印份数" v-if="columnshow.printCopies" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="printer" label="打印机" v-if="columnshow.printer" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="printer" label="打印机" v-if="columnshow.printer"  min-width="120" sortable="custom" show-overflow-tooltip>
+			   <template scope="scope">
+			      <el-select v-if="editprinter" v-model="scope.row.printer" v-model="printers" size="mini" placeholder="请选择打印机" @change="editprint(scope.$index,scope.row)"  clearable style="width:175px">
+			            <el-option v-for="printer in printers"  :value="printer" ></el-option>
+			       </el-select>
+			       <span v-if="!editprinter" >{{scope.row.printer}}</span>
+			   </template>
+			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
- 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">打印</el-button>
+ 					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
 			</el-table-column>
@@ -209,8 +216,10 @@
 					getwarehouse:'${webRoot}/ordersController.do?getwarehouse',
 					getorderkey:'${webRoot}/orderExpressController.do?getorderkey',
 				    createOrderToExpress:'${webRoot}/orderExpressController.do?createOrderToExpress',
-				    findPrinterByWarehouse:'${webRoot}/orderExpressController.do?getPrinterByWarehouse'
+				    findPrinterByWarehouse:'${webRoot}/orderExpressController.do?getPrinterByWarehouse',
+				    printexpress:'${webRoot}/orderExpressController.do?printexpress'
 				},
+				editprinter:false,
 				//出货单动态选择
 				listLoading: false,
 				orderkey_loading:false,
@@ -220,6 +229,7 @@
 				
 				warehouses:[],
 				printers:[],
+				printer:"",
 				orderExpresss: [],
 				total: 0,
 				page: 1,
@@ -266,6 +276,23 @@
 			}
 		},
 		methods: {
+			handlePrint:function(index,row){
+				console.log(index);
+				console.log(row);
+				this.$http.get(this.url.printexpress,{params:{warehouse:value}}).then(function(res)  {
+					/* this.printers=res.data.printers; */
+				});
+			},
+			editprint:function(index,row){
+				this.orderExpresss[index].printer=row.printer;
+				this.editprinter=!this.editprinter;
+			},
+			changePrinter:function(row,column,event,cell){
+				this.findPrinter(row.warehouse);
+				if("打印机"==column.label){
+					this.editprinter=!this.editprinter;
+				}
+			},
 			//编号查询货主的信息
 			orderkeyQuery: function(query) {
 				if (query !== ''&&this.form.warehouse!=='') {
@@ -293,6 +320,11 @@
 				this.$http.get(this.url.getwarehouse).then(function(res)  {
 					/* console.log(res.data.warehouse); */
 					this.warehouses=res.data.warehouse;
+				});
+			},
+			findPrinter:function(value){
+				this.$http.get(this.url.findPrinterByWarehouse,{params:{warehouse:value}}).then(function(res)  {
+					this.printers=res.data.printers;
 				});
 			},
 			findPrinterByWarehouse:function(){
