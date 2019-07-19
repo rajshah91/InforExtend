@@ -3,8 +3,10 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.web.system.pojo.base.TSType;
 import org.jeecgframework.web.system.pojo.base.TSTypegroup;
+import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import com.jeecg.orderexpress.entity.ExpressServiceEntity;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
 import com.jeecg.webservice.FlksExpressWebService;
+import com.jeecg.webservice.InforWebService;
 
 @Service("orderExpressService")
 @Transactional(rollbackFor=Exception.class)
@@ -25,6 +28,8 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 	
 	@Autowired
 	private FlksExpressWebService flksExpressWebService;
+	@Autowired
+	private InforWebService inforWebService;
 	
  	public void delete(OrderExpressEntity entity) throws Exception{
  		super.delete(entity);
@@ -129,6 +134,8 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 							this.saveOrUpdate(orderExpressEntity);
 						}
 						//调用接口回填infor
+						TSUser user= ResourceUtil.getSessionUser();// 操作人
+						inforWebService.sendkeytoInfor(warehouse, user.getUserName(), billCode, uniqueCode, orderkeys);
 					}else {
 						result="下单失败!";
 					}
