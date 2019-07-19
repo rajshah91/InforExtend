@@ -45,19 +45,15 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
  	}
 
 	@Override
-	public String createOrderToExpress(String warehouse, String expressCompany, String orderkeys, String uniqueCode,String printer) throws Exception {
+	public String createOrderToExpress(String warehouse, String expressCompany, List<String> orderkeyList, String uniqueCode,String printer) throws Exception {
 		// TODO Auto-generated method stub
 		String result="";
-		if(orderkeys.endsWith(";")) {
-			orderkeys=orderkeys.substring(0,orderkeys.length()-1);
-		}
 		String orderkeySql="";
-		String[] orderkeyStr=orderkeys.split(";");
-		for (int i = 0; i < orderkeyStr.length; i++) {
+		for (int i = 0; i < orderkeyList.size(); i++) {
 			if(i==0) {
-				orderkeySql+="'"+orderkeyStr[i]+"'";
+				orderkeySql+="'"+orderkeyList.get(i)+"'";
 			}else {
-				orderkeySql+=",'"+orderkeyStr[i]+"'";
+				orderkeySql+=",'"+orderkeyList.get(i)+"'";
 			}
 		}
 		String wh = typeNameToTypeCode(warehouse, "仓库");
@@ -69,7 +65,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 			result="出货订单寄件信息不同，请确认！";	
 		}else if(resultList.size()==1) {
 			if(checkOrders(warehouse,orderkeySql)) {
-				for (String orderkey : orderkeyStr) {
+				for (String orderkey : orderkeyList) {
 					OrderExpressEntity expressEntity=new OrderExpressEntity();
 					expressEntity.setWarehouse(warehouse);
 					expressEntity.setExpressCompany(expressCompany);
@@ -135,7 +131,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 						}
 						//调用接口回填infor
 						TSUser user= ResourceUtil.getSessionUser();// 操作人
-						inforWebService.sendkeytoInfor(warehouse, user.getUserName(), billCode, uniqueCode, orderkeys);
+						inforWebService.sendkeytoInfor(warehouse, user.getUserName(), billCode, uniqueCode, orderkeyList);
 					}else {
 						result="下单失败!";
 					}
