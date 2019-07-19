@@ -88,6 +88,7 @@
 						    <el-checkbox label="快递单号" v-model="detailList.billCode" checked @change="show(detailList.billCode)"></el-checkbox><br>
 						    <el-checkbox label="快递公司" v-model="detailList.expressCompany" checked @change="show(detailList.expressCompany)"></el-checkbox><br>
 						    <el-checkbox label="打印份数" v-model="detailList.printCopies" checked @change="show(detailList.printCopies)"></el-checkbox><br>
+						    <el-checkbox label="打印机" v-model="detailList.printer" checked @change="show(detailList.printer)"></el-checkbox><br>
 						  </el-checkbox-group>
 					  </template>
 					  </el-dropdown-menu>
@@ -103,6 +104,7 @@
 			<el-table-column prop="billCode" label="快递单号" v-if="columnshow.billCode" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="expressCompany" label="快递公司" v-if="columnshow.expressCompany" min-width="120" sortable="custom" show-overflow-tooltip :formatter="formatExpress_coDict"></el-table-column>
 			<el-table-column prop="printCopies" label="打印份数" v-if="columnshow.printCopies" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="printer" label="打印机" v-if="columnshow.printer" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
  					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">打印</el-button>
@@ -129,6 +131,11 @@
 					</el-form-item>
 					<el-form-item label="快递公司">
 						<el-select v-model="form.expressCompany" placeholder="请选择快递公司" style="width:175px">
+					      <el-option :label="option.typename" :value="option.typecode" v-for="option in express_coOptions" ></el-option>
+					    </el-select>
+					</el-form-item>
+					<el-form-item label="打印机">
+						<el-select v-model="form.printer" placeholder="请选择打印机" style="width:175px">
 					      <el-option :label="option.typename" :value="option.typecode" v-for="option in express_coOptions" ></el-option>
 					    </el-select>
 					</el-form-item>
@@ -200,7 +207,8 @@
 					exportXls:'${webRoot}/orderExpressController.do?exportXls&id=',
 					ImportXls:'${webRoot}/orderExpressController.do?upload',
 					getwarehouse:'${webRoot}/ordersController.do?getwarehouse',
-					getorderkey:'${webRoot}/orderExpressController.do?getorderkey'
+					getorderkey:'${webRoot}/orderExpressController.do?getorderkey',
+				    createOrderToExpress:'${webRoot}/orderExpressController.do?createOrderToExpress'
 				},
 				//出货单动态选择
 				listLoading: false,
@@ -238,6 +246,7 @@
 					billCode:'billCode',
 					expressCompany:'expressCompany',
 					printCopies:'printCopies',
+					printer:'printer',
 				},
 				columnshow:{
 					warehouse:true,
@@ -246,6 +255,7 @@
 					billCode:true,
 					expressCompany:true,
 					printCopies:true,
+					printer:true
 				},
 				
 				
@@ -344,6 +354,9 @@
 				if(value=="printCopies"){
 				   this.columnshow.printCopies=!this.columnshow.printCopies;
 				}
+				if(value=="printer"){
+				   this.columnshow.printer=!this.columnshow.printer;
+				}
 			},
 			handleSortChange:function(sort){
 				this.sort={
@@ -411,6 +424,7 @@
 				fields.push('billCode');
 				fields.push('expressCompany');
 				fields.push('printCopies');
+				fields.push('printer');
 				let para = {
 					params: {
 						page: this.page,
@@ -488,37 +502,55 @@
 // 					uniqueCode:'',
 // 					billCode:'',
 					expressCompany:'',
+					printer:'',
 				};
 			},
 			
 			//下单
 			submitCreateOrder: function () {
-				this.$message({
-			          message: '下单成功',
-			          type: 'success'
-			        });
-// 				this.$refs.form.validate(function(valid)  {
-// 					if (valid) {
-// 						this.$confirm('确认提交吗？', '提示', {}).then(function()  {
-// 							this.formLoading = true;
-// 							let para = Object.assign({}, this.form);
-							
-							
-							
-// 							this.$http.post(!!para.id?this.url.edit:this.url.save,para,{emulateJSON: true}).then(function(res)  {
-// 								this.formLoading = false;
-// 								this.$message({
-// 									message: '提交成功',
-// 									type: 'success',
-// 									duration:1500
-// 								});
-// 								this.$refs['form'].resetFields();
-// 								this.formVisible = false;
-// 								this.getOrderExpresss();
-// 							});
-// 						});
-// 					}
-// 				});
+				if(this.form.warehouse==''){
+					this.$message({
+						message: '请选择仓库!',
+						type: 'warning',
+						duration:1500
+					})
+				}else if(this.form.expressCompany==''){
+					this.$message({
+						message: '请选择快递公司!',
+						type: 'warning',
+						duration:1500
+					})
+				}else if(this.form.orderkeys==''){
+					this.$message({
+						message: '请选择出库单号！',
+						type: 'warning',
+						duration:1500
+					})
+				}else{
+					this.formLoading = true;
+					this.$http.get(this.url.createOrderToExpress,{
+						params:{
+							warehouse:this.form.warehouse,
+							expressCompany:this.form.expressCompany,
+							orderkeys:this.form.orderkeys.replace(new RegExp("\n","gm"),";")
+							}
+					}).then(function(res)  {
+						this.formLoading = false;
+						if(res.data.result=='success'){
+							this.$message({
+								message: res.data.message,
+								type: 'success',
+								duration:1500
+							});
+						}else{
+							this.$message({
+								message: res.data.message,
+								type: 'error',
+								duration:1500
+							});
+						};
+					});
+				}
 			},
 			//新增
 			formSubmit: function () {

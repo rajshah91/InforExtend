@@ -70,6 +70,10 @@ public class OrderExpressEntity implements java.io.Serializable {
 	private java.lang.String expressCompany;
 	/**打印份数*/
 	private java.lang.Integer printCopies;
+	/**打印机*/
+	private java.lang.String printer;
+	/**二维码*/
+	private java.lang.String qrcode;
 	
 	/**
 	 *方法: 取得java.lang.String
@@ -361,5 +365,20 @@ public class OrderExpressEntity implements java.io.Serializable {
 	public void setPrintCopies(java.lang.Integer printCopies){
 		this.printCopies = printCopies;
 	}
-	
+
+	public java.lang.String getPrinter() {
+		return printer;
+	}
+
+	public void setPrinter(java.lang.String printer) {
+		this.printer = printer;
+	}
+
+	public java.lang.String getQrcode() {
+		return qrcode;
+	}
+
+	public void setQrcode(java.lang.String qrcode) {
+		this.qrcode = qrcode;
+	}
 }

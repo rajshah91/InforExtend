@@ -1,4 +1,5 @@
 package com.jeecg.orderexpress.controller;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +37,17 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.jeecg.ncount.service.ScmNcountServiceI;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
-import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
-/**   
- * @Title: Controller  
+/**
+ * @Title: Controller
  * @Description: 订单快递表
  * @author onlineGenerator
  * @date 2019-07-10 17:02:14
- * @version V1.0   
+ * @version V1.0
  *
  */
 @Controller
@@ -57,8 +59,10 @@ public class OrderExpressController extends BaseController {
 	private OrderExpressServiceI orderExpressService;
 	@Autowired
 	private SystemService systemService;
-	
+	@Autowired
+	private ScmNcountServiceI scmNcountService;
 
+	private String companyCode = "02";
 
 	/**
 	 * 订单快递表列表 页面跳转
@@ -79,15 +83,17 @@ public class OrderExpressController extends BaseController {
 	 * @param user
 	 */
 	@RequestMapping(params = "datagrid")
-	public void datagrid(OrderExpressEntity orderExpress,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+	public void datagrid(OrderExpressEntity orderExpress, HttpServletRequest request, HttpServletResponse response,
+			DataGrid dataGrid) {
 		CriteriaQuery cq = new CriteriaQuery(OrderExpressEntity.class, dataGrid);
-		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orderExpress, request.getParameterMap());
+		// 查询条件组装器
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orderExpress,
+				request.getParameterMap());
 		cq.add();
 		this.orderExpressService.getDataGridReturn(cq, true);
 		TagUtil.datagrid(response, dataGrid);
 	}
-	
+
 	/**
 	 * 删除订单快递表
 	 * 
@@ -100,38 +106,10 @@ public class OrderExpressController extends BaseController {
 		AjaxJson j = new AjaxJson();
 		orderExpress = systemService.getEntity(OrderExpressEntity.class, orderExpress.getId());
 		message = "订单快递表删除成功";
-		try{
+		try {
 			orderExpressService.delete(orderExpress);
 			systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-		}catch(Exception e){
-			e.printStackTrace();
-			message = "订单快递表删除失败";
-			throw new BusinessException(e.getMessage());
-		}
-		j.setMsg(message);
-		return j;
-	}
-	
-	/**
-	 * 批量删除订单快递表
-	 * 
-	 * @return
-	 */
-	 @RequestMapping(params = "doBatchDel")
-	@ResponseBody
-	public AjaxJson doBatchDel(String ids,HttpServletRequest request){
-		String message = null;
-		AjaxJson j = new AjaxJson();
-		message = "订单快递表删除成功";
-		try{
-			for(String id:ids.split(",")){
-				OrderExpressEntity orderExpress = systemService.getEntity(OrderExpressEntity.class, 
-				id
-				);
-				orderExpressService.delete(orderExpress);
-				systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			message = "订单快递表删除失败";
 			throw new BusinessException(e.getMessage());
@@ -140,6 +118,31 @@ public class OrderExpressController extends BaseController {
 		return j;
 	}
 
+	/**
+	 * 批量删除订单快递表
+	 * 
+	 * @return
+	 */
+	@RequestMapping(params = "doBatchDel")
+	@ResponseBody
+	public AjaxJson doBatchDel(String ids, HttpServletRequest request) {
+		String message = null;
+		AjaxJson j = new AjaxJson();
+		message = "订单快递表删除成功";
+		try {
+			for (String id : ids.split(",")) {
+				OrderExpressEntity orderExpress = systemService.getEntity(OrderExpressEntity.class, id);
+				orderExpressService.delete(orderExpress);
+				systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			message = "订单快递表删除失败";
+			throw new BusinessException(e.getMessage());
+		}
+		j.setMsg(message);
+		return j;
+	}
 
 	/**
 	 * 添加订单快递表
@@ -153,10 +156,10 @@ public class OrderExpressController extends BaseController {
 		String message = null;
 		AjaxJson j = new AjaxJson();
 		message = "订单快递表添加成功";
-		try{
+		try {
 			orderExpressService.save(orderExpress);
 			systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			message = "订单快递表添加失败";
 			throw new BusinessException(e.getMessage());
@@ -164,7 +167,7 @@ public class OrderExpressController extends BaseController {
 		j.setMsg(message);
 		return j;
 	}
-	
+
 	/**
 	 * 更新订单快递表
 	 * 
@@ -190,7 +193,6 @@ public class OrderExpressController extends BaseController {
 		j.setMsg(message);
 		return j;
 	}
-	
 
 	/**
 	 * 导入功能跳转
@@ -199,10 +201,10 @@ public class OrderExpressController extends BaseController {
 	 */
 	@RequestMapping(params = "upload")
 	public ModelAndView upload(HttpServletRequest req) {
-		req.setAttribute("controller_name","orderExpressController");
+		req.setAttribute("controller_name", "orderExpressController");
 		return new ModelAndView("common/upload/pub_excel_upload");
 	}
-	
+
 	/**
 	 * 导出excel
 	 * 
@@ -210,18 +212,20 @@ public class OrderExpressController extends BaseController {
 	 * @param response
 	 */
 	@RequestMapping(params = "exportXls")
-	public String exportXls(OrderExpressEntity orderExpress,HttpServletRequest request,HttpServletResponse response
-			, DataGrid dataGrid,ModelMap modelMap) {
+	public String exportXls(OrderExpressEntity orderExpress, HttpServletRequest request, HttpServletResponse response,
+			DataGrid dataGrid, ModelMap modelMap) {
 		CriteriaQuery cq = new CriteriaQuery(OrderExpressEntity.class, dataGrid);
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orderExpress, request.getParameterMap());
-		List<OrderExpressEntity> orderExpresss = this.orderExpressService.getListByCriteriaQuery(cq,false);
-		modelMap.put(NormalExcelConstants.FILE_NAME,"订单快递表");
-		modelMap.put(NormalExcelConstants.CLASS,OrderExpressEntity.class);
-		modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("订单快递表列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
-			"导出信息"));
-		modelMap.put(NormalExcelConstants.DATA_LIST,orderExpresss);
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, orderExpress,
+				request.getParameterMap());
+		List<OrderExpressEntity> orderExpresss = this.orderExpressService.getListByCriteriaQuery(cq, false);
+		modelMap.put(NormalExcelConstants.FILE_NAME, "订单快递表");
+		modelMap.put(NormalExcelConstants.CLASS, OrderExpressEntity.class);
+		modelMap.put(NormalExcelConstants.PARAMS,
+				new ExportParams("订单快递表列表", "导出人:" + ResourceUtil.getSessionUser().getRealName(), "导出信息"));
+		modelMap.put(NormalExcelConstants.DATA_LIST, orderExpresss);
 		return NormalExcelConstants.JEECG_EXCEL_VIEW;
 	}
+
 	/**
 	 * 导出excel 使模板
 	 * 
@@ -229,22 +233,22 @@ public class OrderExpressController extends BaseController {
 	 * @param response
 	 */
 	@RequestMapping(params = "exportXlsByT")
-	public String exportXlsByT(OrderExpressEntity orderExpress,HttpServletRequest request,HttpServletResponse response
-			, DataGrid dataGrid,ModelMap modelMap) {
-    	modelMap.put(NormalExcelConstants.FILE_NAME,"订单快递表");
-    	modelMap.put(NormalExcelConstants.CLASS,OrderExpressEntity.class);
-    	modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("订单快递表列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
-    	"导出信息"));
-    	modelMap.put(NormalExcelConstants.DATA_LIST,new ArrayList());
-    	return NormalExcelConstants.JEECG_EXCEL_VIEW;
+	public String exportXlsByT(OrderExpressEntity orderExpress, HttpServletRequest request,
+			HttpServletResponse response, DataGrid dataGrid, ModelMap modelMap) {
+		modelMap.put(NormalExcelConstants.FILE_NAME, "订单快递表");
+		modelMap.put(NormalExcelConstants.CLASS, OrderExpressEntity.class);
+		modelMap.put(NormalExcelConstants.PARAMS,
+				new ExportParams("订单快递表列表", "导出人:" + ResourceUtil.getSessionUser().getRealName(), "导出信息"));
+		modelMap.put(NormalExcelConstants.DATA_LIST, new ArrayList());
+		return NormalExcelConstants.JEECG_EXCEL_VIEW;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "importExcel", method = RequestMethod.POST)
 	@ResponseBody
 	public AjaxJson importExcel(HttpServletRequest request, HttpServletResponse response) {
 		AjaxJson j = new AjaxJson();
-		
+
 		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
 		Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
 		for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
@@ -254,7 +258,8 @@ public class OrderExpressController extends BaseController {
 			params.setHeadRows(1);
 			params.setNeedSave(true);
 			try {
-				List<OrderExpressEntity> listOrderExpressEntitys = ExcelImportUtil.importExcel(file.getInputStream(),OrderExpressEntity.class,params);
+				List<OrderExpressEntity> listOrderExpressEntitys = ExcelImportUtil.importExcel(file.getInputStream(),
+						OrderExpressEntity.class, params);
 				for (OrderExpressEntity orderExpress : listOrderExpressEntitys) {
 					orderExpressService.save(orderExpress);
 				}
@@ -262,7 +267,7 @@ public class OrderExpressController extends BaseController {
 			} catch (Exception e) {
 				j.setMsg("文件导入失败！");
 				logger.error(e.getMessage());
-			}finally{
+			} finally {
 				try {
 					file.getInputStream().close();
 				} catch (IOException e) {
@@ -272,7 +277,7 @@ public class OrderExpressController extends BaseController {
 		}
 		return j;
 	}
-	
+
 	/**
 	 * 获取infor业务类型
 	 * 
@@ -290,7 +295,8 @@ public class OrderExpressController extends BaseController {
 			// 仓库
 			if (orderkey != null && !"".equals(orderkey)) {
 				String wh = typeNameToTypeCode(warehouse, "仓库");
-				String sql ="select  o.orderkey,o.status from "+wh+"_orders o where o.orderkey like '"+orderkey+"%' and o.uniquerreqnumber is  null and o.mailno is  null order by o.orderkey";
+				String sql = "select  o.orderkey,o.status from " + wh + "_orders o where o.orderkey like '" + orderkey
+						+ "%' and o.uniquerreqnumber is  null and o.mailno is  null order by o.orderkey";
 				List<Object[]> list = systemService.findListbySql(sql);
 				int j = 1;
 				for (Object[] objects : list) {
@@ -309,20 +315,55 @@ public class OrderExpressController extends BaseController {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// 仓库字典code 转换
 	private String typeNameToTypeCode(String typeName, String typegroupname) {
-			List<TSTypegroup> tsTypegroup = systemService.findHql("from TSTypegroup where typegroupname=?", typegroupname);
-			List<TSType> tsType = systemService.findHql("from TSType where TSTypegroup.id=? and typename=?",
-					tsTypegroup.get(0).getId(), typeName);
-			return tsType.get(0).getTypecode();
+		List<TSTypegroup> tsTypegroup = systemService.findHql("from TSTypegroup where typegroupname=?", typegroupname);
+		List<TSType> tsType = systemService.findHql("from TSType where TSTypegroup.id=? and typename=?",
+				tsTypegroup.get(0).getId(), typeName);
+		return tsType.get(0).getTypecode();
 	}
 
 	// null
 	private String isnull(String value) {
-			if ("null" == value) {
-				value = "";
+		if ("null" == value) {
+			value = "";
+		}
+		return value;
+	}
+
+	/**
+	 * 下单
+	 * 
+	 * @param request
+	 * @param response
+	 */
+	@RequestMapping(params = "createOrderToExpress")
+	@ResponseBody
+	public void createOrderToExpress(HttpServletRequest request, HttpServletResponse response) {
+		JSONObject result = new JSONObject();
+
+		try {
+			String warehouse = request.getParameter("warehouse");
+			String expressCompany = request.getParameter("expressCompany");
+			String orderkeys = request.getParameter("orderkeys");
+			String uniqueCode = companyCode + scmNcountService.getNextKey("uniqueCode", 10);
+			String resultMessage=orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeys, uniqueCode);
+			result.put("message", resultMessage);
+			if(resultMessage.equals("下单成功！")) {
+				result.put("result", "success");
+			}else {
+				result.put("result", "error");
 			}
-			return value;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			response.getWriter().write(result.toString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
