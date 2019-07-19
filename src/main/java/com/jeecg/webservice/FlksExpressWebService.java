@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Utf8;
 import com.jeecg.apilog.entity.ApilogEntity;
 import com.jeecg.apilog.service.ApilogServiceI;
 
@@ -71,7 +72,7 @@ public class FlksExpressWebService {
 			connection.connect();// 建立TCP连接,getOutputStream会隐含的进行connect,所以此处可以不要
 
 			dataout = new DataOutputStream(connection.getOutputStream());// 创建输入输出流,用于往连接里面输出携带的参数
-			dataout.write(sendMessage.toString().getBytes());
+			dataout.write(sendMessage.toString().getBytes("utf-8"));
 			dataout.flush();
 			dataout.close();
 
@@ -83,6 +84,7 @@ public class FlksExpressWebService {
 					result.append(line).append(System.getProperty("line.separator"));//
 				}
 				receiveMessage = result.toString();
+				System.out.println("dai"+receiveMessage);
 			    saveLog(sendMessage.toString(), changeStringLength(receiveMessage), true, "FLKSExpress", "createOrder", "");	
 			}
 		} catch (IOException e) {

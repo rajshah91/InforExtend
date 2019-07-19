@@ -1,5 +1,6 @@
 package com.jeecg.orderexpress.controller;
 
+import java.awt.print.Printable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +37,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jeecg.ncount.service.ScmNcountServiceI;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
+import com.jeecg.printconfig.entity.PrintconfigEntity;
+import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
 /**
  * @Title: Controller
@@ -347,8 +351,9 @@ public class OrderExpressController extends BaseController {
 			String warehouse = request.getParameter("warehouse");
 			String expressCompany = request.getParameter("expressCompany");
 			String orderkeys = request.getParameter("orderkeys");
+			String printer = request.getParameter("printer");
 			String uniqueCode = companyCode + scmNcountService.getNextKey("uniqueCode", 10);
-			String resultMessage=orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeys, uniqueCode);
+			String resultMessage=orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeys, uniqueCode,printer);
 			result.put("message", resultMessage);
 			if(resultMessage.equals("下单成功！")) {
 				result.put("result", "success");
@@ -366,4 +371,32 @@ public class OrderExpressController extends BaseController {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * 通过仓库获取打印机
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping(params = "getPrinterByWarehouse")
+	@ResponseBody
+	public void getPrinterByWarehouse(HttpServletRequest request, HttpServletResponse response) {
+		JSONObject resultjson=new JSONObject();
+		try {
+			String warehouse = request.getParameter("warehouse");
+			List<PrintconfigEntity> printconfigEntities=orderExpressService.findHql("from PrintconfigEntity where warehouse=?", warehouse);
+			
+			List<String> list=new ArrayList<>();
+			for (PrintconfigEntity printconfigEntity : printconfigEntities) {
+				list.add(printconfigEntity.getPrintname());
+			}
+			resultjson.put("printers", list);
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

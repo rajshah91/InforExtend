@@ -124,7 +124,7 @@
 		<el-dialog :title="formTitle" fullscreen z-index="800" :visible.sync="formVisible" :close-on-click-modal="false">
 			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;">
 					<el-form-item label="仓库" prop="warehouse">
-					    <el-select v-model="form.warehouse" v-model="warehouses" placeholder="请选择仓库" clearable style="width:175px">
+					    <el-select v-model="form.warehouse" v-model="warehouses" placeholder="请选择仓库"  @change="findPrinterByWarehouse()" clearable style="width:175px">
 			                 <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
 			            </el-select>
 						<!-- <el-input v-model="form.warehouse" auto-complete="off" placeholder="请输入仓库"></el-input> -->
@@ -135,10 +135,11 @@
 					    </el-select>
 					</el-form-item>
 					<el-form-item label="打印机">
-						<el-select v-model="form.printer" placeholder="请选择打印机" style="width:175px">
-					      <el-option :label="option.typename" :value="option.typecode" v-for="option in express_coOptions" ></el-option>
-					    </el-select>
+						<el-select v-model="form.printer" v-model="printers" placeholder="请选择打印机" clearable style="width:175px">
+			                 <el-option v-for="printer in printers"  :value="printer"></el-option>
+			            </el-select>
 					</el-form-item>
+					<br>
 					<el-form-item label="出货单号" prop="orderkey">
 					  <el-select v-model="form.orderkey" name="orderkey"  v-on:input="valiorderkey(form.orderkey)" clearable
 							default-first-option="true" filterable remote reserve-keyword placeholder="请输入出货单号"
@@ -154,7 +155,6 @@
 						</el-select>
 						<el-input type="hidden" v-on:input="valiorderkey(orderno)" v-model="orderno"></el-input>
 					</el-form-item>
-					<br>
 					<el-form-item label="单号展示">
 	                 <el-input 
 						  type="textarea"
@@ -208,7 +208,8 @@
 					ImportXls:'${webRoot}/orderExpressController.do?upload',
 					getwarehouse:'${webRoot}/ordersController.do?getwarehouse',
 					getorderkey:'${webRoot}/orderExpressController.do?getorderkey',
-				    createOrderToExpress:'${webRoot}/orderExpressController.do?createOrderToExpress'
+				    createOrderToExpress:'${webRoot}/orderExpressController.do?createOrderToExpress',
+				    findPrinterByWarehouse:'${webRoot}/orderExpressController.do?getPrinterByWarehouse'
 				},
 				//出货单动态选择
 				listLoading: false,
@@ -218,6 +219,7 @@
 				orderno:"",
 				
 				warehouses:[],
+				printers:[],
 				orderExpresss: [],
 				total: 0,
 				page: 1,
@@ -291,6 +293,12 @@
 				this.$http.get(this.url.getwarehouse).then(function(res)  {
 					/* console.log(res.data.warehouse); */
 					this.warehouses=res.data.warehouse;
+				});
+			},
+			findPrinterByWarehouse:function(){
+				this.form.printer='';
+				this.$http.get(this.url.findPrinterByWarehouse,{params:{warehouse:this.form.warehouse}}).then(function(res)  {
+					this.printers=res.data.printers;
 				});
 			},
 			//移除textarea中 的值
@@ -526,13 +534,20 @@
 						type: 'warning',
 						duration:1500
 					})
+				}else if(this.form.printer==''){
+					this.$message({
+						message: '请选择打印机！',
+						type: 'warning',
+						duration:1500
+					})
 				}else{
 					this.formLoading = true;
 					this.$http.get(this.url.createOrderToExpress,{
 						params:{
 							warehouse:this.form.warehouse,
 							expressCompany:this.form.expressCompany,
-							orderkeys:this.form.orderkeys.replace(new RegExp("\n","gm"),";")
+							orderkeys:this.form.orderkeys.replace(new RegExp("\n","gm"),";"),
+							printer:this.form.printer
 							}
 					}).then(function(res)  {
 						this.formLoading = false;
@@ -546,7 +561,7 @@
 							this.$message({
 								message: res.data.message,
 								type: 'error',
-								duration:1500
+								showClose:true
 							});
 						};
 					});

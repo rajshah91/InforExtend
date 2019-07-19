@@ -40,7 +40,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
  	}
 
 	@Override
-	public String createOrderToExpress(String warehouse, String expressCompany, String orderkeys, String uniqueCode) throws Exception {
+	public String createOrderToExpress(String warehouse, String expressCompany, String orderkeys, String uniqueCode,String printer) throws Exception {
 		// TODO Auto-generated method stub
 		String result="";
 		if(orderkeys.endsWith(";")) {
@@ -70,6 +70,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 					expressEntity.setExpressCompany(expressCompany);
 					expressEntity.setUniqueCode(uniqueCode);
 					expressEntity.setOrderkey(orderkey);
+					expressEntity.setPrinter(printer);
 					this.save(expressEntity);
 				}
 			    //发送信息给快递平台
@@ -99,8 +100,12 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setPackage_number(1);
 				entity.setRemark("");
 				entity.setTransport_type("");
-				entity.setPod("1");
-				entity.setPay_type(String.valueOf(resultList.get(0)[9]));
+				entity.setPod("Y");
+				if("1".equals(String.valueOf(resultList.get(0)[9]))||"2".equals(String.valueOf(resultList.get(0)[9]))) {
+					entity.setPay_type(String.valueOf(resultList.get(0)[9]));
+				}else {
+					entity.setPay_type("1");
+				}
 				entity.setCase_num(1);
 				entity.setMapcode("INFOREXTEND01");
 				entity.setService1("7551234567");
@@ -120,6 +125,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 						String billCode=receiveJson.get("mailno").toString();
 						for (OrderExpressEntity orderExpressEntity : expressEntities) {
 							orderExpressEntity.setBillCode(billCode);
+							orderExpressEntity.setQrcode(receiveJson.get("msg").toString());
 							this.saveOrUpdate(orderExpressEntity);
 						}
 						//调用接口回填infor
