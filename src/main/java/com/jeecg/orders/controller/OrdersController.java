@@ -111,7 +111,7 @@ public class OrdersController extends BaseController {
 					"o.performancedata02,to_char(o.labelingstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingstartdate,to_char(o.labelingenddate+8/24,'yyyy-MM-dd HH24:mi:ss') labelingenddate, " + 
 					"o.performancedata04,to_char(o.recheckstartdate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckstartdate,to_char(o.recheckenddate+8/24,'yyyy-MM-dd HH24:mi:ss') recheckenddate,c.description "+
 					"from "+wh+"_orders o " + 
-					"left join "+wh+"_orderstatussetup c on c.code=o.status  "+sqlwhere+" order by o.adddate desc";
+					"left join "+wh+"_orderstatussetup c on c.code=o.status  "+sqlwhere+" order by o.requestedshipdate desc nulls last";
 			dataGrid=paging(sql, page, rows, dataGrid);
 		}else {
 			String sql = "";
@@ -135,7 +135,7 @@ public class OrdersController extends BaseController {
 						"from "+wh+"_orders o " + 
 						"left join "+wh+"_orderstatussetup c on c.code=o.status  "+sqlwhere+" ";
 			}
-			String str="select * from ("+sql+") s order by s.adddate desc";
+			String str="select * from ("+sql+") s order by s.requestedshipdate desc nulls last";
 			dataGrid=paging(str, page, rows, dataGrid);
 		}
 		TagUtil.datagrid(response, dataGrid);
