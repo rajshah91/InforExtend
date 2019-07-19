@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.jeecg.apilog.entity.ApilogEntity;
 import com.jeecg.apilog.service.ApilogServiceI;
+import com.jeecg.orderexpress.entity.OrderExpressEntity;
 
 @Service("inforWebService")
 public class InforWebService {
@@ -26,9 +27,9 @@ public class InforWebService {
 	private ApilogServiceI apilogService;
 
 	// 接口地址
-	private String url = "http://sce.feili.com/WMSWebService/services/WmsWebService";
+//	private String url = "http://sce.feili.com/WMSWebService/services/WmsWebService";
 	//测试
-//	private String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
+	private String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
 
 	/**
 	 * 检查info用户是否正确
@@ -142,7 +143,7 @@ public class InforWebService {
 			OMElement resultXml = serviceClient.sendReceive(method);
 			receiveXml = resultXml.toString();
 			receiveXml = formatXml(receiveXml);
-			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "getUserName","");
+			/*saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "getUserName","");*/
 			return readStringXmlForUserName(receiveXml);
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
@@ -235,7 +236,98 @@ public class InforWebService {
 			return "失败";
 		}
 	}
+	
+	
+	/**
+	 * 回传mailno
+	 * 
+	 * @param warehouse
+	 * @param userName
+	 * @param mailno
+	 * @param orderKeys
+	 * @return
+	 */
+	public String sendkeytoInfor(String warehouse,String userName,String mailno,String uniquerReqNumber,String orderKeys) {
+		String sendXml = null;
+		String receiveXml = null;
+		try {
+			ServiceClient serviceClient = new ServiceClient();
+			// 创建服务地址WebService的URL,注意不是WSDL的URL
+			EndpointReference targetEPR = new EndpointReference(url);
+			Options options = serviceClient.getOptions();
+			options.setTo(targetEPR);
+			// 确定调用方法（wsdl 命名空间地址 (wsdl文档中的targetNamespace) 和 方法名称 的组合）
+			options.setAction("http://com.ssaglobal.com/callBackEnd");
 
+			OMFactory fac = OMAbstractFactory.getOMFactory();
+
+			// uri--即为wsdl文档的targetNamespace，命名空间，perfix--可不填
+			OMNamespace omNs = fac.createOMNamespace("http://com.ssaglobal.com/", "");
+			// 指定方法
+			OMElement method = fac.createOMElement("callBackEnd", omNs);
+			// 指定方法的参数
+			OMElement mobileCode = fac.createOMElement("in0", omNs);
+			mobileCode.setText("MessageProcessor");
+			method.addChild(mobileCode);
+			mobileCode = fac.createOMElement("in1", omNs);
+			mobileCode.setText("ShipmentOrder");
+			method.addChild(mobileCode);
+			mobileCode = fac.createOMElement("in2", omNs);
+			mobileCode.setText("store");
+			method.addChild(mobileCode);
+
+			//
+			sendXml = "<Message>" + "<Head>" + "<MessageID/>" + "<Date/>" + "<MessageType>Utility</MessageType>"
+					+ "<Sender>" + "<User>"+userName+"</User>" + "<Password>sceadmin</Password>"
+					+ "<SystemID>External</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Sender>" + "<Recipient>"
+					+ "<SystemID>"+warehouse+"</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>" + "</Head>"
+					+ "<Body><ShipmentOrder>";
+	        //多个订单
+			if(orderKeys!=null) { 
+				String strs[]=orderKeys.split(",");
+				for (String s : strs) {
+					//验证此单号是否已做过下单,
+					if(vailorderkey(s)) {
+						//nothing,此订单不回传
+					}else {
+						sendXml+="<ShipmentOrderHeader>" + 
+								"    <OrderKey>"+s+"</OrderKey>" + 
+								"    <MailNo>"+mailno+"</MailNo>" + 
+								"    <UniquerReqNumber>"+uniquerReqNumber+"</UniquerReqNumber>" + 
+								"   </ShipmentOrderHeader>" + 
+								"   <ShipmentOrderHeader>";
+					}
+					
+				}
+			}
+			sendXml="</ShipmentOrder></Body></Message>";
+			
+			mobileCode = fac.createOMElement("in3", omNs);
+			mobileCode.setText(sendXml);
+			method.addChild(mobileCode);
+			method.build();
+
+			// 远程调用web服务
+			OMElement resultXml = serviceClient.sendReceive(method);
+			receiveXml = resultXml.toString();
+			receiveXml = formatXml(receiveXml);
+			saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "sendkeytoInfor",userName);
+			return readStringXmlForStartOn(receiveXml);
+		} catch (AxisFault axisFault) {
+			axisFault.printStackTrace();
+			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "sendkeytoInfor",userName);
+			return "失败";
+		}
+	}
+
+	private boolean vailorderkey(String orderkey) {
+	    OrderExpressEntity expressEntity=apilogService.findUniqueByProperty(OrderExpressEntity.class, "orderkey", orderkey);
+	    if(expressEntity!=null) {
+	    	return true;
+	    }
+		return false;
+	}
+	
 	private  String readStringXmlForStartOn(String xml) {
 		Document doc = null;
 		String result = null;
