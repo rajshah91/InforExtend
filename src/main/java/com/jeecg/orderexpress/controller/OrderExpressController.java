@@ -451,6 +451,8 @@ public class OrderExpressController extends BaseController {
 				String password = printconfigEntitie.getPassword();
 				String workdir = printconfigEntitie.getPath();
 				String dataquery = jasperconfig.getDataquery().replaceAll(":=id", "=" + mailno + " ");
+				//wh
+				//String dataquery = jasperconfig.getDataquery().replaceAll(":=wh", "=" + mailno + " ");
 				List<Map<String, Object>> maplist = systemService.findForJdbc(dataquery);
 				JasperUtil.generageXMLAndDeliver(maplist, _FORMAT, printername, 1, ip, username, password, workdir);
 				String afterjob = jasperconfig.getAfterjob();
