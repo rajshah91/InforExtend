@@ -43,6 +43,7 @@ public class ExpressServiceEntity implements java.io.Serializable {
 	private int case_num;//件数（此项大于1部分快递公司会产生子母件）
 	private String mapcode;//INFOREXTEND01 
 	private String service1;//7551234567
+	private String bpcode;
 	
 	public String getClientcode() {
 		return clientcode;
@@ -241,6 +242,12 @@ public class ExpressServiceEntity implements java.io.Serializable {
 	}
 	public void setService1(String service1) {
 		this.service1 = service1;
+	}
+	public String getBpcode() {
+		return bpcode;
+	}
+	public void setBpcode(String bpcode) {
+		this.bpcode = bpcode;
 	}
 	
 }

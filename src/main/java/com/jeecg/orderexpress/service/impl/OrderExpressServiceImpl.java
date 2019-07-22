@@ -112,6 +112,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setCase_num(1);
 				entity.setMapcode("INFOREXTEND01");
 				entity.setService1("7551234567");
+				entity.setBpcode("WH6");
 				JSONObject sendMessage = (JSONObject) JSONObject.toJSON(entity);
 				System.out.println(sendMessage.toString());
 				String receiveMessage=flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode);
