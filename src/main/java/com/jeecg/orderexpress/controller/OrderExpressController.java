@@ -429,10 +429,15 @@ public class OrderExpressController extends BaseController {
 			String warehouse = request.getParameter("warehouse");
 			String printername = request.getParameter("printername");
 			String mailno = request.getParameter("mailno");
+			String uniqueCode = request.getParameter("uniqueCode");
+			String expressCompany = request.getParameter("expressCompany");
+			
+			//转换仓库code
+			String wh=typeNameToTypeCode(warehouse, "仓库");
 			PrintconfigEntity printconfigEntitie = (PrintconfigEntity) systemService
 					.findHql("from PrintconfigEntity where warehouse=? and printname=?", warehouse, printername).get(0);
 			List<JasperconfigEntity> jasperconfigList = systemService.findHql(
-					"from JasperconfigEntity where mailno=? and active='1' order by priorty asc", mailno, printername);
+					"from JasperconfigEntity where code=? and active='1' order by priorty asc", expressCompany);
 			JasperconfigEntity jasperconfig = null;
 			for (JasperconfigEntity config : jasperconfigList) {
 				String matchrule = config.getMatchrule();
@@ -450,9 +455,10 @@ public class OrderExpressController extends BaseController {
 				String username = printconfigEntitie.getUsername();
 				String password = printconfigEntitie.getPassword();
 				String workdir = printconfigEntitie.getPath();
-				String dataquery = jasperconfig.getDataquery().replaceAll(":=id", "=" + mailno + " ");
+				/*String dataquery = jasperconfig.getDataquery().replaceAll(":=id", "'" + mailno + "' ");*/
 				//wh
-				//String dataquery = jasperconfig.getDataquery().replaceAll(":=wh", "=" + mailno + " ");
+				String  dataquery = jasperconfig.getDataquery().replaceAll(":uniquerreqnumber", "'" + uniqueCode + "' ");
+				dataquery = dataquery.replaceAll(":WH", "" + wh + "");
 				List<Map<String, Object>> maplist = systemService.findForJdbc(dataquery);
 				JasperUtil.generageXMLAndDeliver(maplist, _FORMAT, printername, 1, ip, username, password, workdir);
 				String afterjob = jasperconfig.getAfterjob();
