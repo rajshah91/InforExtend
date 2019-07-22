@@ -28,7 +28,8 @@ public class InforWebService {
 	private ApilogServiceI apilogService;
 
 	// 接口地址
-//	private String url = "http://sce.feili.com/WMSWebService/services/WmsWebService";
+	// private String url =
+	// "http://sce.feili.com/WMSWebService/services/WmsWebService";
 	// 测试
 	private String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
 
@@ -284,23 +285,33 @@ public class InforWebService {
 			method.addChild(mobileCode);
 
 			//
-			sendXml = "<Message>" + "<Head>" + "<MessageID/>" + "<Date/>" + "<MessageType>Utility</MessageType>"
-					+ "<Sender>" + "<User>" + userName + "</User>" + "<Password>sceadmin</Password>"
-					+ "<SystemID>External</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Sender>" + "<Recipient>"
-					+ "<SystemID>" + warehouse + "</SystemID>" + "<CompanyID/>" + "<ReplyToQ/>" + "</Recipient>"
-					+ "</Head>" + "<Body><ShipmentOrder>";
+			sendXml="<Message><Head><MessageID/><Date/><MessageType>ShipmentOrder</MessageType>" + 
+					"  <Sender><SystemID>EXceed</SystemID>" + 
+					"   <User>"+userName+"</User><Password></Password>" + 
+					"   <CompanyID/><ReplyToQ/></Sender>" + 
+					"  <Recipient><SystemID>"+warehouse+"</SystemID>" + 
+					"   <Verb>Process</Verb><CompanyID/>" + 
+					"   <ReplyToQ/><DetailedErrors>true</DetailedErrors>" + 
+					"  </Recipient></Head><Body><ShipmentOrder>";
 			// 多个订单
+			for (String s : orderkeyList) {
+				sendXml += "<ShipmentOrderHeader>" + "    <OrderKey>" + s + "</OrderKey>" + "    <MailNo>" + mailno
+						+ "</MailNo>" + "    <UniquerReqNumber>" + uniquerReqNumber + "</UniquerReqNumber>"
+						+ "   </ShipmentOrderHeader>";
+			}
+			/*// 多个订单
 			for (String s : orderkeyList) {
 				// 验证此单号是否已做过下单,
 				if (vailorderkey(s)) {
 					// nothing,此订单不回传
+					return "此订单" + s + "已下单";
 				} else {
 					sendXml += "<ShipmentOrderHeader>" + "    <OrderKey>" + s + "</OrderKey>" + "    <MailNo>" + mailno
 							+ "</MailNo>" + "    <UniquerReqNumber>" + uniquerReqNumber + "</UniquerReqNumber>"
 							+ "   </ShipmentOrderHeader>" + "   <ShipmentOrderHeader>";
 				}
 
-			}
+			}*/
 
 			sendXml += "</ShipmentOrder></Body></Message>";
 
