@@ -102,8 +102,10 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setRemark("");
 				entity.setTransport_type("");
 				entity.setPod("Y");
-				if("1".equals(String.valueOf(resultList.get(0)[9]))||"2".equals(String.valueOf(resultList.get(0)[9]))) {
-					entity.setPay_type(String.valueOf(resultList.get(0)[9]));
+				if("YJ".equals(String.valueOf(resultList.get(0)[9]))) {
+					entity.setPay_type("1");
+				}else if("DF".equals(String.valueOf(resultList.get(0)[9]))) {
+					entity.setPay_type("2");
 				}else {
 					entity.setPay_type("1");
 				}
