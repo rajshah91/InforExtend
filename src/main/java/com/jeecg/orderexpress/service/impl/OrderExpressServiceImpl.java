@@ -2,6 +2,8 @@ package com.jeecg.orderexpress.service.impl;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.print.DocFlavor.STRING;
+
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.web.system.pojo.base.TSType;
@@ -57,7 +59,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 			}
 		}
 		String wh = typeNameToTypeCode(warehouse, "仓库");
-		String sql="select DISTINCT O.SUSR23,S.PHONE1,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||O.SUSR25 AS RECEIVER," + 
+		String sql="select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||O.SUSR25 AS RECEIVER," + 
 				"O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28 from "+wh+"_ORDERS O LEFT JOIN "+wh+"_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'"
 				+ " WHERE O.ORDERKEY IN ("+orderkeySql+")";
 		List<Object[]> resultList = this.findListbySql(sql);
@@ -89,7 +91,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setSender_zip("");
 				entity.setSender_addr(String.valueOf(resultList.get(0)[3]));
 				entity.setReceiver(String.valueOf(resultList.get(0)[4]));
-				entity.setSender_phone(String.valueOf(resultList.get(0)[5]));
+				entity.setReceiver_phone(String.valueOf(resultList.get(0)[5]));
 				entity.setReceiver_mobile(String.valueOf(resultList.get(0)[5]));
 				entity.setReceiver_company(String.valueOf(resultList.get(0)[6]));
 				entity.setReceiver_province("");
@@ -112,11 +114,11 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setCase_num(1);
 				entity.setMapcode("INFOREXTEND01");
 				entity.setService1("7551234567");
-				entity.setBpcode("WH6");
+				entity.setBpcode(warehouse.replace("FEILI_wmwhse", "WH"));
 				JSONObject sendMessage = (JSONObject) JSONObject.toJSON(entity);
 				System.out.println(sendMessage.toString());
-				String receiveMessage=flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode);
-				
+				//String receiveMessage=flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode);
+				String receiveMessage="{\"mailno\":\"444017102136\",\"clientorderkey\":\"020000000051\",\"resultcode\":\"OK\",\"msg\":\"MMM={'k1':'','k2':'886','k3':'','k4':'T4','k5':'444017102136','k6':'','k7':'93b3f54'}\",\"originaltext\":\"\"}";
 				List<OrderExpressEntity> expressEntities=this.findHql("from OrderExpressEntity where uniqueCode=?",uniqueCode);
 				
 				if(receiveMessage.equals("")) {
@@ -129,7 +131,10 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 						String billCode=receiveJson.get("mailno").toString();
 						for (OrderExpressEntity orderExpressEntity : expressEntities) {
 							orderExpressEntity.setBillCode(billCode);
-							orderExpressEntity.setQrcode(receiveJson.get("msg").toString());
+							String qrcode=receiveJson.get("msg").toString();
+							orderExpressEntity.setQrcode(qrcode);
+							JSONObject descodeJson=JSONObject.parseObject(qrcode.substring(qrcode.indexOf("{")));
+							orderExpressEntity.setDescode(descodeJson.getString("k2").toString());
 							this.saveOrUpdate(orderExpressEntity);
 						}
 						//调用接口回填infor

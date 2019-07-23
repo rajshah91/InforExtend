@@ -366,6 +366,8 @@ public class OrderExpressController extends BaseController {
 			} else {
 				result.put("result", "error");
 			}
+			
+			printJasperToFtp(warehouse, printer, uniqueCode, expressCompany);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -428,48 +430,52 @@ public class OrderExpressController extends BaseController {
 		try {
 			String warehouse = request.getParameter("warehouse");
 			String printername = request.getParameter("printername");
-			String mailno = request.getParameter("mailno");
+			//String mailno = request.getParameter("mailno");
 			String uniqueCode = request.getParameter("uniqueCode");
 			String expressCompany = request.getParameter("expressCompany");
-			
-			//转换仓库code
-			String wh=typeNameToTypeCode(warehouse, "仓库");
-			PrintconfigEntity printconfigEntitie = (PrintconfigEntity) systemService
-					.findHql("from PrintconfigEntity where warehouse=? and printname=?", warehouse, printername).get(0);
-			List<JasperconfigEntity> jasperconfigList = systemService.findHql(
-					"from JasperconfigEntity where code=? and active='1' order by priorty asc", expressCompany);
-			JasperconfigEntity jasperconfig = null;
-			for (JasperconfigEntity config : jasperconfigList) {
-				String matchrule = config.getMatchrule();
-				String sql = "select express_company,bill_code from order_express where warehouse='" + warehouse
-						+ "' and bill_code='" + mailno + "' and " + matchrule;
-				List<Map<String, Object>> list = systemService.findForJdbc(sql);
-				if (!list.isEmpty()) {
-					jasperconfig = config;
-					break;
-				}
-			}
-			if (jasperconfig != null) {
-				String _FORMAT = jasperconfig.getJasperfile();
-				String ip = printconfigEntitie.getFtpaddress();
-				String username = printconfigEntitie.getUsername();
-				String password = printconfigEntitie.getPassword();
-				String workdir = printconfigEntitie.getPath();
-				/*String dataquery = jasperconfig.getDataquery().replaceAll(":=id", "'" + mailno + "' ");*/
-				//wh
-				String  dataquery = jasperconfig.getDataquery().replaceAll(":uniquerreqnumber", "'" + uniqueCode + "' ");
-				dataquery = dataquery.replaceAll(":WH", "" + wh + "");
-				List<Map<String, Object>> maplist = systemService.findForJdbc(dataquery);
-				JasperUtil.generageXMLAndDeliver(maplist, _FORMAT, printername, 1, ip, username, password, workdir);
-				String afterjob = jasperconfig.getAfterjob();
-				// TODO 打印后续工作，比如标记打印状态与时间
-			}
-
+			printJasperToFtp(warehouse,printername,uniqueCode,expressCompany);
 			response.getWriter().write(resultjson.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void printJasperToFtp(String warehouse, String printername, String uniqueCode,
+			String expressCompany) {
+		// TODO Auto-generated method stub
+		//转换仓库code
+		String wh=typeNameToTypeCode(warehouse, "仓库");
+		PrintconfigEntity printconfigEntitie = (PrintconfigEntity) systemService
+				.findHql("from PrintconfigEntity where warehouse=? and printname=?", warehouse, printername).get(0);
+		List<JasperconfigEntity> jasperconfigList = systemService.findHql(
+				"from JasperconfigEntity where code=? and active='1' order by priorty asc", expressCompany);
+		JasperconfigEntity jasperconfig = null;
+		for (JasperconfigEntity config : jasperconfigList) {
+			String matchrule = config.getMatchrule();
+			String sql = "select express_company,unique_code from order_express where warehouse='" + warehouse
+					+ "' and unique_code='" + uniqueCode + "' and " + matchrule;
+			List<Map<String, Object>> list = systemService.findForJdbc(sql);
+			if (!list.isEmpty()) {
+				jasperconfig = config;
+				break;
+			}
+		}
+		if (jasperconfig != null) {
+			String _FORMAT = jasperconfig.getJasperfile();
+			String ip = printconfigEntitie.getFtpaddress();
+			String username = printconfigEntitie.getUsername();
+			String password = printconfigEntitie.getPassword();
+			String workdir = printconfigEntitie.getPath();
+			/*String dataquery = jasperconfig.getDataquery().replaceAll(":=id", "'" + mailno + "' ");*/
+			//wh
+			String  dataquery = jasperconfig.getDataquery().replaceAll(":uniquerreqnumber", "'" + uniqueCode + "' ");
+			dataquery = dataquery.replaceAll(":WH", "" + wh + "");
+			List<Map<String, Object>> maplist = systemService.findForJdbc(dataquery);
+			JasperUtil.generageXMLAndDeliver(maplist, _FORMAT, printername, 1, ip, username, password, workdir);
+			String afterjob = jasperconfig.getAfterjob();
+			// TODO 打印后续工作，比如标记打印状态与时间
 		}
 	}
 }

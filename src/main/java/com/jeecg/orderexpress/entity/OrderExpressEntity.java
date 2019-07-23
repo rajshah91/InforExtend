@@ -74,6 +74,8 @@ public class OrderExpressEntity implements java.io.Serializable {
 	private java.lang.String printer;
 	/**二维码*/
 	private java.lang.String qrcode;
+	/**descode*/
+	private java.lang.String descode;
 	
 	/**
 	 *方法: 取得java.lang.String
@@ -380,5 +382,13 @@ public class OrderExpressEntity implements java.io.Serializable {
 
 	public void setQrcode(java.lang.String qrcode) {
 		this.qrcode = qrcode;
+	}
+
+	public java.lang.String getDescode() {
+		return descode;
+	}
+
+	public void setDescode(java.lang.String descode) {
+		this.descode = descode;
 	}
 }
