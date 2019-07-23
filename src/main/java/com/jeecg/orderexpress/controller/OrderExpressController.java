@@ -1,6 +1,5 @@
 package com.jeecg.orderexpress.controller;
 
-import java.awt.print.Printable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jeecg.Util.JasperUtil;
@@ -46,7 +44,6 @@ import com.jeecg.ncount.service.ScmNcountServiceI;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
 import com.jeecg.printconfig.entity.PrintconfigEntity;
-import com.jeecg.usercontactwh.entity.UsercontactwhEntity;
 
 /**
  * @Title: Controller
@@ -434,6 +431,7 @@ public class OrderExpressController extends BaseController {
 			String uniqueCode = request.getParameter("uniqueCode");
 			String expressCompany = request.getParameter("expressCompany");
 			printJasperToFtp(warehouse,printername,uniqueCode,expressCompany);
+			resultjson.put("result", "success");
 			response.getWriter().write(resultjson.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -443,7 +441,7 @@ public class OrderExpressController extends BaseController {
 	}
 
 	private void printJasperToFtp(String warehouse, String printername, String uniqueCode,
-			String expressCompany) {
+			String expressCompany) throws Exception {
 		// TODO Auto-generated method stub
 		//转换仓库code
 		String wh=typeNameToTypeCode(warehouse, "仓库");
@@ -476,6 +474,11 @@ public class OrderExpressController extends BaseController {
 			JasperUtil.generageXMLAndDeliver(maplist, _FORMAT, printername, 1, ip, username, password, workdir);
 			String afterjob = jasperconfig.getAfterjob();
 			// TODO 打印后续工作，比如标记打印状态与时间
+			List<OrderExpressEntity> expressEntities=orderExpressService.findHql("from OrderExpressEntity where uniqueCode=?", uniqueCode);
+			for (OrderExpressEntity orderExpressEntity : expressEntities) {
+				orderExpressEntity.setPrintCopies(orderExpressEntity.getPrintCopies()==null?1:orderExpressEntity.getPrintCopies()+1);
+				orderExpressService.saveOrUpdate(orderExpressEntity);
+			}
 		}
 	}
 }
