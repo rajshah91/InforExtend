@@ -36,7 +36,7 @@ public class JasperFtpUtil {
         FTPClient ftpClient = getFTPClient(ip,username,password,workdir);
         try {
             ftpClient.changeWorkingDirectory(workdir);
-            ftpClient.storeFile(String.valueOf(System.currentTimeMillis())+"@"+_Printername+".xml",new ByteArrayInputStream((doc.asXML().getBytes())));
+            ftpClient.storeFile(String.valueOf(System.currentTimeMillis())+"@"+_Printername+".xml",new ByteArrayInputStream((doc.asXML().getBytes("utf-8"))));
             return true;
         } catch (IOException e) {
             e.printStackTrace();

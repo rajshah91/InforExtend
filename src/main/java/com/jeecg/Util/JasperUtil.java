@@ -32,6 +32,7 @@ public class JasperUtil {
             }
             rootElement.add(labelElement);
         }
+        doc.setXMLEncoding("utf-8");
         if(JasperFtpUtil.setJasper( ip,  username,  password,  workdir,  doc, _PRINTERNAME)){
             return true;
         }else{

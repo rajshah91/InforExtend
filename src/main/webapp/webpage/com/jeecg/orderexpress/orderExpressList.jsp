@@ -281,8 +281,19 @@
 				console.log(index);
 				console.log(row);
 				this.$http.get(this.url.printexpress,{params:{warehouse:row.warehouse,printername:row.printer,mailno:row.billCode,uniqueCode:row.uniqueCode,expressCompany:row.expressCompany}}).then(function(res)  {
-					/* this.printers=res.data.printers; */
-					console.log("111");
+					if(res.data.result=='success'){
+						this.$message({
+							message: "打印成功！",
+							type: 'success',
+							duration:1500
+						});
+					}else{
+						this.$message({
+							message: "打印失败！",
+							type: 'error',
+							duration:1500
+						});
+					};		
 				});
 			},
 			editprint:function(index,row){
