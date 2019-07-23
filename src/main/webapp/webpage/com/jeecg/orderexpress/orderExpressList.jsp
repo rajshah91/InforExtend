@@ -217,7 +217,7 @@
 					getorderkey:'${webRoot}/orderExpressController.do?getorderkey',
 				    createOrderToExpress:'${webRoot}/orderExpressController.do?createOrderToExpress',
 				    findPrinterByWarehouse:'${webRoot}/orderExpressController.do?getPrinterByWarehouse',
-				    printexpress:'${webRoot}/orderExpressController.do?printexpress'
+				    printexpress:'${webRoot}/orderExpressController.do?printJasper'
 				},
 				editprinter:false,
 				//出货单动态选择
@@ -280,8 +280,9 @@
 			handlePrint:function(index,row){
 				console.log(index);
 				console.log(row);
-				this.$http.get(this.url.printexpress,{params:{warehouse:value}}).then(function(res)  {
+				this.$http.get(this.url.printexpress,{params:{warehouse:row.warehouse,printername:row.printer,mailno:row.billCode,uniqueCode:row.uniqueCode,expressCompany:row.expressCompany}}).then(function(res)  {
 					/* this.printers=res.data.printers; */
+					console.log("111");
 				});
 			},
 			editprint:function(index,row){
@@ -496,10 +497,10 @@
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {
 					type: 'warning'
-				}).then(function()  {
+				}).then(()=>  {
 					this.listLoading = true;
 					let para = { id: row.id };
-					this.$http.post(this.url.del,para,{emulateJSON: true}).then(function(res)  {
+					this.$http.post(this.url.del,para,{emulateJSON: true}).then((res) => {
 						this.listLoading = false;
 						this.$message({
 							message: '删除成功',
@@ -508,7 +509,7 @@
 						});
 						this.getOrderExpresss();
 					});
-				}).catch(function()  {
+				}).catch(()=>  {
 
 				});
 			},
