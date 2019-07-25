@@ -63,7 +63,8 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 			}
 		}
 		String wh = typeNameToTypeCode(warehouse, "仓库");
-		String sql="select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||O.SUSR25 AS RECEIVER," + 
+		String sql="select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||"
+				+ "(select OT.SUSR25 from  "+wh+"_ORDERS OT WHERE OT.ORDERKEY IN ("+orderkeySql+") AND ROWNUM =1) AS RECEIVER," + 
 				"O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code from "+wh+"_ORDERS O LEFT JOIN "+wh+"_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join "+wh+"_codelkup cl on  cl.listname = 'EXPTYP_SF' and cl.description = o.notes2 "
 				+ " WHERE O.ORDERKEY IN ("+orderkeySql+")";
 		List<Object[]> resultList = this.findListbySql(sql);
