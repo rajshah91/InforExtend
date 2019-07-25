@@ -137,8 +137,14 @@
 						<!-- <el-input v-model="form.warehouse" auto-complete="off" placeholder="请输入仓库"></el-input> -->
 					</el-form-item>
 					<el-form-item label="快递公司">
-						<el-select v-model="form.expressCompany" placeholder="请选择快递公司" style="width:175px">
+						<el-select v-model="form.expressCompany" placeholder="请选择快递公司" style="width:175px" @change="expressChange(form.expressCompany)">
 					      <el-option :label="option.typename" :value="option.typecode" v-for="option in express_coOptions" ></el-option>
+					    </el-select>
+					   <!--  <el-input v-if="station"  style="width:175px"></el-input> -->
+					</el-form-item>
+					<el-form-item>
+					    <el-select v-if="station"  v-model="senderStation" placeholder="请选择中通网点" style="width:175px">
+					      <el-option :label="option.typename" :value="option.typecode" v-for="option in station_coOptions" ></el-option>
 					    </el-select>
 					</el-form-item>
 					<el-form-item label="打印机">
@@ -160,7 +166,7 @@
                                  <span style="float: right; color: #8492a6; font-size: 13px">{{ item.label }}</span>
 							</el-option>
 						</el-select>
-						<el-input type="hidden" v-on:input="valiorderkey(orderno)" v-model="orderno"></el-input>
+						<el-input v-if="false" v-model="orderno"></el-input>
 					</el-form-item>
 					<el-form-item label="单号展示">
 	                 <el-input 
@@ -184,9 +190,19 @@
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button type="primary" @click.native="submitCreateOrder" :loading="formLoading">提交</el-button>
-				<el-button @click.native="formVisible = false">取消</el-button>
+				<el-button @click.native="formVisible = false;station=false;">取消</el-button>
 <!-- 				<el-button type="primary" @click.native="formSubmit" :loading="formLoading">提交</el-button> -->
 			</div>
+		</el-dialog>
+		<!--韵达报表界面-->
+		<el-dialog  fullscreen z-index="800" :visible.sync="YDVisible" :close-on-click-modal="false">
+			<!-- <el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;"> -->
+		    <iframe  width="100%" height="800px" src='http://172.20.70.249:80/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%274-%e6%b5%8b%e8%af%95%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27WH1%27%5d%2freport%5b%40name%3d%27%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1%27%5d&ui.name=%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1&run.outputFormat=&run.prompt=true'></iframe>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="YDVisible = false">取消</el-button>
+<!-- 				<el-button type="primary" @click.native="formSubmit" :loading="formLoading">提交</el-button> -->
+			</div>
+			<!-- </el-form> -->
 		</el-dialog>
 	</div>
 </body>
@@ -241,6 +257,10 @@
 				},
 				listLoading: false,
 				sels: [],//列表选中列
+				//韵达
+				YDVisible: false,//表单界面是否显示
+				station:false,
+				senderStation:'',
 				
 				formTitle:'新增',
 				formVisible: false,//表单界面是否显示
@@ -274,27 +294,38 @@
 				
 				//数据字典 
 		   		express_coOptions:[],
+		   		station_coOptions:[],
 			}
 		},
 		methods: {
+			expressChange:function(value){
+				if("ZTO"==value){
+					this.station=true;
+				}else{
+					this.station=false;
+				}
+			},
 			handlePrint:function(index,row){
-				console.log(index);
-				console.log(row);
-				this.$http.get(this.url.printexpress,{params:{warehouse:row.warehouse,printername:row.printer,mailno:row.billCode,uniqueCode:row.uniqueCode,expressCompany:row.expressCompany}}).then(function(res)  {
-					if(res.data.result=='success'){
-						this.$message({
-							message: "打印成功！",
-							type: 'success',
-							duration:1500
-						});
-					}else{
-						this.$message({
-							message: "打印失败！",
-							type: 'error',
-							duration:1500
-						});
-					};		
-				});
+				if("YUNDA"==row.expressCompany){
+					//弹出窗口
+					this.YDVisible=true;
+				}else{
+					this.$http.get(this.url.printexpress,{params:{warehouse:row.warehouse,printername:row.printer,mailno:row.billCode,uniqueCode:row.uniqueCode,expressCompany:row.expressCompany}}).then(function(res)  {
+						if(res.data.result=='success'){
+							this.$message({
+								message: "打印成功！",
+								type: 'success',
+								duration:1500
+							});
+						}else{
+							this.$message({
+								message: "打印失败！",
+								type: 'error',
+								duration:1500
+							});
+						};		
+					});
+				}
 			},
 			editprint:function(index,row){
 				this.orderExpresss[index].printer=row.printer;
@@ -351,7 +382,6 @@
 				this.form.orderkeys=this.form.orderkeys.substring(0,this.form.orderkeys.length-11);
 			},
 			valiorderkey:function(value){
-				console.log(value+"2");
 				if(value!=null&&value!=""&&value.length==10){
 					this.form.orderkeys=this.form.orderkeys+value+"\n";
 					this.form.orderkey='';
@@ -602,6 +632,7 @@
 								type: 'success',
 								duration:1500
 							});
+							this.YDVisible=true;
 						}else{
 							this.$message({
 								message: res.data.message,
