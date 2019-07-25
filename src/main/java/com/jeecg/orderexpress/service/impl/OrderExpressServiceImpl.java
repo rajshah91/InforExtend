@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonObject;
+import com.jeecg.ncount.service.ScmNcountServiceI;
 import com.jeecg.orderexpress.entity.ExpressServiceEntity;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
@@ -32,6 +34,8 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 	private FlksExpressWebService flksExpressWebService;
 	@Autowired
 	private InforWebService inforWebService;
+	@Autowired
+	private ScmNcountServiceI scmNcountService;
 	
  	public void delete(OrderExpressEntity entity) throws Exception{
  		super.delete(entity);
@@ -115,10 +119,20 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setMapcode("INFOREXTEND01");
 				entity.setService1("7551234567");
 				entity.setBpcode(warehouse.replace("FEILI_wmwhse", "WH"));
+				//中通网点
+				if("ZTO".equals(expressCompany)) {
+					/*entity.setSender_station("ZTO-WUJIANG");*/
+				}
 				JSONObject sendMessage = (JSONObject) JSONObject.toJSON(entity);
 				System.out.println(sendMessage.toString());
-				//String receiveMessage=flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode);
-				String receiveMessage="{\"mailno\":\"444017102136\",\"clientorderkey\":\"020000000051\",\"resultcode\":\"OK\",\"msg\":\"MMM={'k1':'','k2':'886','k3':'','k4':'T4','k5':'444017102136','k6':'','k7':'93b3f54'}\",\"originaltext\":\"\"}";
+				//是否对接快递平台
+				String receiveMessage=null;
+				if("1".equals(typeNameToTypeCode(expressCompany, "是否对接"))) {
+					receiveMessage=flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode);
+				}else {
+					String billcode = expressCompany + scmNcountService.getNextKey(expressCompany+"billcode", 10);
+					receiveMessage="{\"mailno\":\""+billcode+"\",\"clientorderkey\":\"020000000051\",\"resultcode\":\"OK\",\"msg\":\"MMM={'k1':'','k2':'886','k3':'','k4':'T4','k5':'444017102136','k6':'','k7':'93b3f54'}\",\"originaltext\":\"\"}";
+				}
 				List<OrderExpressEntity> expressEntities=this.findHql("from OrderExpressEntity where uniqueCode=?",uniqueCode);
 				
 				if(receiveMessage.equals("")) {
@@ -130,13 +144,22 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 						result="下单成功！";
 						String billCode=receiveJson.get("mailno").toString();
 						for (OrderExpressEntity orderExpressEntity : expressEntities) {
-							orderExpressEntity.setBillCode(billCode);
-							String qrcode=receiveJson.get("msg").toString();
-							orderExpressEntity.setQrcode(qrcode);
-							JSONObject descodeJson=JSONObject.parseObject(qrcode.substring(qrcode.indexOf("{")));
-							orderExpressEntity.setDescode(descodeJson.getString("k2").toString());
-							this.saveOrUpdate(orderExpressEntity);
+							//中通需要解析返回msg
+							if("ZTO".equals(expressCompany)) {
+								JSONObject resultJson=JSONObject.parseObject(receiveMessage);
+								JSONObject r=JSONObject.parseObject(resultJson.getString("msg"));
+								String bagAddr=r.getString("bagAddr");//集包地
+								String mark=r.getString("mark");//大头笔
+							}else if("SF".equals(expressCompany)){
+								orderExpressEntity.setBillCode(billCode);
+								String qrcode=receiveJson.get("msg").toString();
+								orderExpressEntity.setQrcode(qrcode);
+								JSONObject descodeJson=JSONObject.parseObject(qrcode.substring(qrcode.indexOf("{")));
+								orderExpressEntity.setDescode(descodeJson.getString("k2").toString());
+								this.saveOrUpdate(orderExpressEntity);
+							}
 						}
+						
 						//调用接口回填infor
 						TSUser user= ResourceUtil.getSessionUser();// 操作人
 						inforWebService.sendkeytoInfor(warehouse, user.getUserName(), billCode, uniqueCode, orderkeyList);
