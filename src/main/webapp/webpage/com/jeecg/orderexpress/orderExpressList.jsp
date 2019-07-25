@@ -632,7 +632,9 @@
 								type: 'success',
 								duration:1500
 							});
-							this.YDVisible=true;
+							if("YUNDA"==this.form.expressCompany){
+							   this.YDVisible=true;
+							}
 						}else{
 							this.$message({
 								message: res.data.message,
@@ -642,7 +644,7 @@
 						};
 					});
 				}
-			},
+			},	
 			//新增
 			formSubmit: function () {
 				this.$refs.form.validate(function(valid)  {

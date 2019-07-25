@@ -64,7 +64,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 		}
 		String wh = typeNameToTypeCode(warehouse, "仓库");
 		String sql="select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||O.SUSR25 AS RECEIVER," + 
-				"O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28 from "+wh+"_ORDERS O LEFT JOIN "+wh+"_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'"
+				"O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code from "+wh+"_ORDERS O LEFT JOIN "+wh+"_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join "+wh+"_codelkup cl on  cl.listname = 'EXPTYP_SF' and cl.description = o.notes2 "
 				+ " WHERE O.ORDERKEY IN ("+orderkeySql+")";
 		List<Object[]> resultList = this.findListbySql(sql);
 		if(resultList.size()>1) {
@@ -118,6 +118,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setCase_num(1);
 				entity.setMapcode("INFOREXTEND01");
 				entity.setService1("7551234567");
+				entity.setService2(String.valueOf(resultList.get(0)[10]));
 				entity.setBpcode(warehouse.replace("FEILI_wmwhse", "WH"));
 				//中通网点
 				if("ZTO".equals(expressCompany)) {
