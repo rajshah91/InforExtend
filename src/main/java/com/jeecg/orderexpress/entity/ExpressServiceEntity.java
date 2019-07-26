@@ -43,7 +43,15 @@ public class ExpressServiceEntity implements java.io.Serializable {
 	private int case_num;//件数（此项大于1部分快递公司会产生子母件）
 	private String mapcode;//INFOREXTEND01 
 	private String service1;//7551234567
-	private String service2;//7551234567
+	private String service2;//顺丰服务代码
+	private String setSender_station;//顺丰网点信息
+	
+	public String getSetSender_station() {
+		return setSender_station;
+	}
+	public void setSetSender_station(String setSender_station) {
+		this.setSender_station = setSender_station;
+	}
 	public String getService2() {
 		return service2;
 	}

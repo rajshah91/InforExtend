@@ -159,6 +159,9 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 								JSONObject descodeJson=JSONObject.parseObject(qrcode.substring(qrcode.indexOf("{")));
 								orderExpressEntity.setDescode(descodeJson.getString("k2").toString());
 								this.saveOrUpdate(orderExpressEntity);
+							}else {
+								orderExpressEntity.setBillCode(billCode);
+								this.saveOrUpdate(orderExpressEntity);
 							}
 						}
 						
