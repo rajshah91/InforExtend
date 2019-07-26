@@ -360,6 +360,7 @@ public class OrderExpressController extends BaseController {
 			result.put("message", resultMessage);
 			if (resultMessage.equals("下单成功！")) {
 				result.put("result", "success");
+				result.put("uniqueCode", uniqueCode);
 			} else {
 				result.put("result", "error");
 			}

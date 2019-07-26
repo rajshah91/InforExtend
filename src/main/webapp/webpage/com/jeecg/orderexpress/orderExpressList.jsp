@@ -115,7 +115,7 @@
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
  					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
-					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+					<!-- <el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button> -->
 				</template>
 			</el-table-column>
 		</el-table>
@@ -197,7 +197,7 @@
 		<!--韵达报表界面-->
 		<el-dialog  fullscreen z-index="800" :visible.sync="YDVisible" :close-on-click-modal="false">
 			<!-- <el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;"> -->
-		    <iframe  width="100%" height="800px" src='http://172.20.70.249:80/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%274-%e6%b5%8b%e8%af%95%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27WH1%27%5d%2freport%5b%40name%3d%27%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1%27%5d&ui.name=%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1&run.outputFormat=&run.prompt=true'></iframe>
+		    <iframe id="YUNDA" width="100%" height="800px" src=''></iframe>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="YDVisible = false">取消</el-button>
 <!-- 				<el-button type="primary" @click.native="formSubmit" :loading="formLoading">提交</el-button> -->
@@ -207,6 +207,10 @@
 	</div>
 </body>
 <script>
+function setUrl(value){
+	document.getelementbyid().src=value;
+}
+
 	var vue = new Vue({			
 		el:"#orderExpressList",
 		data:function() {
@@ -236,6 +240,7 @@
 				    printexpress:'${webRoot}/orderExpressController.do?printJasper'
 				},
 				editprinter:false,
+				urlprint:'',
 				//出货单动态选择
 				listLoading: false,
 				orderkey_loading:false,
@@ -308,7 +313,12 @@
 			handlePrint:function(index,row){
 				if("YUNDA"==row.expressCompany){
 					//弹出窗口
-					this.YDVisible=true;
+					//this.YDVisible=true;
+					this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%274-%e6%b5%8b%e8%af%95%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27WH1%27%5d%2freport%5b%40name%3d%27%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1%27%5d&p_uniqueCode="+row.uniqueCode+"";
+					window.open(this.urlprint);
+					/* console.log(document.getelementbyid("YUNDA").src);
+					document.getelementbyid("YUNDA").src=this.urlprint;
+					console.log(this.urlprint); */
 				}else{
 					this.$http.get(this.url.printexpress,{params:{warehouse:row.warehouse,printername:row.printer,mailno:row.billCode,uniqueCode:row.uniqueCode,expressCompany:row.expressCompany}}).then(function(res)  {
 						if(res.data.result=='success'){
@@ -633,7 +643,9 @@
 								duration:1500
 							});
 							if("YUNDA"==this.form.expressCompany){
-							   this.YDVisible=true;
+							   //this.YDVisible=true;
+							   this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%274-%e6%b5%8b%e8%af%95%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27WH1%27%5d%2freport%5b%40name%3d%27%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1%27%5d&p_uniqueCode="+res.data.uniqueCode+"";
+							   window.open(this.urlprint);
 							}
 						}else{
 							this.$message({
