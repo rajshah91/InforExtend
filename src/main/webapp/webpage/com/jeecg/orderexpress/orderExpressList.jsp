@@ -115,7 +115,7 @@
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
  					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
-					<!-- <el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button> -->
+					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -142,11 +142,11 @@
 					    </el-select>
 					   <!--  <el-input v-if="station"  style="width:175px"></el-input> -->
 					</el-form-item>
-					<el-form-item>
+					<!-- <el-form-item>
 					    <el-select v-if="station"  v-model="senderStation" placeholder="请选择中通网点" style="width:175px">
 					      <el-option :label="option.typename" :value="option.typecode" v-for="option in station_coOptions" ></el-option>
 					    </el-select>
-					</el-form-item>
+					</el-form-item> -->
 					<el-form-item label="打印机">
 						<el-select v-model="form.printer" v-model="printers" placeholder="请选择打印机" clearable style="width:175px">
 			                 <el-option v-for="printer in printers"  :value="printer"></el-option>
@@ -207,10 +207,6 @@
 	</div>
 </body>
 <script>
-function setUrl(value){
-	document.getelementbyid().src=value;
-}
-
 	var vue = new Vue({			
 		el:"#orderExpressList",
 		data:function() {
@@ -313,8 +309,9 @@ function setUrl(value){
 			handlePrint:function(index,row){
 				if("YUNDA"==row.expressCompany){
 					//弹出窗口
-					//this.YDVisible=true;
+					/* this.YDVisible=true; */
 					this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%274-%e6%b5%8b%e8%af%95%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27WH1%27%5d%2freport%5b%40name%3d%27%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1%27%5d&p_uniqueCode="+row.uniqueCode+"";
+					/* setUrl(this.urlprint); */
 					window.open(this.urlprint);
 					/* console.log(document.getelementbyid("YUNDA").src);
 					document.getelementbyid("YUNDA").src=this.urlprint;
@@ -484,6 +481,22 @@ function setUrl(value){
 				}
 				return names;
 			},
+			formatstation_coOptions: function(row,column,cellValue, index){
+				var names="";
+				var values=cellValue;
+				if(!Array.isArray(cellValue))values=cellValue.split(',');
+				for (var i = 0; i < values.length; i++) {
+					var value = values[i];
+					if(i>0)names+=",";
+					for(var j in this.station_coOptions){
+						var option=this.station_coOptions[j];
+						if(value==option.typecode){
+							names+=option.typename;
+						}
+					}
+				}
+				return names;
+			},
 			handleCurrentChange:function(val) {
 				this.page = val;
 				this.getOrderExpresss();
@@ -544,7 +557,7 @@ function setUrl(value){
 					this.listLoading = false;
 				});
 			},
-			//删除
+			 //删除
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {
 					type: 'warning'
@@ -563,7 +576,7 @@ function setUrl(value){
 				}).catch(()=>  {
 
 				});
-			},
+			}, 
 			//显示编辑界面
 			handleEdit: function (index, row) {
 				this.form.warehouse='';
@@ -718,6 +731,7 @@ function setUrl(value){
 			initDictsData:function(){
 	        	var _this = this;
 		   		_this.initDictByCode('express_co',_this,'express_coOptions');
+		   		_this.initDictByCode('ZTOstation',_this,'station_coOptions');
 	        },
 	        initDictByCode:function(code,_this,dictOptionsName){
 	        	if(!code || !_this[dictOptionsName] || _this[dictOptionsName].length>0)

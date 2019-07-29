@@ -76,6 +76,11 @@ public class OrderExpressEntity implements java.io.Serializable {
 	private java.lang.String qrcode;
 	/**descode*/
 	private java.lang.String descode;
+	/**bagAddr*/
+	private java.lang.String bagAddr;
+	/**mark*/
+	private java.lang.String mark;
+	
 	
 	/**
 	 *方法: 取得java.lang.String
@@ -384,6 +389,7 @@ public class OrderExpressEntity implements java.io.Serializable {
 		this.qrcode = qrcode;
 	}
 
+	
 	public java.lang.String getDescode() {
 		return descode;
 	}
@@ -391,4 +397,23 @@ public class OrderExpressEntity implements java.io.Serializable {
 	public void setDescode(java.lang.String descode) {
 		this.descode = descode;
 	}
+
+	@Column(name ="BAGADDR",nullable=true,length=4)
+	public java.lang.String getBagAddr() {
+		return bagAddr;
+	}
+
+	public void setBagAddr(java.lang.String bagAddr) {
+		this.bagAddr = bagAddr;
+	}
+
+	@Column(name ="MARK",nullable=true,length=4)
+	public java.lang.String getMark() {
+		return mark;
+	}
+
+	public void setMark(java.lang.String mark) {
+		this.mark = mark;
+	}
+	
 }

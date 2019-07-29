@@ -62,11 +62,21 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				orderkeySql+=",'"+orderkeyList.get(i)+"'";
 			}
 		}
-		String wh = typeNameToTypeCode(warehouse, "仓库");
-		String sql="select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||"
-				+ "(select OT.SUSR25 from  "+wh+"_ORDERS OT WHERE OT.ORDERKEY IN ("+orderkeySql+") AND ROWNUM =1) AS RECEIVER," + 
-				"O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code from "+wh+"_ORDERS O LEFT JOIN "+wh+"_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join "+wh+"_codelkup cl on  cl.listname = 'EXPTYP_SF' and cl.description = o.notes2 "
-				+ " WHERE O.ORDERKEY IN ("+orderkeySql+")";
+		String wh = typeNameToTypeCode(warehouse, "仓库");//
+		String sql="";
+		if("ZTO".equals(expressCompany)) {
+			sql="select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||"
+					+ "(select OT.SUSR25 from  "+wh+"_ORDERS OT WHERE OT.ORDERKEY IN ("+orderkeySql+") AND ROWNUM =1) AS RECEIVER," + 
+					"O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province," + 
+					"                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city," + 
+					"                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country from "+wh+"_ORDERS O LEFT JOIN "+wh+"_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
+					+ " WHERE O.ORDERKEY IN ("+orderkeySql+")";
+		}else {
+			sql="select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||"
+					+ "(select OT.SUSR25 from  "+wh+"_ORDERS OT WHERE OT.ORDERKEY IN ("+orderkeySql+") AND ROWNUM =1) AS RECEIVER," + 
+					"O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code,'' as province,'' as city,'' as country from "+wh+"_ORDERS O LEFT JOIN "+wh+"_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join "+wh+"_codelkup cl on  cl.listname = 'EXPTYP_SF' and cl.description = o.notes2 "
+					+ " WHERE O.ORDERKEY IN ("+orderkeySql+")";
+		}
 		List<Object[]> resultList = this.findListbySql(sql);
 		if(resultList.size()>1) {
 			result="出货订单寄件信息不同，请确认！";	
@@ -90,18 +100,18 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setSender_phone(String.valueOf(resultList.get(0)[1]));
 				entity.setSender_mobile(String.valueOf(resultList.get(0)[1]));
 				entity.setSender_company(String.valueOf(resultList.get(0)[2]));
-				entity.setSender_province("");
-				entity.setSender_city("");
-				entity.setSender_country("");
+				entity.setSender_province("江苏省");
+				entity.setSender_city("苏州市");
+				entity.setSender_country("昆山市");
 				entity.setSender_zip("");
 				entity.setSender_addr(String.valueOf(resultList.get(0)[3]));
 				entity.setReceiver(String.valueOf(resultList.get(0)[4]));
 				entity.setReceiver_phone(String.valueOf(resultList.get(0)[5]));
 				entity.setReceiver_mobile(String.valueOf(resultList.get(0)[5]));
 				entity.setReceiver_company(String.valueOf(resultList.get(0)[6]));
-				entity.setReceiver_province("");
-				entity.setReceiver_city("");
-				entity.setReceiver_country("");
+				entity.setReceiver_province(String.valueOf(resultList.get(0)[11]));
+				entity.setReceiver_city(String.valueOf(resultList.get(0)[12]));
+				entity.setReceiver_country(String.valueOf(resultList.get(0)[13]));
 				entity.setReceiver_zip("");
 				entity.setReceiver_addr(String.valueOf(resultList.get(0)[7]));
 				entity.setSku_code(String.valueOf(resultList.get(0)[8]));
@@ -118,18 +128,20 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				}
 				entity.setCase_num(1);
 				entity.setMapcode("INFOREXTEND01");
-				entity.setService1("7551234567");
-				entity.setService2(String.valueOf(resultList.get(0)[10]));
+				if("SF".equals(expressCompany)) {
+					entity.setService1("7551234567");
+					entity.setService2(String.valueOf(resultList.get(0)[10]));
+				}
 				entity.setBpcode(warehouse.replace("FEILI_wmwhse", "WH"));
 				//中通网点
 				if("ZTO".equals(expressCompany)) {
-					/*entity.setSender_station("ZTO-WUJIANG");*/
+					entity.setSetSender_station("ZTO-KUNSHAN");
 				}
 				JSONObject sendMessage = (JSONObject) JSONObject.toJSON(entity);
 				System.out.println(sendMessage.toString());
 				//是否对接快递平台
 				String receiveMessage=null;
-				if("1".equals(typeNameToTypeCode(expressCompany, "是否对接"))) {
+				if("1".equals(typeNameToTypeName(expressCompany, "是否对接"))) {
 					receiveMessage=flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode);
 				}else {
 					String billcode = expressCompany + scmNcountService.getNextKey(expressCompany+"billcode", 10);
@@ -150,8 +162,10 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 							if("ZTO".equals(expressCompany)) {
 								JSONObject resultJson=JSONObject.parseObject(receiveMessage);
 								JSONObject r=JSONObject.parseObject(resultJson.getString("msg"));
-								String bagAddr=r.getString("bagAddr");//集包地
-								String mark=r.getString("mark");//大头笔
+								orderExpressEntity.setBillCode(billCode);
+								orderExpressEntity.setBagAddr(r.getString("bagAddr"));
+								orderExpressEntity.setMark(r.getString("mark"));
+								this.saveOrUpdate(orderExpressEntity);
 							}else if("SF".equals(expressCompany)){
 								orderExpressEntity.setBillCode(billCode);
 								String qrcode=receiveJson.get("msg").toString();
@@ -212,4 +226,10 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 			return tsType.get(0).getTypecode();
 		}
  	
+		private String typeNameToTypeName(String typeName, String typegroupname) {
+			List<TSTypegroup> tsTypegroup = this.findHql("from TSTypegroup where typegroupname=?", typegroupname);
+			List<TSType> tsType = this.findHql("from TSType where TSTypegroup.id=? and typecode=?",
+					tsTypegroup.get(0).getId(), typeName);
+			return tsType.get(0).getTypename();
+		}
 }
