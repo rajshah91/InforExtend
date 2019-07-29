@@ -270,7 +270,7 @@ public class LoginController extends BaseController {
 			//默认添加为系统用户
 			user.setUserType(Globals.USER_TYPE_SYSTEM);
 			String orgids="2c94a5b969e1255d0169e135d6d40003";
-			String roleids="2c94a5b969e1255d0169e13887900007";
+			String roleids="000000006c083aae016c3b53591f058c";
 			List<String> whs=getWHFromXml(xml);
 			userService.saveOrUpdateForInfor(user, orgids.split(","), roleids.split(","),whs);
 		}
