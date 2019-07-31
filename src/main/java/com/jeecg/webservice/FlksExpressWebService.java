@@ -36,7 +36,7 @@ public class FlksExpressWebService {
 	private String url = "http://172.20.60.189:9090/";
 	
 	//正式
-	//private String url = "http://172.20.70.158:8080/";
+//	private String url = "http://172.20.70.158:8080/";
 	
 	private String uid = "019501adeee75f51979e0f5dd6424a29";
 	private String token = "1fb79de6d5c23edd866604d6b8c5c37d";
