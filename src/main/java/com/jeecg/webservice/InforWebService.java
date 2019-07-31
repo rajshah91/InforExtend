@@ -12,6 +12,7 @@ import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -284,33 +285,27 @@ public class InforWebService {
 			method.addChild(mobileCode);
 
 			//
-			sendXml="<Message><Head><MessageID/><Date/><MessageType>ShipmentOrder</MessageType>" + 
-					"  <Sender><SystemID>EXceed</SystemID>" + 
-					"   <User>"+userName+"</User><Password></Password>" + 
-					"   <CompanyID/><ReplyToQ/></Sender>" + 
-					"  <Recipient><SystemID>"+warehouse+"</SystemID>" + 
-					"   <Verb>Process</Verb><CompanyID/>" + 
-					"   <ReplyToQ/><DetailedErrors>true</DetailedErrors>" + 
-					"  </Recipient></Head><Body><ShipmentOrder>";
+			sendXml = "<Message><Head><MessageID/><Date/><MessageType>ShipmentOrder</MessageType>"
+					+ "  <Sender><SystemID>EXceed</SystemID>" + "   <User>" + userName + "</User><Password></Password>"
+					+ "   <CompanyID/><ReplyToQ/></Sender>" + "  <Recipient><SystemID>" + warehouse + "</SystemID>"
+					+ "   <Verb>Process</Verb><CompanyID/>" + "   <ReplyToQ/><DetailedErrors>true</DetailedErrors>"
+					+ "  </Recipient></Head><Body><ShipmentOrder>";
 			// 多个订单
 			for (String s : orderkeyList) {
 				sendXml += "<ShipmentOrderHeader>" + "    <OrderKey>" + s + "</OrderKey>" + "    <MailNo>" + mailno
 						+ "</MailNo>" + "    <UniquerReqNumber>" + uniquerReqNumber + "</UniquerReqNumber>"
 						+ "   </ShipmentOrderHeader>";
 			}
-			/*// 多个订单
-			for (String s : orderkeyList) {
-				// 验证此单号是否已做过下单,
-				if (vailorderkey(s)) {
-					// nothing,此订单不回传
-					return "此订单" + s + "已下单";
-				} else {
-					sendXml += "<ShipmentOrderHeader>" + "    <OrderKey>" + s + "</OrderKey>" + "    <MailNo>" + mailno
-							+ "</MailNo>" + "    <UniquerReqNumber>" + uniquerReqNumber + "</UniquerReqNumber>"
-							+ "   </ShipmentOrderHeader>" + "   <ShipmentOrderHeader>";
-				}
-
-			}*/
+			/*
+			 * // 多个订单 for (String s : orderkeyList) { // 验证此单号是否已做过下单, if (vailorderkey(s))
+			 * { // nothing,此订单不回传 return "此订单" + s + "已下单"; } else { sendXml +=
+			 * "<ShipmentOrderHeader>" + "    <OrderKey>" + s + "</OrderKey>" +
+			 * "    <MailNo>" + mailno + "</MailNo>" + "    <UniquerReqNumber>" +
+			 * uniquerReqNumber + "</UniquerReqNumber>" + "   </ShipmentOrderHeader>" +
+			 * "   <ShipmentOrderHeader>"; }
+			 * 
+			 * }
+			 */
 
 			sendXml += "</ShipmentOrder></Body></Message>";
 
@@ -329,6 +324,86 @@ public class InforWebService {
 			axisFault.printStackTrace();
 			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "sendkeytoInfor", userName);
 			return "失败";
+		}
+	}
+
+	/**
+	 * 删除mailno
+	 * 
+	 * @param warehouse
+	 * @param userName
+	 * @param mailno
+	 * @param orderKeys
+	 * @return
+	 */
+	public boolean deleteKeyToInfor(String warehouse, String userName, List<String> orderkeyList) {
+		String sendXml = null;
+		String receiveXml = null;
+		try {
+			ServiceClient serviceClient = new ServiceClient();
+			// 创建服务地址WebService的URL,注意不是WSDL的URL
+			EndpointReference targetEPR = new EndpointReference(url);
+			Options options = serviceClient.getOptions();
+			options.setTo(targetEPR);
+			// 确定调用方法（wsdl 命名空间地址 (wsdl文档中的targetNamespace) 和 方法名称 的组合）
+			options.setAction("http://com.ssaglobal.com/callBackEnd");
+
+			OMFactory fac = OMAbstractFactory.getOMFactory();
+
+			// uri--即为wsdl文档的targetNamespace，命名空间，perfix--可不填
+			OMNamespace omNs = fac.createOMNamespace("http://com.ssaglobal.com/", "");
+			// 指定方法
+			OMElement method = fac.createOMElement("callBackEnd", omNs);
+			// 指定方法的参数
+			OMElement mobileCode = fac.createOMElement("in0", omNs);
+			mobileCode.setText("MessageProcessor");
+			method.addChild(mobileCode);
+			mobileCode = fac.createOMElement("in1", omNs);
+			mobileCode.setText("ShipmentOrder");
+			method.addChild(mobileCode);
+			mobileCode = fac.createOMElement("in2", omNs);
+			mobileCode.setText("store");
+			method.addChild(mobileCode);
+
+			//
+			sendXml = "<Message><Head><MessageID/><Date/><MessageType>ShipmentOrder</MessageType>"
+					+ "  <Sender><SystemID>EXceed</SystemID>" + "   <User>" + userName + "</User><Password></Password>"
+					+ "   <CompanyID/><ReplyToQ/></Sender>" + "  <Recipient><SystemID>" + warehouse + "</SystemID>"
+					+ "   <Verb>Process</Verb><CompanyID/>"
+					+ "   <ReplyToQ/><DetailedErrors>true</DetailedErrors><UpdateBlanks>true</UpdateBlanks>"
+					+ "  </Recipient></Head><Body><ShipmentOrder>";
+			// 多个订单
+			for (String s : orderkeyList) {
+				sendXml += "<ShipmentOrderHeader>" + "    <OrderKey>" + s + "</OrderKey>" + "    <MailNo></MailNo>"
+						+ "    <UniquerReqNumber></UniquerReqNumber>" + "   </ShipmentOrderHeader>";
+			}
+			sendXml += "</ShipmentOrder></Body></Message>";
+
+			mobileCode = fac.createOMElement("in3", omNs);
+			mobileCode.setText(sendXml);
+			method.addChild(mobileCode);
+			method.build();
+
+			// 远程调用web服务
+			OMElement resultXml = serviceClient.sendReceive(method);
+			receiveXml = formatXml(resultXml.toString());
+
+			Document doc = DocumentHelper.parseText(receiveXml); // 将字符串转为XML
+			Element root = doc.getRootElement(); // 获取根节点
+			Element out = root.element("out");
+			Element Message = out.element("Message");
+			Element Body = Message.element("Body");
+			if (!Body.elementText("Result").equals("ERROR")) {
+				saveLog(sendXml, changeStringLength(receiveXml), true, "INFOR", "deleteKeyToInfor", userName);
+				return true;
+			} else {
+				saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "deleteKeyToInfor", userName);
+				return false;
+			}
+		} catch (AxisFault | DocumentException axisFault) {
+			axisFault.printStackTrace();
+			saveLog(sendXml, changeStringLength(receiveXml), false, "INFOR", "deleteKeyToInfor", userName);
+			return false;
 		}
 	}
 
@@ -381,7 +456,7 @@ public class InforWebService {
 		} else {
 			apilogEntity.setResult("失败");
 		}
-		apilogEntity.setPartner("INFOR");
+		apilogEntity.setPartner(partner);
 		apilogEntity.setServicename(serviceName);
 		apilogEntity.setCreateDate(new Date());
 		apilogEntity.setOperator(username);

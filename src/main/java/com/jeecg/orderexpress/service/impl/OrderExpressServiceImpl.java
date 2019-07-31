@@ -1,6 +1,7 @@
 package com.jeecg.orderexpress.service.impl;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.print.DocFlavor.STRING;
@@ -192,6 +193,14 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 								orderExpressEntity.setQrcode(qrcode);
 								JSONObject descodeJson = JSONObject.parseObject(qrcode.substring(qrcode.indexOf("{")));
 								orderExpressEntity.setDescode(descodeJson.getString("k2").toString());
+								this.saveOrUpdate(orderExpressEntity);
+							} else if ("YUNDA".equals(expressCompany)) {
+								JSONObject resultJson = JSONObject.parseObject(receiveMessage);
+								JSONObject r = JSONObject.parseObject(resultJson.getString("msg"));
+								orderExpressEntity.setBillCode(billCode);
+								orderExpressEntity.setBagAddr(r.getString("package_wdjc"));
+								orderExpressEntity
+										.setMark(r.getString("position") + "   " + r.getString("position_no"));
 								this.saveOrUpdate(orderExpressEntity);
 							} else {
 								orderExpressEntity.setBillCode(billCode);

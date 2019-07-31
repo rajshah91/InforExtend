@@ -17,6 +17,8 @@
 	<script type="text/javascript" src="${webRoot}/plug-in/mutiLang/zh-cn.js"></script>
 	<script type="text/javascript" src="${webRoot}/plug-in/lhgDialog/lhgdialog.min.js?skin=metrole"></script>
 	<script type="text/javascript" src="${webRoot}/plug-in/tools/curdtools.js"></script>
+	<!-- IE兼容 -->
+<!-- 	<script src="https://cdn.bootcss.com/babel-polyfill/7.4.4/polyfill.min.js"></script> -->
 	<style>
 	.toolbar {
 	    padding: 10px;
@@ -115,7 +117,7 @@
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
  					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
-<!-- 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button> -->
+					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -557,26 +559,36 @@
 					this.listLoading = false;
 				});
 			},
+			
 			 //删除
-// 			handleDel: function (index, row) {
-// 				this.$confirm('确认删除该记录吗?', '提示', {
-// 					type: 'warning'
-// 				}).then(()=>  {
-// 					this.listLoading = true;
-// 					let para = { id: row.id };
-// 					this.$http.post(this.url.del,para,{emulateJSON: true}).then((res) => {
-// 						this.listLoading = false;
-// 						this.$message({
-// 							message: '删除成功',
-// 							type: 'success',
-// 							duration:1500
-// 						});
-// 						this.getOrderExpresss();
-// 					});
-// 				}).catch(()=>  {
-
-// 				});
-// 			}, 
+			handleDel: function (index, row) {
+				var t=this;
+				this.$confirm('确认删除该记录吗?', '提示', {
+					type: 'warning'
+				}).then(function(){
+					t.listLoading = true;
+					t.$http.get(t.url.del,{params:{ id: row.id }}).then(function(res){
+						t.listLoading = false;
+						if(res.body.success){
+							t.$message({
+								message: res.body.msg,
+								type: 'success',
+								duration:1500
+							});
+						}else{
+							t.$message({
+								message: res.body.msg,
+								type: 'error',
+								duration:1500
+							});
+						};
+						t.getOrderExpresss();
+					});
+				}).catch(function(){
+					
+				});
+			}, 
+			
 			//显示编辑界面
 			handleEdit: function (index, row) {
 				this.form.warehouse='';

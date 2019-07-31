@@ -23,6 +23,7 @@ import org.jeecgframework.poi.excel.entity.vo.NormalExcelConstants;
 import org.jeecgframework.tag.core.easyui.TagUtil;
 import org.jeecgframework.web.system.pojo.base.TSType;
 import org.jeecgframework.web.system.pojo.base.TSTypegroup;
+import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.jeecgframework.web.system.service.SystemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,7 @@ import com.jeecg.ncount.service.ScmNcountServiceI;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
 import com.jeecg.printconfig.entity.PrintconfigEntity;
+import com.jeecg.webservice.InforWebService;
 
 /**
  * @Title: Controller
@@ -64,6 +66,8 @@ public class OrderExpressController extends BaseController {
 	private SystemService systemService;
 	@Autowired
 	private ScmNcountServiceI scmNcountService;
+	@Autowired
+	private InforWebService inforWebService;
 
 	private String companyCode = "02";
 
@@ -106,18 +110,29 @@ public class OrderExpressController extends BaseController {
 	@ResponseBody
 	public AjaxJson doDel(OrderExpressEntity orderExpress, HttpServletRequest request) {
 		String message = null;
+		boolean success=true;
 		AjaxJson j = new AjaxJson();
 		orderExpress = systemService.getEntity(OrderExpressEntity.class, orderExpress.getId());
 		message = "订单快递表删除成功";
 		try {
-			orderExpressService.delete(orderExpress);
+			TSUser user = ResourceUtil.getSessionUser();// 操作人
+			List<String> orderkeys=new ArrayList<>();
+			orderkeys.add(orderExpress.getOrderkey());
+			if(inforWebService.deleteKeyToInfor(orderExpress.getWarehouse(), user.getUserName(),orderkeys)) {
+				orderExpressService.delete(orderExpress);
+			}else {
+				message = "订单快递表删除失败";
+				success=false;
+			}
 			systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
 		} catch (Exception e) {
 			e.printStackTrace();
 			message = "订单快递表删除失败";
+			success=false;
 			throw new BusinessException(e.getMessage());
 		}
 		j.setMsg(message);
+		j.setSuccess(success);
 		return j;
 	}
 
