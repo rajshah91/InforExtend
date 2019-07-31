@@ -115,7 +115,7 @@
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
  					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
-					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+<!-- 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button> -->
 				</template>
 			</el-table-column>
 		</el-table>
@@ -310,7 +310,7 @@
 				if("YUNDA"==row.expressCompany){
 					//弹出窗口
 					/* this.YDVisible=true; */
-					this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%274-%e6%b5%8b%e8%af%95%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27WH1%27%5d%2freport%5b%40name%3d%27%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1%27%5d&p_uniqueCode="+row.uniqueCode+"";
+					this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%273-%e7%b3%bb%e7%bb%9f%e6%9f%a5%e8%af%a2%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27%e6%98%86%e5%b1%b1%27%5d%2ffolder%5b%40name%3d%27WH6%27%5d%2freport%5b%40name%3d%27%e9%9f%b5%e8%be%be%e5%bf%ab%e9%80%92%e5%8d%95-WH6%27%5d&p_uniqueCode="+row.uniqueCode+"";
 					/* setUrl(this.urlprint); */
 					window.open(this.urlprint);
 					/* console.log(document.getelementbyid("YUNDA").src);
@@ -558,25 +558,25 @@
 				});
 			},
 			 //删除
-			handleDel: function (index, row) {
-				this.$confirm('确认删除该记录吗?', '提示', {
-					type: 'warning'
-				}).then(()=>  {
-					this.listLoading = true;
-					let para = { id: row.id };
-					this.$http.post(this.url.del,para,{emulateJSON: true}).then((res) => {
-						this.listLoading = false;
-						this.$message({
-							message: '删除成功',
-							type: 'success',
-							duration:1500
-						});
-						this.getOrderExpresss();
-					});
-				}).catch(()=>  {
+// 			handleDel: function (index, row) {
+// 				this.$confirm('确认删除该记录吗?', '提示', {
+// 					type: 'warning'
+// 				}).then(()=>  {
+// 					this.listLoading = true;
+// 					let para = { id: row.id };
+// 					this.$http.post(this.url.del,para,{emulateJSON: true}).then((res) => {
+// 						this.listLoading = false;
+// 						this.$message({
+// 							message: '删除成功',
+// 							type: 'success',
+// 							duration:1500
+// 						});
+// 						this.getOrderExpresss();
+// 					});
+// 				}).catch(()=>  {
 
-				});
-			}, 
+// 				});
+// 			}, 
 			//显示编辑界面
 			handleEdit: function (index, row) {
 				this.form.warehouse='';
@@ -657,7 +657,7 @@
 							});
 							if("YUNDA"==this.form.expressCompany){
 							   //this.YDVisible=true;
-							   this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%274-%e6%b5%8b%e8%af%95%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27WH1%27%5d%2freport%5b%40name%3d%27%e7%99%be%e4%b8%96%e6%b1%87%e9%80%9a-%e6%b5%b7%e9%80%9aTEST-WH1%27%5d&p_uniqueCode="+res.data.uniqueCode+"";
+							   this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%273-%e7%b3%bb%e7%bb%9f%e6%9f%a5%e8%af%a2%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27%e6%98%86%e5%b1%b1%27%5d%2ffolder%5b%40name%3d%27WH6%27%5d%2freport%5b%40name%3d%27%e9%9f%b5%e8%be%be%e5%bf%ab%e9%80%92%e5%8d%95-WH6%27%5d&p_uniqueCode="+res.data.uniqueCode+"";
 							   window.open(this.urlprint);
 							}
 						}else{
