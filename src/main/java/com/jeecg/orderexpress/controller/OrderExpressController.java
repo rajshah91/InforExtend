@@ -362,16 +362,27 @@ public class OrderExpressController extends BaseController {
 		JSONObject result = new JSONObject();
 
 		try {
+			String uniqueCode = request.getParameter("uniqueCode");
 			String warehouse = request.getParameter("warehouse");
 			String expressCompany = request.getParameter("expressCompany");
 			String orderkeys = request.getParameter("orderkeys");
 			String printer = request.getParameter("printer");
-			String uniqueCode = companyCode + scmNcountService.getNextKey("uniqueCode", 10);
 
 			// 规范订单号(排重)
 			List<String> orderkeyList = getOrderKeyList(orderkeys);
-			String resultMessage = orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeyList,
-					uniqueCode, printer);
+			
+			String resultMessage=null;
+			if(uniqueCode.isEmpty()) {
+				//新增
+				uniqueCode = companyCode + scmNcountService.getNextKey("uniqueCode", 10);
+				resultMessage = orderExpressService.createOrderToExpress(warehouse, expressCompany, orderkeyList,
+						uniqueCode, printer);
+			}else {
+				//添加
+				
+				
+			}
+			
 			result.put("message", resultMessage);
 			if (resultMessage.equals("下单成功！")) {
 				result.put("result", "success");

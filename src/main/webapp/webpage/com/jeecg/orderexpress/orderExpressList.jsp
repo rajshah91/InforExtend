@@ -114,8 +114,9 @@
 			       <span v-if="!editprinter" >{{scope.row.printer}}</span>
 			   </template>
 			</el-table-column>
-			<el-table-column label="操作" width="150">
+			<el-table-column label="操作" width="240">
 				<template scope="scope">
+					<el-button size="mini" @click="editOrderExpresss(scope.$index, scope.row)">添加</el-button>
  					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
@@ -132,14 +133,17 @@
 		<!--新增界面-->
 		<el-dialog :title="formTitle" fullscreen z-index="800" :visible.sync="formVisible" :close-on-click-modal="false">
 			<el-form :model="form" label-width="80px" :rules="formRules" ref="form" size="mini" inline="true" style="background-color: #eee; padding: 10px 10px 0 10px;">
+					<el-form-item label="唯一编码" prop="uniqueCode">
+						<el-input v-model="form.uniqueCode" auto-complete="off" placeholder="请输入唯一编码" :disabled="true"></el-input>
+					</el-form-item>
 					<el-form-item label="仓库" prop="warehouse">
-					    <el-select v-model="form.warehouse" v-model="warehouses" placeholder="请选择仓库"  @change="findPrinterByWarehouse()" clearable style="width:175px">
+					    <el-select v-model="form.warehouse" v-model="warehouses" placeholder="请选择仓库" :disabled="state.warehouse"  @change="findPrinterByWarehouse()" clearable style="width:175px">
 			                 <el-option v-for="warehouse in warehouses"  :value="warehouse"></el-option>
 			            </el-select>
 						<!-- <el-input v-model="form.warehouse" auto-complete="off" placeholder="请输入仓库"></el-input> -->
 					</el-form-item>
 					<el-form-item label="快递公司">
-						<el-select v-model="form.expressCompany" placeholder="请选择快递公司" style="width:175px" @change="expressChange(form.expressCompany)">
+						<el-select v-model="form.expressCompany" placeholder="请选择快递公司" :disabled="state.expressCompany" style="width:175px" @change="expressChange(form.expressCompany)">
 					      <el-option :label="option.typename" :value="option.typecode" v-for="option in express_coOptions" ></el-option>
 					    </el-select>
 					   <!--  <el-input v-if="station"  style="width:175px"></el-input> -->
@@ -150,7 +154,7 @@
 					    </el-select>
 					</el-form-item> -->
 					<el-form-item label="打印机">
-						<el-select v-model="form.printer" v-model="printers" placeholder="请选择打印机" clearable style="width:175px">
+						<el-select v-model="form.printer" v-model="printers" placeholder="请选择打印机" :disabled="state.printer" clearable style="width:175px">
 			                 <el-option v-for="printer in printers"  :value="printer"></el-option>
 			            </el-select>
 					</el-form-item>
@@ -294,7 +298,11 @@
 					printer:true
 				},
 				
-				
+				state:{
+					warehouse:false,
+					expressCompany:false,
+					printer:false,	
+				},
 				//数据字典 
 		   		express_coOptions:[],
 		   		station_coOptions:[],
@@ -602,6 +610,7 @@
 				this.formTitle='新增';
 				this.formVisible = true;
 				this.form = {
+					uniqueCode:'',
 					warehouse:'',
 					orderkey:'',
 					uniqueCode:'',
@@ -617,10 +626,31 @@
 					warehouse:'',
 					orderkey:'',
 					orderkeys:'',
-// 					uniqueCode:'',
-// 					billCode:'',
+ 					uniqueCode:'',
 					expressCompany:'',
 					printer:'',
+				};
+				this.state={
+					warehouse:false,
+					expressCompany:false,
+					printer:false,	
+				};
+			},
+			editOrderExpresss: function (index,row) {
+				this.formTitle='下单';
+				this.formVisible = true;
+				this.form = {
+					warehouse:row.warehouse,
+					orderkey:'',
+					orderkeys:'',
+ 					uniqueCode:row.uniqueCode,
+					expressCompany:row.expressCompany,
+					printer:row.printer,
+				};
+				this.state={
+					warehouse:true,
+					expressCompany:true,
+					printer:true,	
 				};
 			},
 			
@@ -654,6 +684,7 @@
 					this.formLoading = true;
 					this.$http.get(this.url.createOrderToExpress,{
 						params:{
+							uniqueCode:this.form.uniqueCode,
 							warehouse:this.form.warehouse,
 							expressCompany:this.form.expressCompany,
 							orderkeys:this.form.orderkeys.replace(new RegExp("\n","gm"),";"),
