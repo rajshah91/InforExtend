@@ -1,7 +1,9 @@
 package com.jeecg.webservice;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -336,7 +338,7 @@ public class InforWebService {
 	 * @param orderKeys
 	 * @return
 	 */
-	public boolean deleteKeyToInfor(String warehouse, String userName, List<String> orderkeyList) {
+	public boolean deleteKeyToInfor(String warehouse, String userName, Map<String,String> orderkeyList) {
 		String sendXml = null;
 		String receiveXml = null;
 		try {
@@ -373,8 +375,8 @@ public class InforWebService {
 					+ "   <ReplyToQ/><DetailedErrors>true</DetailedErrors><UpdateBlanks>true</UpdateBlanks>"
 					+ "  </Recipient></Head><Body><ShipmentOrder>";
 			// 多个订单
-			for (String s : orderkeyList) {
-				sendXml += "<ShipmentOrderHeader>" + "    <OrderKey>" + s + "</OrderKey>" + "    <MailNo></MailNo>"
+			for(Map.Entry<String, String> entry : orderkeyList.entrySet()){
+				sendXml += "<ShipmentOrderHeader>" + "    <OrderKey>" + entry.getKey() + "</OrderKey><StorerKey>" +entry.getValue()+ "</StorerKey><MailNo></MailNo>"
 						+ "    <UniquerReqNumber></UniquerReqNumber>" + "   </ShipmentOrderHeader>";
 			}
 			sendXml += "</ShipmentOrder></Body></Message>";
