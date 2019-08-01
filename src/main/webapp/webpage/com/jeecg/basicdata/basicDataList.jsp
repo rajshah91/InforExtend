@@ -311,10 +311,10 @@
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {
 					type: 'warning'
-				}).then(function()  {
+				}).then(() => {
 					this.listLoading = true;
 					let para = { id: row.id };
-					this.$http.post(this.url.del,para,{emulateJSON: true}).then(function(res)  {
+					this.$http.post(this.url.del,para,{emulateJSON: true}).then((res) => {
 						this.listLoading = false;
 						this.$message({
 							message: '删除成功',
@@ -323,7 +323,7 @@
 						});
 						this.getBasicDatas();
 					});
-				}).catch(function()  {
+				}).catch(() => {
 
 				});
 			},
@@ -347,13 +347,13 @@
 			//新增
 			formSubmit: function () {
 				var t = this;
-				this.$refs.form.validate(function(valid)  {
+				this.$refs.form.validate((valid) => {
 					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(function()  {
+						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							t.formLoading = true;
 							let para = Object.assign({}, t.form);
 							
-							t.$http.post(!!para.id?t.url.edit:t.url.save,para,{emulateJSON: true}).then(function(res)  {
+							t.$http.post(!!para.id?t.url.edit:t.url.save,para,{emulateJSON: true}).then((res)=>  {
 								t.formLoading = false;
 								t.$message({
 									message: '提交成功',
