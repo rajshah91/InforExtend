@@ -166,7 +166,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setMapcode("INFOREXTEND01");
 				if ("SF".equals(expressCompany)) {
 					entity.setService1("5125001307");// 月结卡号，后续优化
-					entity.setService2(String.valueOf(resultList.get(0)[10]));
+					entity.setService2(String.valueOf(resultList.get(0)[10])=="null"?"":String.valueOf(resultList.get(0)[10]));
 				}
 				entity.setRemark(String.valueOf(resultList.get(0)[14])=="null"?"":String.valueOf(resultList.get(0)[14]));
 				entity.setBpcode(warehouse.replace("FEILI_wmwhse", "WH"));
