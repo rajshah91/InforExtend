@@ -68,17 +68,32 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 		String wh = typeNameToTypeCode(warehouse, "仓库");//
 		String sql = "";
 		if ("ZTO".equals(expressCompany)) {
-			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||" + "(select OT.SUSR25 from  "
-					+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN (" + orderkeySql + ") AND ROWNUM =1) AS RECEIVER,"
+			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
 					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
 					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
-					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country from "
+					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
+					+ "(select substr(OT.susr25, 0, 6)||listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ") group by substr(OT.susr25, 0, 6)) AS remark" 
+					+ " from "
+					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
+					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
+		}else if ("YUNDA".equals(expressCompany)) {
+			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
+					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
+					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
+					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
+					+ "(select substr(OT.susr25, 0, 6)||listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ") group by substr(OT.susr25, 0, 6)) AS remark" 
+					+ " from "
 					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
 					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
 		} else {
-			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32||'-'||" + "(select OT.SUSR25 from  "
-					+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN (" + orderkeySql + ") AND ROWNUM =1) AS RECEIVER,"
-					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code,'' as province,'' as city,'' as country from "
+			//SF
+			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
+					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code,'' as province,'' as city,'' as country,"
+					+ "(select substr(OT.susr25, 0, 6)||listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ") group by substr(OT.susr25, 0, 6)) AS remark" + 
+					" from "
 					+ wh + "_ORDERS O LEFT JOIN " + wh
 					+ "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join " + wh
 					+ "_codelkup cl on  cl.listname = 'EXPTYP_SF' and cl.description = o.notes2 "
@@ -135,7 +150,6 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setReceiver_addr(String.valueOf(resultList.get(0)[7])=="null"?"":String.valueOf(resultList.get(0)[7]));
 				entity.setSku_code(String.valueOf(resultList.get(0)[8])=="null"?"":String.valueOf(resultList.get(0)[8]));
 				entity.setPackage_number(1);
-				entity.setRemark("");
 				entity.setTransport_type("");
 				entity.setPod("Y");
 				if ("YJ".equals(String.valueOf(resultList.get(0)[9]))) {
@@ -151,6 +165,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 					entity.setService1("5125001307");// 月结卡号，后续优化
 					entity.setService2(String.valueOf(resultList.get(0)[10]));
 				}
+				entity.setRemark(String.valueOf(resultList.get(0)[14])=="null"?"":String.valueOf(resultList.get(0)[14]));
 				entity.setBpcode(warehouse.replace("FEILI_wmwhse", "WH"));
 				// 中通网点
 				if ("ZTO".equals(expressCompany)) {
