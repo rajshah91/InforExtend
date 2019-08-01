@@ -216,9 +216,9 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 								JSONObject resultJson = JSONObject.parseObject(receiveMessage);
 								JSONObject r = JSONObject.parseObject(resultJson.getString("msg"));
 								orderExpressEntity.setBillCode(billCode);
-								orderExpressEntity.setBagAddr(r.getString("package_wdjc"));
-								orderExpressEntity
-										.setMark(r.getString("position") + "   " + r.getString("position_no"));
+//								orderExpressEntity.setBagAddr(r.getString("package_wdjc"));
+//								orderExpressEntity
+//										.setMark(r.getString("position") + "   " + r.getString("position_no"));
 								this.saveOrUpdate(orderExpressEntity);
 							} else {
 								orderExpressEntity.setBillCode(billCode);
