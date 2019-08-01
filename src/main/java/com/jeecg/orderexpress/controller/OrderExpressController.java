@@ -371,7 +371,7 @@ public class OrderExpressController extends BaseController {
 			// 规范订单号(排重)
 			List<String> orderkeyList = getOrderKeyList(orderkeys);
 			
-			String resultMessage=null;
+			String resultMessage="";
 			if(uniqueCode.isEmpty()) {
 				//新增
 				uniqueCode = companyCode + scmNcountService.getNextKey("uniqueCode", 10);

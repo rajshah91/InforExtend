@@ -103,19 +103,19 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setClientcode("INFOREXTEND");
 				entity.setClientorderkey(uniqueCode);
 				entity.setExpress_company(expressCompany);
-				entity.setSender(String.valueOf(resultList.get(0)[0]));
-				entity.setSender_phone(String.valueOf(resultList.get(0)[1]));
-				entity.setSender_mobile(String.valueOf(resultList.get(0)[1]));
-				entity.setSender_company(String.valueOf(resultList.get(0)[2]));
+				entity.setSender(String.valueOf(resultList.get(0)[0])=="null"?"":String.valueOf(resultList.get(0)[0]));
+				entity.setSender_phone(String.valueOf(resultList.get(0)[1])=="null"?"":String.valueOf(resultList.get(0)[1]));
+				entity.setSender_mobile(String.valueOf(resultList.get(0)[1])=="null"?"":String.valueOf(resultList.get(0)[1]));
+				entity.setSender_company(String.valueOf(resultList.get(0)[2])=="null"?"":String.valueOf(resultList.get(0)[2]));
 				entity.setSender_province("江苏省");
 				entity.setSender_city("苏州市");
 				entity.setSender_country("昆山市");
 				entity.setSender_zip("");
-				entity.setSender_addr(String.valueOf(resultList.get(0)[3]));
-				entity.setReceiver(String.valueOf(resultList.get(0)[4]));
-				entity.setReceiver_phone(String.valueOf(resultList.get(0)[5]));
-				entity.setReceiver_mobile(String.valueOf(resultList.get(0)[5]));
-				entity.setReceiver_company(String.valueOf(resultList.get(0)[6]));
+				entity.setSender_addr(String.valueOf(resultList.get(0)[3])=="null"?"":String.valueOf(resultList.get(0)[3]));
+				entity.setReceiver(String.valueOf(resultList.get(0)[4])=="null"?"":String.valueOf(resultList.get(0)[4]));
+				entity.setReceiver_phone(String.valueOf(resultList.get(0)[5])=="null"?"":String.valueOf(resultList.get(0)[5]));
+				entity.setReceiver_mobile(String.valueOf(resultList.get(0)[5])=="null"?"":String.valueOf(resultList.get(0)[5]));
+				entity.setReceiver_company(String.valueOf(resultList.get(0)[6])=="null"?"":String.valueOf(resultList.get(0)[6]));
 				if ("null" != String.valueOf(resultList.get(0)[11])) {
 					entity.setReceiver_province(String.valueOf(resultList.get(0)[11]));
 				} else {
@@ -132,8 +132,8 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 					entity.setReceiver_country("");
 				}
 				entity.setReceiver_zip("");
-				entity.setReceiver_addr(String.valueOf(resultList.get(0)[7]));
-				entity.setSku_code(String.valueOf(resultList.get(0)[8]));
+				entity.setReceiver_addr(String.valueOf(resultList.get(0)[7])=="null"?"":String.valueOf(resultList.get(0)[7]));
+				entity.setSku_code(String.valueOf(resultList.get(0)[8])=="null"?"":String.valueOf(resultList.get(0)[8]));
 				entity.setPackage_number(1);
 				entity.setRemark("");
 				entity.setTransport_type("");

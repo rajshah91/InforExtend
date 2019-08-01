@@ -118,7 +118,7 @@
 				<template scope="scope">
 					<el-button size="mini" @click="editOrderExpresss(scope.$index, scope.row)">添加</el-button>
  					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
-					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+<!-- 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button> -->
 				</template>
 			</el-table-column>
 		</el-table>
