@@ -118,7 +118,7 @@
 				<template scope="scope">
 					<!-- <el-button size="mini" @click="editOrderExpresss(scope.$index, scope.row)">添加</el-button> -->
  					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
-<!-- 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button> -->
+					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -317,7 +317,7 @@
 				}
 			},
 			handlePrint:function(index,row){
-				if("YUNDA"==row.expressCompany){
+				if("YUNDA"==row.expressCompany&&"TOCOGNOS"==row.printer){
 			          //this.YDVisible=true;
 			          this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%273-%e7%b3%bb%e7%bb%9f%e6%9f%a5%e8%af%a2%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27%e6%98%86%e5%b1%b1%27%5d%2ffolder%5b%40name%3d%27WH6%27%5d%2freport%5b%40name%3d%27%e9%9f%b5%e8%be%be%e5%bf%ab%e9%80%92%e5%8d%95-WH6%27%5d&p_uniqueCode="+row.uniqueCode+"";
 			          window.open(this.urlprint);
@@ -693,7 +693,7 @@
 								type: 'success',
 								duration:1500
 							});
-							if("YUNDA"==this.form.expressCompany){
+							if("YUNDA"==this.form.expressCompany&&"TOCOGNOS"==this.form.printer){
 						          //this.YDVisible=true;
 						          this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%273-%e7%b3%bb%e7%bb%9f%e6%9f%a5%e8%af%a2%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27%e6%98%86%e5%b1%b1%27%5d%2ffolder%5b%40name%3d%27WH6%27%5d%2freport%5b%40name%3d%27%e9%9f%b5%e8%be%be%e5%bf%ab%e9%80%92%e5%8d%95-WH6%27%5d&p_uniqueCode="+res.data.uniqueCode+"";
 						          window.open(this.urlprint);

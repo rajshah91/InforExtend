@@ -2,6 +2,7 @@ package com.jeecg.orderexpress.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -116,14 +117,24 @@ public class OrderExpressController extends BaseController {
 		message = "订单快递表删除成功";
 		try {
 			TSUser user = ResourceUtil.getSessionUser();// 操作人
-			List<String> orderkeys=new ArrayList<>();
-			orderkeys.add(orderExpress.getOrderkey());
-			if(inforWebService.deleteKeyToInfor(orderExpress.getWarehouse(), user.getUserName(),orderkeys)) {
-				orderExpressService.delete(orderExpress);
-			}else {
-				message = "订单快递表删除失败";
-				success=false;
-			}
+//			List<OrderExpressEntity> expressEntities=orderExpressService.findHql("from OrderExpressEntity where uniqueCode=?", orderExpress.getUniqueCode()); 
+//			if(expressEntities.size()<=1) {
+				String sql="select o.storerkey from "+typeNameToTypeCode(orderExpress.getWarehouse(), "仓库")+"_orders o where o.orderkey='"+orderExpress.getOrderkey()+"'";
+				List<Object[]> resultList = orderExpressService.findListbySql(sql);
+				
+				Map<String,String> orderkeys=new HashMap<String, String>();
+				orderkeys.put(orderExpress.getOrderkey(), String.valueOf(resultList.get(0)));
+			
+				if(inforWebService.deleteKeyToInfor(orderExpress.getWarehouse(), user.getUserName(),orderkeys)) {
+					orderExpressService.delete(orderExpress);
+				}else {
+					message = "订单快递表删除失败";
+					success=false;
+				}
+//			}else {
+//				message = "订单快递表删除失败";
+//				success=false;
+//			}
 			systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
 		} catch (Exception e) {
 			e.printStackTrace();

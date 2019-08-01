@@ -165,7 +165,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setCase_num(1);
 				entity.setMapcode("INFOREXTEND01");
 				if ("SF".equals(expressCompany)) {
-					entity.setService1("5125001307");// 月结卡号，后续优化
+					entity.setService1("5125001307");// 月结卡号，后续优化5125001307(正式)7551234567(测试)
 					entity.setService2(String.valueOf(resultList.get(0)[10])=="null"?"":String.valueOf(resultList.get(0)[10]));
 				}
 				entity.setRemark(String.valueOf(resultList.get(0)[14])=="null"?"":String.valueOf(resultList.get(0)[14]));
@@ -178,12 +178,14 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				System.out.println(sendMessage.toString());
 				// 是否对接快递平台
 				String receiveMessage = null;
-				if ("1".equals(typeNameToTypeName(expressCompany, "是否对接"))) {
+				//if ("1".equals(typeNameToTypeName(expressCompany, "是否对接"))) {
+				if(!"TOCOGNOS".equals(printer)) {
+					//判断打印机是否为TOCOGNOS
 					receiveMessage = flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode);
 				} else {
 					String billcode = expressCompany + scmNcountService.getNextKey(expressCompany + "billcode", 10);
 					receiveMessage = "{\"mailno\":\"" + billcode
-							+ "\",\"clientorderkey\":\"020000000051\",\"resultcode\":\"OK\",\"msg\":\"MMM={'k1':'','k2':'886','k3':'','k4':'T4','k5':'444017102136','k6':'','k7':'93b3f54'}\",\"originaltext\":\"\"}";
+							+ "\",\"clientorderkey\":\"020000000051\",\"resultcode\":\"OK\",\"msg\":\"{\\\"position_no\\\":\\\"\\\",\\\"position\\\":\\\"\\\",\\\"package_wdjc\\\":\\\"\\\"}\"}";
 				}
 				List<OrderExpressEntity> expressEntities = this.findHql("from OrderExpressEntity where uniqueCode=?",
 						uniqueCode);
@@ -216,9 +218,9 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 								JSONObject resultJson = JSONObject.parseObject(receiveMessage);
 								JSONObject r = JSONObject.parseObject(resultJson.getString("msg"));
 								orderExpressEntity.setBillCode(billCode);
-//								orderExpressEntity.setBagAddr(r.getString("package_wdjc"));
-//								orderExpressEntity
-//										.setMark(r.getString("position") + "   " + r.getString("position_no"));
+								orderExpressEntity.setBagAddr(r.getString("package_wdjc"));
+								orderExpressEntity
+										.setMark(r.getString("position") + "   " + r.getString("position_no"));
 								this.saveOrUpdate(orderExpressEntity);
 							} else {
 								orderExpressEntity.setBillCode(billCode);
