@@ -116,7 +116,7 @@
 			</el-table-column>
 			<el-table-column label="操作" width="240">
 				<template scope="scope">
-					<el-button size="mini" @click="editOrderExpresss(scope.$index, scope.row)">添加</el-button>
+					<!-- <el-button size="mini" @click="editOrderExpresss(scope.$index, scope.row)">添加</el-button> -->
  					<el-button size="mini" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
 <!-- 					<el-button type="danger" size="mini" @click="handleDel(scope.$index, scope.row)">删除</el-button> -->
 				</template>
@@ -317,16 +317,6 @@
 				}
 			},
 			handlePrint:function(index,row){
-				if("YUNDA"==row.expressCompany){
-					//弹出窗口
-					/* this.YDVisible=true; */
-					this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%273-%e7%b3%bb%e7%bb%9f%e6%9f%a5%e8%af%a2%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27%e6%98%86%e5%b1%b1%27%5d%2ffolder%5b%40name%3d%27WH6%27%5d%2freport%5b%40name%3d%27%e9%9f%b5%e8%be%be%e5%bf%ab%e9%80%92%e5%8d%95-WH6%27%5d&p_uniqueCode="+row.uniqueCode+"";
-					/* setUrl(this.urlprint); */
-					window.open(this.urlprint);
-					/* console.log(document.getelementbyid("YUNDA").src);
-					document.getelementbyid("YUNDA").src=this.urlprint;
-					console.log(this.urlprint); */
-				}else{
 					this.$http.get(this.url.printexpress,{params:{warehouse:row.warehouse,printername:row.printer,mailno:row.billCode,uniqueCode:row.uniqueCode,expressCompany:row.expressCompany}}).then(function(res)  {
 						if(res.data.result=='success'){
 							this.$message({
@@ -342,7 +332,6 @@
 							});
 						};		
 					});
-				}
 			},
 			editprint:function(index,row){
 				this.orderExpresss[index].printer=row.printer;
@@ -698,11 +687,6 @@
 								type: 'success',
 								duration:1500
 							});
-							if("YUNDA"==this.form.expressCompany){
-							   //this.YDVisible=true;
-							   this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%273-%e7%b3%bb%e7%bb%9f%e6%9f%a5%e8%af%a2%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27%e6%98%86%e5%b1%b1%27%5d%2ffolder%5b%40name%3d%27WH6%27%5d%2freport%5b%40name%3d%27%e9%9f%b5%e8%be%be%e5%bf%ab%e9%80%92%e5%8d%95-WH6%27%5d&p_uniqueCode="+res.data.uniqueCode+"";
-							   window.open(this.urlprint);
-							}
 						}else{
 							this.$message({
 								message: res.data.message,
