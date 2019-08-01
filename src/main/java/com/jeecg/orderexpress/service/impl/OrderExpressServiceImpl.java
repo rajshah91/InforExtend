@@ -72,8 +72,9 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
 					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
 					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
-					+ "(select substr(OT.susr25, 0, 6)||listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
-					+ orderkeySql + ") group by substr(OT.susr25, 0, 6)) AS remark" 
+					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ")) AS remark" 
 					+ " from "
 					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
 					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
@@ -82,8 +83,9 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
 					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
 					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
-					+ "(select substr(OT.susr25, 0, 6)||listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
-					+ orderkeySql + ") group by substr(OT.susr25, 0, 6)) AS remark" 
+					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ")) AS remark" 
 					+ " from "
 					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
 					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
@@ -91,8 +93,9 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 			//SF
 			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
 					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code,'' as province,'' as city,'' as country,"
-					+ "(select substr(OT.susr25, 0, 6)||listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
-					+ orderkeySql + ") group by substr(OT.susr25, 0, 6)) AS remark" + 
+					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ")) AS remark" + 
 					" from "
 					+ wh + "_ORDERS O LEFT JOIN " + wh
 					+ "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join " + wh
