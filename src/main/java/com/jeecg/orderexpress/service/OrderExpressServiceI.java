@@ -16,5 +16,7 @@ public interface OrderExpressServiceI extends CommonService{
  	public void saveOrUpdate(OrderExpressEntity entity) throws Exception;
  	
  	public String createOrderToExpress(String warehouse,String expressCompany,List<String> orderkeyList,String uniqueCode,String printer) throws Exception;
+
+	public String addOrderToExpress(List<String> orderkeyList, String uniqueCode);
  	
 }

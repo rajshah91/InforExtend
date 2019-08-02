@@ -390,8 +390,7 @@ public class OrderExpressController extends BaseController {
 						uniqueCode, printer);
 			}else {
 				//添加
-				
-				
+				resultMessage = orderExpressService.addOrderToExpress(orderkeyList,uniqueCode);	
 			}
 			
 			result.put("message", resultMessage);

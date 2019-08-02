@@ -66,43 +66,44 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 			}
 		}
 		String wh = typeNameToTypeCode(warehouse, "仓库");//
-		String sql = "";
-		if ("ZTO".equals(expressCompany)) {
-			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
-					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
-					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
-					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
-					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
-					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
-					+ orderkeySql + ")) AS remark" 
-					+ " from "
-					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
-					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
-		}else if ("YUNDA".equals(expressCompany)) {
-			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
-					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
-					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
-					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
-					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
-					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
-					+ orderkeySql + ")) AS remark" 
-					+ " from "
-					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
-					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
-		} else {
-			//SF
-			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
-					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code,'' as province,'' as city,'' as country,"
-					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
-					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
-					+ orderkeySql + ")) AS remark" + 
-					" from "
-					+ wh + "_ORDERS O LEFT JOIN " + wh
-					+ "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join " + wh
-					+ "_codelkup cl on  cl.listname = 'EXPTYP_SF' and cl.description = o.notes2 "
-					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
-		}
-		List<Object[]> resultList = this.findListbySql(sql);
+//		String sql = "";
+//		if ("ZTO".equals(expressCompany)) {
+//			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
+//					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
+//					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
+//					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
+//					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+//					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+//					+ orderkeySql + ")) AS remark" 
+//					+ " from "
+//					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
+//					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
+//		}else if ("YUNDA".equals(expressCompany)) {
+//			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
+//					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
+//					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
+//					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
+//					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+//					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+//					+ orderkeySql + ")) AS remark" 
+//					+ " from "
+//					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
+//					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
+//		} else {
+//			//SF
+//			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
+//					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code,'' as province,'' as city,'' as country,"
+//					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+//					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+//					+ orderkeySql + ")) AS remark" + 
+//					" from "
+//					+ wh + "_ORDERS O LEFT JOIN " + wh
+//					+ "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join " + wh
+//					+ "_codelkup cl on  cl.listname = 'EXPTYP_SF' and cl.description = o.notes2 "
+//					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
+//		}
+	    //List<Object[]> resultList = this.findListbySql(sql);
+		List<Object[]> resultList = queryOrderExpressEntity(wh,orderkeySql,expressCompany);
 		if (resultList.size() > 1) {
 			result = "出货订单寄件信息不同，请确认！";
 		} else if (resultList.size() == 1) {
@@ -249,6 +250,55 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 		return result;
 	}
 
+	/**
+	 * 查找订单快递数据
+	 * @param wh
+	 * @param orderkeySql
+	 * @param expressCompany
+	 * @return
+	 */
+	private List<Object[]> queryOrderExpressEntity(String wh, String orderkeySql, String expressCompany) {
+		// TODO Auto-generated method stub
+		String sql = "";
+		if ("ZTO".equals(expressCompany)) {
+			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
+					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
+					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
+					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
+					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ")) AS remark" 
+					+ " from "
+					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
+					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
+		}else if ("YUNDA".equals(expressCompany)) {
+			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
+					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,'' as cd, substr(o.susr29,0,instr(o.susr29,'/',1,1)-1) as province,"
+					+ "                substr(o.susr29,instr(o.susr29,'/',1,1)+1,instr(o.susr29,'/',1,2)-(instr(o.susr29,'/',1,1)+1)) as city,"
+					+ "                substr(o.susr29,instr(o.susr29,'/',1,2)+1,length(o.susr29)-(instr(o.susr29,'/',1,2)))  as country,"
+					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ")) AS remark" 
+					+ " from "
+					+ wh + "_ORDERS O LEFT JOIN " + wh + "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1'  "
+					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
+		} else {
+			//SF
+			sql = "select DISTINCT O.SUSR23,O.SUSR27,S.COMPANY,S.ADDRESS1,O.SUSR32 AS RECEIVER,"
+					+ "O.SUSR31,O.SUSR21||'-'||O.SUSR22 AS RECEIVERCOMPANY,O.SUSR30,S.SUSR20,O.SUSR28,cl.code,'' as province,'' as city,'' as country,"
+					+ "(select substr(OH.susr25, 0, 6) from "+ wh +"_ORDERS OH WHERE OH.ORDERKEY IN ("+orderkeySql+") AND rownum=1)||"
+					+ "(select listagg(to_char(substr(OT.susr25,7,length(OT.susr25))),'/') WITHIN GROUP (ORDER BY OT.orderkey) as ff from "+ wh + "_ORDERS OT WHERE OT.ORDERKEY IN ("
+					+ orderkeySql + ")) AS remark" + 
+					" from "
+					+ wh + "_ORDERS O LEFT JOIN " + wh
+					+ "_STORER S ON O.STORERKEY=S.STORERKEY AND S.TYPE='1' left join " + wh
+					+ "_codelkup cl on  cl.listname = 'EXPTYP_SF' and cl.description = o.notes2 "
+					+ " WHERE O.ORDERKEY IN (" + orderkeySql + ")";
+		}
+		List<Object[]> resultList = this.findListbySql(sql);
+		return resultList;
+	}
+
 	// 检查订单是否符合要求
 	private boolean checkOrders(String warehouse, String orderkeySql) {
 		// TODO Auto-generated method stub
@@ -284,5 +334,34 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 		List<TSType> tsType = this.findHql("from TSType where TSTypegroup.id=? and typecode=?",
 				tsTypegroup.get(0).getId(), typeName);
 		return tsType.get(0).getTypename();
+	}
+
+	@Override
+	public String addOrderToExpress(List<String> orderkeyList, String uniqueCode) {
+		// TODO Auto-generated method stub
+		List<OrderExpressEntity> orderExpressEntities=this.findHql("from OrderExpressEntity where uniqueCode=?", uniqueCode);
+		String result = "";
+		String orderkeySql = "";
+		for (int i = 0; i < orderkeyList.size(); i++) {
+			if (i == 0) {
+				orderkeySql += "'" + orderkeyList.get(i) + "'";
+			} else {
+				orderkeySql += ",'" + orderkeyList.get(i) + "'";
+			}
+		}
+		if (checkOrders(orderExpressEntities.get(0).getWarehouse(), orderkeySql)) {
+			for (OrderExpressEntity orderExpressEntity : orderExpressEntities) {
+				orderkeySql+= ",'" + orderExpressEntity.getOrderkey() + "'";
+			}
+			List<Object[]> resultList = queryOrderExpressEntity(typeNameToTypeCode(orderExpressEntities.get(0).getWarehouse(),"仓库"), orderkeySql, orderExpressEntities.get(0).getExpressCompany());
+			if (resultList.size() > 1) {
+				result = "出货订单寄件信息不同，请确认！";
+			} else if (resultList.size() == 1) {
+				
+			}
+		}else {
+			result="单号错误！";
+		}
+		return result;
 	}
 }
