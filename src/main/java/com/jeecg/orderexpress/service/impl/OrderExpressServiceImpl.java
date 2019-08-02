@@ -155,7 +155,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setSku_code(String.valueOf(resultList.get(0)[8])=="null"?"":String.valueOf(resultList.get(0)[8]));
 				entity.setPackage_number(1);
 				entity.setTransport_type("");
-				entity.setPod("Y");
+				entity.setPod("N");
 				if ("YJ".equals(String.valueOf(resultList.get(0)[9]))) {
 					entity.setPay_type("1");
 				} else if ("DF".equals(String.valueOf(resultList.get(0)[9]))) {

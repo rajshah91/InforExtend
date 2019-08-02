@@ -392,6 +392,7 @@ public class OrderExpressController extends BaseController {
 				//添加
 				resultMessage = orderExpressService.addOrderToExpress(orderkeyList,uniqueCode);	
 			}
+			boolean flag=printJasperToFtp(warehouse, printer, uniqueCode, expressCompany);
 			
 			result.put("message", resultMessage);
 			if (resultMessage.equals("下单成功！")) {
@@ -401,7 +402,6 @@ public class OrderExpressController extends BaseController {
 				result.put("result", "error");
 			}
 			
-			printJasperToFtp(warehouse, printer, uniqueCode, expressCompany);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -467,8 +467,10 @@ public class OrderExpressController extends BaseController {
 			//String mailno = request.getParameter("mailno");
 			String uniqueCode = request.getParameter("uniqueCode");
 			String expressCompany = request.getParameter("expressCompany");
-			printJasperToFtp(warehouse,printername,uniqueCode,expressCompany);
-			resultjson.put("result", "success");
+			boolean flag=printJasperToFtp(warehouse,printername,uniqueCode,expressCompany);
+			if(flag) {
+				resultjson.put("result", "success");
+			}
 			response.getWriter().write(resultjson.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -477,7 +479,7 @@ public class OrderExpressController extends BaseController {
 		}
 	}
 
-	private void printJasperToFtp(String warehouse, String printername, String uniqueCode,
+	private boolean printJasperToFtp(String warehouse, String printername, String uniqueCode,
 			String expressCompany) throws Exception {
 		// TODO Auto-generated method stub
 		//转换仓库code
@@ -508,14 +510,18 @@ public class OrderExpressController extends BaseController {
 			String  dataquery = jasperconfig.getDataquery().replaceAll(":uniquerreqnumber", "'" + uniqueCode + "' ");
 			dataquery = dataquery.replaceAll(":WH", "" + wh + "");
 			List<Map<String, Object>> maplist = systemService.findForJdbc(dataquery);
-			JasperUtil.generageXMLAndDeliver(maplist, _FORMAT, printername, 1, ip, username, password, workdir);
-			String afterjob = jasperconfig.getAfterjob();
-			// TODO 打印后续工作，比如标记打印状态与时间
-			List<OrderExpressEntity> expressEntities=orderExpressService.findHql("from OrderExpressEntity where uniqueCode=?", uniqueCode);
-			for (OrderExpressEntity orderExpressEntity : expressEntities) {
-				orderExpressEntity.setPrintCopies(orderExpressEntity.getPrintCopies()==null?1:orderExpressEntity.getPrintCopies()+1);
-				orderExpressService.saveOrUpdate(orderExpressEntity);
+			if(maplist.size()>0&&!maplist.isEmpty()) {
+				JasperUtil.generageXMLAndDeliver(maplist, _FORMAT, printername, 1, ip, username, password, workdir);
+				String afterjob = jasperconfig.getAfterjob();
+				// TODO 打印后续工作，比如标记打印状态与时间
+				List<OrderExpressEntity> expressEntities=orderExpressService.findHql("from OrderExpressEntity where uniqueCode=?", uniqueCode);
+				for (OrderExpressEntity orderExpressEntity : expressEntities) {
+					orderExpressEntity.setPrintCopies(orderExpressEntity.getPrintCopies()==null?1:orderExpressEntity.getPrintCopies()+1);
+					orderExpressService.saveOrUpdate(orderExpressEntity);
+				}
+				return true;
 			}
 		}
+		return false;
 	}
 }
