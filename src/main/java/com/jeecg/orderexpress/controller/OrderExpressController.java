@@ -41,6 +41,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jeecg.Util.JasperUtil;
+import com.jeecg.basicdata.service.BasicDataServiceI;
 import com.jeecg.jasperconfig.entity.JasperconfigEntity;
 import com.jeecg.ncount.service.ScmNcountServiceI;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
@@ -69,6 +70,7 @@ public class OrderExpressController extends BaseController {
 	private ScmNcountServiceI scmNcountService;
 	@Autowired
 	private InforWebService inforWebService;
+	
 
 	private String companyCode = "02";
 

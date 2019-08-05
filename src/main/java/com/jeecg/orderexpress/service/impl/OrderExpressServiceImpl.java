@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonObject;
+import com.jeecg.basicdata.entity.BasicDataEntity;
+import com.jeecg.basicdata.service.BasicDataServiceI;
 import com.jeecg.ncount.service.ScmNcountServiceI;
 import com.jeecg.orderexpress.entity.ExpressServiceEntity;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
@@ -38,6 +40,8 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 	private InforWebService inforWebService;
 	@Autowired
 	private ScmNcountServiceI scmNcountService;
+	@Autowired
+	private BasicDataServiceI basicDataService;
 
 	public void delete(OrderExpressEntity entity) throws Exception {
 		super.delete(entity);
@@ -166,7 +170,9 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setCase_num(1);
 				entity.setMapcode("INFOREXTEND01");
 				if ("SF".equals(expressCompany)) {
-					entity.setService1("5125001307");// 月结卡号，后续优化5125001307(正式)7551234567(测试)
+					//数据库配置月结卡号
+					BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "SF-MONTH-CARD");
+					entity.setService1(basicDataEntity.getData());// 月结卡号，后续优化5125001307(正式)7551234567(测试)
 					entity.setService2(String.valueOf(resultList.get(0)[10])=="null"?"":String.valueOf(resultList.get(0)[10]));
 				}
 				entity.setRemark(String.valueOf(resultList.get(0)[14])=="null"?"":String.valueOf(resultList.get(0)[14]));

@@ -20,12 +20,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Utf8;
 import com.jeecg.apilog.entity.ApilogEntity;
 import com.jeecg.apilog.service.ApilogServiceI;
+import com.jeecg.basicdata.entity.BasicDataEntity;
+import com.jeecg.basicdata.service.BasicDataServiceI;
 
 @Service("flksExpressWebService")
 public class FlksExpressWebService {
 
 	@Autowired
 	private ApilogServiceI apilogService;
+	@Autowired
+	private BasicDataServiceI basicDataService;
 
 	// 测试
 	// app_name： INFOREXTEND
@@ -33,7 +37,7 @@ public class FlksExpressWebService {
 	// SECRET: b848c0506dc90091589e533e8b5035d7
 	// TOKEN: b848c0506dc90091589e533e8b5035d7
 //	private String url = "http://172.20.37.40:8080/";
-	private String url = "http://172.20.60.189:8080/";
+//	private String url = "http://172.20.60.189:8080/";
 	
 	//正式
 //	private String url = "http://172.20.70.158:8080/";
@@ -51,8 +55,10 @@ public class FlksExpressWebService {
 	public String createOrderToFlksExpress(JSONObject sendMessage, String msgid) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 		String receiveMessage = "";
+		BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "EXPRESS");
+		
 		String sig = getDigest(sendMessage.toString(), secret);
-		String methodUrl = url + "api/createOrder";
+		String methodUrl = basicDataEntity.getData() + "api/createOrder";
 		HttpURLConnection connection = null;
 		OutputStream dataout = null;
 		BufferedReader reader = null;
@@ -122,7 +128,8 @@ public class FlksExpressWebService {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 		String receiveMessage = "";
 		String sig = getDigest(sendMessage.toString(), secret);
-		String methodUrl = url + "api/createOrder";
+		BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "EXPRESS");
+		String methodUrl = basicDataEntity.getData() + "api/createOrder";
 		HttpURLConnection connection = null;
 		OutputStream dataout = null;
 		BufferedReader reader = null;

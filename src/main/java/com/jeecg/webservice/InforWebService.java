@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import com.jeecg.apilog.entity.ApilogEntity;
 import com.jeecg.apilog.service.ApilogServiceI;
+import com.jeecg.basicdata.entity.BasicDataEntity;
+import com.jeecg.basicdata.service.BasicDataServiceI;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 
 @Service("inforWebService")
@@ -29,11 +31,13 @@ public class InforWebService {
 
 	@Autowired
 	private ApilogServiceI apilogService;
+	@Autowired
+	private BasicDataServiceI basicDataService;
 
 	// 接口地址
 //	private String url = "http://sce.feili.com/WMSWebService/services/WmsWebService";
 	// 测试
-	private String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
+//	private String url = "http://scetest.feili.com:9180/WMSWebService/services/WmsWebService";
 
 	/**
 	 * 检查info用户是否正确
@@ -48,7 +52,8 @@ public class InforWebService {
 		try {
 			ServiceClient serviceClient = new ServiceClient();
 			// 创建服务地址WebService的URL,注意不是WSDL的URL
-			EndpointReference targetEPR = new EndpointReference(url);
+			BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "INFOR");
+			EndpointReference targetEPR = new EndpointReference(basicDataEntity.getData());
 			Options options = serviceClient.getOptions();
 			options.setTo(targetEPR);
 			// 确定调用方法（wsdl 命名空间地址 (wsdl文档中的targetNamespace) 和 方法名称 的组合）
@@ -111,7 +116,8 @@ public class InforWebService {
 		try {
 			ServiceClient serviceClient = new ServiceClient();
 			// 创建服务地址WebService的URL,注意不是WSDL的URL
-			EndpointReference targetEPR = new EndpointReference(url);
+			BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "INFOR");
+			EndpointReference targetEPR = new EndpointReference(basicDataEntity.getData());
 			Options options = serviceClient.getOptions();
 			options.setTo(targetEPR);
 			// 确定调用方法（wsdl 命名空间地址 (wsdl文档中的targetNamespace) 和 方法名称 的组合）
@@ -198,7 +204,8 @@ public class InforWebService {
 		try {
 			ServiceClient serviceClient = new ServiceClient();
 			// 创建服务地址WebService的URL,注意不是WSDL的URL
-			EndpointReference targetEPR = new EndpointReference(url);
+			BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "INFOR");
+			EndpointReference targetEPR = new EndpointReference(basicDataEntity.getData());
 			Options options = serviceClient.getOptions();
 			options.setTo(targetEPR);
 			// 确定调用方法（wsdl 命名空间地址 (wsdl文档中的targetNamespace) 和 方法名称 的组合）
@@ -263,7 +270,8 @@ public class InforWebService {
 		try {
 			ServiceClient serviceClient = new ServiceClient();
 			// 创建服务地址WebService的URL,注意不是WSDL的URL
-			EndpointReference targetEPR = new EndpointReference(url);
+			BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "INFOR");
+			EndpointReference targetEPR = new EndpointReference(basicDataEntity.getData());
 			Options options = serviceClient.getOptions();
 			options.setTo(targetEPR);
 			// 确定调用方法（wsdl 命名空间地址 (wsdl文档中的targetNamespace) 和 方法名称 的组合）
@@ -344,7 +352,8 @@ public class InforWebService {
 		try {
 			ServiceClient serviceClient = new ServiceClient();
 			// 创建服务地址WebService的URL,注意不是WSDL的URL
-			EndpointReference targetEPR = new EndpointReference(url);
+			BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "INFOR");
+			EndpointReference targetEPR = new EndpointReference(basicDataEntity.getData());
 			Options options = serviceClient.getOptions();
 			options.setTo(targetEPR);
 			// 确定调用方法（wsdl 命名空间地址 (wsdl文档中的targetNamespace) 和 方法名称 的组合）
