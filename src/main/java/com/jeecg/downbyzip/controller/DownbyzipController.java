@@ -1,5 +1,7 @@
 package com.jeecg.downbyzip.controller;
+import com.alibaba.fastjson.JSONObject;
 import com.jeecg.Util.ZipUtils;
+import com.jeecg.basicdata.entity.BasicDataEntity;
 import com.jeecg.downbyzip.entity.DownbyzipEntity;
 import com.jeecg.downbyzip.entity.FileBean;
 import com.jeecg.downbyzip.service.DownbyzipServiceI;
@@ -376,4 +378,24 @@ public class DownbyzipController extends BaseController {
  		}
  		return fileList;
  	}
+ 	
+ 	/**
+ 	 * 获取收货异常app下载Url
+ 	 * @param request
+ 	 * @param response
+ 	 */
+ 	@RequestMapping(params = "queryReceiptFeedBackUrl")
+	@ResponseBody
+	public void queryReceiptFeedBackUrl(HttpServletRequest request, HttpServletResponse response) {
+		JSONObject resultjson = new JSONObject();
+		try {
+			BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_URL");
+			resultjson.put("receiptFeedBackUrl", basicDataEntity.getData());
+			response.getWriter().write(resultjson.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

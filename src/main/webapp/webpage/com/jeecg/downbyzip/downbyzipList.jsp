@@ -89,7 +89,8 @@
 					lpn:'',
 				},
 				url:{
-					downloadzip:'${webRoot}/downbyzipController.do?downLoadZipFile'
+					downloadzip:'${webRoot}/downbyzipController.do?downLoadZipFile',
+					queryReceiptFeedBack:'${webRoot}/downbyzipController.do?queryReceiptFeedBackUrl'
 				},
 				downbyzips: [],
 				total: 0,
@@ -121,10 +122,6 @@
 					lpn:true,
 				},
 				
-				feedbackqrcode:'http://172.20.70.32/ReceiptFeedBack.apk',
-	            // 背景透明度，默认透明 0 
-	            backgroundAlpha: 1,
-	            listShareShow:true,
 				//数据字典 
 			}
 		},
@@ -134,16 +131,18 @@
 					window.location.href = this.url.downloadzip+"&lpn="+this.filters.lpn+"&asn="+this.filters.asn;
 			},
 			showQrcode: function () {
-				console.log("dai",1);
 	            if (qrcode !== null) return
-	            qrcode = new QRCode('qrcode', {
-	            text: 'http://172.20.70.32/ReceiptFeedBack.apk',
-	            width: 100,
-	            height: 100,
-	            colorDark: '#17233d',
-	            colorLight: '#f8f8f9',
-	            correctLevel: QRCode.CorrectLevel.H
-	          })
+	            this.$http.get(this.url.queryReceiptFeedBack).then(function(res)  {
+	            	 qrcode = new QRCode('qrcode', {
+	 		            text: res.data.receiptFeedBackUrl,
+	 		            width: 100,
+	 		            height: 100,
+	 		            colorDark: '#17233d',
+	 		            colorLight: '#f8f8f9',
+	 		            correctLevel: QRCode.CorrectLevel.H
+	 		         })
+				});
+	           
 	       }
 		},
 		mounted:function() {
