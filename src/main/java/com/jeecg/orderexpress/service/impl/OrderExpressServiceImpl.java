@@ -343,7 +343,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 	}
 
 	@Override
-	public String addOrderToExpress(List<String> orderkeyList, String uniqueCode) {
+	public String addOrderToExpress(List<String> orderkeyList, String uniqueCode) throws Exception {
 		// TODO Auto-generated method stub
 		List<OrderExpressEntity> orderExpressEntities=this.findHql("from OrderExpressEntity where uniqueCode=?", uniqueCode);
 		String result = "";
@@ -355,15 +355,29 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				orderkeySql += ",'" + orderkeyList.get(i) + "'";
 			}
 		}
+		//判断单号是否符合条件
 		if (checkOrders(orderExpressEntities.get(0).getWarehouse(), orderkeySql)) {
 			for (OrderExpressEntity orderExpressEntity : orderExpressEntities) {
 				orderkeySql+= ",'" + orderExpressEntity.getOrderkey() + "'";
 			}
 			List<Object[]> resultList = queryOrderExpressEntity(typeNameToTypeCode(orderExpressEntities.get(0).getWarehouse(),"仓库"), orderkeySql, orderExpressEntities.get(0).getExpressCompany());
-			if (resultList.size() > 1) {
+			if (resultList.size() == 1) {
+				// 调用接口回填infor
+				TSUser user = ResourceUtil.getSessionUser();// 操作人
+				inforWebService.sendkeytoInfor(orderExpressEntities.get(0).getWarehouse(), user.getUserName(), orderExpressEntities.get(0).getBillCode(), uniqueCode,
+						orderkeyList);
+				for (String orderkey : orderkeyList) {
+					OrderExpressEntity expressEntity = new OrderExpressEntity();
+					expressEntity.setWarehouse(orderExpressEntities.get(0).getWarehouse());
+					expressEntity.setExpressCompany(orderExpressEntities.get(0).getExpressCompany());
+					expressEntity.setUniqueCode(uniqueCode);
+					expressEntity.setOrderkey(orderkey);
+					expressEntity.setPrinter(orderExpressEntities.get(0).getPrinter());
+					this.save(expressEntity);
+				}
+				result = "下单成功！";
+			} else {
 				result = "出货订单寄件信息不同，请确认！";
-			} else if (resultList.size() == 1) {
-				
 			}
 		}else {
 			result="单号错误！";
