@@ -394,10 +394,10 @@ public class OrderExpressController extends BaseController {
 				//添加
 				resultMessage = orderExpressService.addOrderToExpress(orderkeyList,uniqueCode);	
 			}
-			boolean flag=printJasperToFtp(warehouse, printer, uniqueCode, expressCompany);
 			
 			result.put("message", resultMessage);
 			if (resultMessage.equals("下单成功！")) {
+				boolean flag=printJasperToFtp(warehouse, printer, uniqueCode, expressCompany);
 				result.put("result", "success");
 				result.put("uniqueCode", uniqueCode);
 			} else {

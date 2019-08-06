@@ -179,7 +179,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				entity.setBpcode(warehouse.replace("FEILI_wmwhse", "WH"));
 				// 中通网点
 				if ("ZTO".equals(expressCompany)) {
-					entity.setSetSender_station("ZTO-KUNSHAN");
+					entity.setSender_station("ZTO-KUNSHAN");
 				}
 				JSONObject sendMessage = (JSONObject) JSONObject.toJSON(entity);
 				System.out.println(sendMessage.toString());
@@ -371,8 +371,14 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 					expressEntity.setWarehouse(orderExpressEntities.get(0).getWarehouse());
 					expressEntity.setExpressCompany(orderExpressEntities.get(0).getExpressCompany());
 					expressEntity.setUniqueCode(uniqueCode);
+					expressEntity.setBillCode(orderExpressEntities.get(0).getBillCode());
 					expressEntity.setOrderkey(orderkey);
+					expressEntity.setPrintCopies(orderExpressEntities.get(0).getPrintCopies());
 					expressEntity.setPrinter(orderExpressEntities.get(0).getPrinter());
+					expressEntity.setQrcode(orderExpressEntities.get(0).getQrcode());
+					expressEntity.setDescode(orderExpressEntities.get(0).getDescode());
+					expressEntity.setBagAddr(orderExpressEntities.get(0).getBagAddr());
+					expressEntity.setMark(orderExpressEntities.get(0).getMark());
 					this.save(expressEntity);
 				}
 				result = "下单成功！";
