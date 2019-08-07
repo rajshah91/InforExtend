@@ -326,15 +326,16 @@ public class DownbyzipController extends BaseController {
              }
         }else {
         	List<String> lpnlist=downbyzipService.findListbySql("select distinct t.lpn from W01_Receiptfeedback t where t.asn='"+asn+"'");
-        	
+        	BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
+        	String wh=basicDataEntity.getData();
         	 String zipName =asn+".zip";
         	for (String l : lpnlist) {
         		sqlwhere=" and t.lpn='"+l+"'";
         	        
         	        String sql ="select 'http://' || " + 
-        	        		"       (select t.long_value from W01_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
+        	        		"       (select t.long_value from "+wh+"_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
         	        		"       t.photo_file,t.photo_file " + 
-        	        		" from W01_receiptfeedback t where 1=1 "+sqlwhere;
+        	        		" from "+wh+"_receiptfeedback t where 1=1 "+sqlwhere;
         	        
         	        fileList = getfile(sql,asn,l, fileList);//查询数据库中记录
         	        
