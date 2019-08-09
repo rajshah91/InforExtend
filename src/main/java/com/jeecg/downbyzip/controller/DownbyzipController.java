@@ -292,19 +292,21 @@ public class DownbyzipController extends BaseController {
         String lpn=request.getParameter("lpn");
         String asn=request.getParameter("asn");
         String sqlwhere="";
+        BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
+    	String wh=basicDataEntity.getData();
         List<FileBean> fileList=new ArrayList<>();
         if(asn!=null&&asn!="") {
         	sqlwhere=" and t.asn='"+asn+"' ";
         }
         if(lpn!=null&&lpn!="") {
         	sqlwhere=" and t.lpn='"+lpn+"'";
-        	List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from W01_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
+        	List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from "+wh+"_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
         	String zipName = asn+".zip";
              
              String sql ="select 'http://' || " + 
-             		"       (select t.long_value from W01_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
+             		"       (select t.long_value from "+wh+"_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
              		"       t.photo_file,t.photo_file " + 
-             		" from W01_receiptfeedback t where 1=1 "+sqlwhere;
+             		" from "+wh+"_receiptfeedback t where 1=1 "+sqlwhere;
              
              fileList = getfile(sql,asn,lpn,fileList);//查询数据库中记录
              response.setContentType("APPLICATION/OCTET-STREAM");  
@@ -325,9 +327,7 @@ public class DownbyzipController extends BaseController {
                  out.close();
              }
         }else {
-        	List<String> lpnlist=downbyzipService.findListbySql("select distinct t.lpn from W01_Receiptfeedback t where t.asn='"+asn+"'");
-        	BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
-        	String wh=basicDataEntity.getData();
+        	List<String> lpnlist=downbyzipService.findListbySql("select distinct t.lpn from "+wh+"_Receiptfeedback t where t.asn='"+asn+"'");
         	 String zipName =asn+".zip";
         	for (String l : lpnlist) {
         		sqlwhere=" and t.lpn='"+l+"'";
