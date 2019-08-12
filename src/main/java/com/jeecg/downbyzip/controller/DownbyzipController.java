@@ -361,7 +361,9 @@ public class DownbyzipController extends BaseController {
 	
     // 导出执行sql
  	private List<FileBean> getfile(String sql,String asn,String lpn,List<FileBean> fileList) {
- 		List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from W01_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
+ 		BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
+    	String wh=basicDataEntity.getData();
+ 		List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from "+wh+"_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
  		List<Object[]> resultList = downbyzipService.findListbySql(sql);
  		int i=1;
  		for (Object[] result : resultList) {
