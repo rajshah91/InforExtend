@@ -37,6 +37,7 @@ import org.jeecgframework.core.util.oConvertUtils;
 import org.jeecgframework.web.system.manager.ClientManager;
 import org.jeecgframework.web.system.pojo.base.Client;
 import org.jeecgframework.web.system.pojo.base.TSFunction;
+import org.jeecgframework.web.system.pojo.base.TSNotice;
 import org.jeecgframework.web.system.pojo.base.TSPasswordResetkey;
 import org.jeecgframework.web.system.pojo.base.TSRole;
 import org.jeecgframework.web.system.pojo.base.TSRoleUser;
@@ -60,6 +61,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.kisso.SSOHelper;
 import com.baomidou.kisso.SSOToken;
 import com.baomidou.kisso.common.util.HttpUtil;
+import com.jeecg.basicdata.entity.BasicDataEntity;
 import com.jeecg.webservice.InforWebService;
 
 import net.sf.json.JSONArray;
@@ -353,6 +355,12 @@ public class LoginController extends BaseController {
 				roles = roles.substring(0, roles.length() - 1);
 			}
 
+			//获取通知
+			List<TSNotice> notice=systemService.findHql("from TSNotice where noticeType='2' and noticeLevel='1' and trunc(noticeTerm)=trunc(sysdate)");
+			if(notice!=null&&notice.size()==1) {
+				modelMap.put("UpdateSystem", notice.get(0).getNoticeContent());
+			}
+			
 			modelMap.put("roleName", roles.length() > 3 ? roles.substring(0, 3) + "..." : roles);
 			modelMap.put("userName",
 					user.getUserName().length() > 5 ? user.getUserName().substring(0, 5) + "..." : user.getUserName());

@@ -53,12 +53,13 @@
     <div id="page-wrapper" class="gray-bg dashbard-1">
         <div class="row border-bottom">
             <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
-                <div class="navbar-header" style="height: 60px;"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                <div class="navbar-header" style="height: 60px;"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#" ><i class="fa fa-bars"></i> </a>
                     <form role="search" class="navbar-form-custom" method="post" action="search_results.html">
                         <div class="form-group">
                             <input type="text" placeholder="欢迎使用Infor扩展系统..." class="form-control" name="top-search" id="top-search">
                         </div>
                     </form>
+                    <marquee style="float:left;width:400px;color:red;font-weight:bold"><font size=+3 color=red></font>${UpdateSystem }</marquee>
                 </div>
                 
                 
