@@ -52,7 +52,7 @@ public class FlksExpressWebService {
 	 * @param msgid
 	 * @return
 	 */
-	public String createOrderToFlksExpress(JSONObject sendMessage, String msgid) {
+	public String createOrderToFlksExpress(JSONObject sendMessage, String msgid,String key) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 		String receiveMessage = "";
 		BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "EXPRESS");
@@ -102,11 +102,11 @@ public class FlksExpressWebService {
 				}
 				receiveMessage = result.toString();
 				System.out.println("dai"+receiveMessage);
-			    saveLog(sendMessage.toString(), changeStringLength(receiveMessage), true, "FLKSExpress", "createOrder", "");	
+			    saveLog(sendMessage.toString(), changeStringLength(receiveMessage), true, "FLKSExpress", "createOrder", key);	
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			saveLog(sendMessage.toString(), changeStringLength(receiveMessage), false, "FLKSExpress", "createOrder", "");
+			saveLog(sendMessage.toString(), changeStringLength(receiveMessage), false, "FLKSExpress", "createOrder", key);
 		} finally {
 			try {
 				reader.close();
