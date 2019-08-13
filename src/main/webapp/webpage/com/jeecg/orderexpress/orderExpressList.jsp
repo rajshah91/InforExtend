@@ -310,11 +310,11 @@
 		},
 		methods: {
 			expressChange:function(value){
-				if("ZTO"==value){
-					this.station=true;
-				}else{
-					this.station=false;
-				}
+				//根据快递公司来选定打印机
+				this.form.printer='';
+				this.$http.get(this.url.findPrinterByWarehouse,{params:{warehouse:this.form.warehouse,expressCompany:value}}).then(function(res)  {
+					this.printers=res.data.printers;
+				});
 			},
 			handlePrint:function(index,row){
 				if("YUNDA"==row.expressCompany&&"TOCOGNOS"==row.printer){
@@ -693,6 +693,7 @@
 								type: 'success',
 								duration:1500
 							});
+							this.form.orderkeys="";
 							if("YUNDA"==this.form.expressCompany&&"TOCOGNOS"==this.form.printer){
 						          //this.YDVisible=true;
 						          this.urlprint="http://172.20.70.249/cognos8/cgi-bin/cognos.cgi?b_action=cognosViewer&run.prompt=false&ui.action=run&ui.object=%2fcontent%2ffolder%5b%40name%3d%273-%e7%b3%bb%e7%bb%9f%e6%9f%a5%e8%af%a2%e6%8a%a5%e8%a1%a8%27%5d%2ffolder%5b%40name%3d%27%e6%98%86%e5%b1%b1%27%5d%2ffolder%5b%40name%3d%27WH6%27%5d%2freport%5b%40name%3d%27%e9%9f%b5%e8%be%be%e5%bf%ab%e9%80%92%e5%8d%95-WH6%27%5d&p_uniqueCode="+res.data.uniqueCode+"";

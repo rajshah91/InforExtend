@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import com.jeecg.basicdata.entity.BasicDataEntity;
 import com.jeecg.basicdata.service.BasicDataServiceI;
 import com.jeecg.ncount.service.ScmNcountServiceI;
+import com.jeecg.orderexpress.entity.CancleExpressEntity;
 import com.jeecg.orderexpress.entity.ExpressServiceEntity;
 import com.jeecg.orderexpress.entity.OrderExpressEntity;
 import com.jeecg.orderexpress.service.OrderExpressServiceI;
@@ -111,6 +112,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 		if (resultList.size() > 1) {
 			result = "出货订单寄件信息不同，请确认！";
 		} else if (resultList.size() == 1) {
+			boolean flag=true;
 			if (checkOrders(warehouse, orderkeySql)) {
 				for (String orderkey : orderkeyList) {
 					OrderExpressEntity expressEntity = new OrderExpressEntity();
@@ -188,7 +190,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 				//if ("1".equals(typeNameToTypeName(expressCompany, "是否对接"))) {
 				if(!"TOCOGNOS".equals(printer)) {
 					//判断打印机是否为TOCOGNOS
-					receiveMessage = flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode);
+					receiveMessage = flksExpressWebService.createOrderToFlksExpress(sendMessage, uniqueCode,orderkeySql);
 				} else {
 					String billcode = expressCompany + scmNcountService.getNextKey(expressCompany + "billcode", 10);
 					receiveMessage = "{\"mailno\":\"" + billcode
@@ -214,6 +216,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 								orderExpressEntity.setBagAddr(r.getString("bagAddr"));
 								orderExpressEntity.setMark(r.getString("mark"));
 								this.saveOrUpdate(orderExpressEntity);
+								flag=false;
 							} else if ("SF".equals(expressCompany)) {
 								orderExpressEntity.setBillCode(billCode);
 								String qrcode = receiveJson.get("msg").toString();
@@ -221,6 +224,7 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 								JSONObject descodeJson = JSONObject.parseObject(qrcode.substring(qrcode.indexOf("{")));
 								orderExpressEntity.setDescode(descodeJson.getString("k2").toString());
 								this.saveOrUpdate(orderExpressEntity);
+								flag=false;
 							} else if ("YUNDA".equals(expressCompany)) {
 								JSONObject resultJson = JSONObject.parseObject(receiveMessage);
 								JSONObject r = JSONObject.parseObject(resultJson.getString("msg"));
@@ -229,9 +233,11 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 								orderExpressEntity
 										.setMark(r.getString("position") + "   " + r.getString("position_no"));
 								this.saveOrUpdate(orderExpressEntity);
+								flag=false;
 							} else {
 								orderExpressEntity.setBillCode(billCode);
 								this.saveOrUpdate(orderExpressEntity);
+								flag=false;
 							}
 						}
 
@@ -240,10 +246,11 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 						inforWebService.sendkeytoInfor(warehouse, user.getUserName(), billCode, uniqueCode,
 								orderkeyList);
 					} else {
-						result = "下单失败!";
+						String msg =receiveJson.getString("msg");
+						result = "下单失败!"+msg;
 					}
 				}
-				if (result.equals("下单失败!")) {
+				if (flag) {
 					// 删除数据
 					this.deleteAllEntitie(expressEntities);
 				}
@@ -389,5 +396,24 @@ public class OrderExpressServiceImpl extends CommonServiceImpl implements OrderE
 			result="单号错误！";
 		}
 		return result;
+	}
+
+	@Override
+	public boolean cancleOrderToExpress(String warehouse, String uniqueCode, String operator, String remark)
+			throws Exception {
+		//
+	    CancleExpressEntity cancleExpressEntity=new CancleExpressEntity();
+	    cancleExpressEntity.setBpcode(warehouse.replace("FEILI_wmwhse", "WH"));
+	    cancleExpressEntity.setClientcode("INFOREXTEND");
+	    cancleExpressEntity.setClientorderkey(uniqueCode);
+	    cancleExpressEntity.setRemark(remark);
+	    cancleExpressEntity.setOperator(operator);
+	    JSONObject sendMessage = (JSONObject) JSONObject.toJSON(cancleExpressEntity);
+	    String receiveMessage=flksExpressWebService.deleteOrderToFlksExpress(sendMessage, uniqueCode);
+	    JSONObject receiveJson = JSONObject.parseObject(receiveMessage);
+	    if (receiveJson.get("resultcode").toString().equals("OK")) {
+	    	return true;
+	    }
+		return false;
 	}
 }

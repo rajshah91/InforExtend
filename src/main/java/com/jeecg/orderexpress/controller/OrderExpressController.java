@@ -126,13 +126,24 @@ public class OrderExpressController extends BaseController {
 				
 				Map<String,String> orderkeys=new HashMap<String, String>();
 				orderkeys.put(orderExpress.getOrderkey(), String.valueOf(resultList.get(0)));
-			
 				if(inforWebService.deleteKeyToInfor(orderExpress.getWarehouse(), user.getUserName(),orderkeys)) {
 					orderExpressService.delete(orderExpress);
 				}else {
 					message = "订单快递表删除失败";
 					success=false;
 				}
+			   /* if(orderExpressService.cancleOrderToExpress(orderExpress.getWarehouse(), orderExpress.getUniqueCode(), user.getUserName(), "取消订单")) {
+			    	if(inforWebService.deleteKeyToInfor(orderExpress.getWarehouse(), user.getUserName(),orderkeys)) {
+						orderExpressService.delete(orderExpress);
+					}else {
+						message = "订单快递表删除失败";
+						success=false;
+					}
+			    }else {
+			    	message = "订单取消失败";
+					success=false;
+			    }*/
+				
 //			}else {
 //				message = "订单快递表删除失败";
 //				success=false;
@@ -310,7 +321,7 @@ public class OrderExpressController extends BaseController {
 	}
 
 	/**
-	 * 获取infor业务类型
+	 * 获取infor订单号
 	 * 
 	 * @param ids
 	 * @return
@@ -443,14 +454,25 @@ public class OrderExpressController extends BaseController {
 		JSONObject resultjson = new JSONObject();
 		try {
 			String warehouse = request.getParameter("warehouse");
-			List<PrintconfigEntity> printconfigEntities = orderExpressService
-					.findHql("from PrintconfigEntity where warehouse=?", warehouse);
+			String expressCompany = request.getParameter("expressCompany");
+			if(expressCompany!=null&&expressCompany!="") {
+				List<PrintconfigEntity> printconfigEntities = orderExpressService
+						.findHql("from PrintconfigEntity where warehouse=? and note=?", warehouse,expressCompany);
+				List<String> list = new ArrayList<>();
+				for (PrintconfigEntity printconfigEntity : printconfigEntities) {
+					list.add(printconfigEntity.getPrintname());
+				}
+				resultjson.put("printers", list);
+			}else {
+				List<PrintconfigEntity> printconfigEntities = orderExpressService
+						.findHql("from PrintconfigEntity where warehouse=?", warehouse);
 
-			List<String> list = new ArrayList<>();
-			for (PrintconfigEntity printconfigEntity : printconfigEntities) {
-				list.add(printconfigEntity.getPrintname());
+				List<String> list = new ArrayList<>();
+				for (PrintconfigEntity printconfigEntity : printconfigEntities) {
+					list.add(printconfigEntity.getPrintname());
+				}
+				resultjson.put("printers", list);
 			}
-			resultjson.put("printers", list);
 			response.getWriter().write(resultjson.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
