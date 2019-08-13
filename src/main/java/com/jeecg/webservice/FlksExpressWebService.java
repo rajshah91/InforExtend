@@ -129,7 +129,7 @@ public class FlksExpressWebService {
 		String receiveMessage = "";
 		String sig = getDigest(sendMessage.toString(), secret);
 		BasicDataEntity basicDataEntity=basicDataService.findUniqueByProperty(BasicDataEntity.class, "code", "EXPRESS");
-		String methodUrl = basicDataEntity.getData() + "api/createOrder";
+		String methodUrl = basicDataEntity.getData() + "api/delOrder";
 		HttpURLConnection connection = null;
 		OutputStream dataout = null;
 		BufferedReader reader = null;
