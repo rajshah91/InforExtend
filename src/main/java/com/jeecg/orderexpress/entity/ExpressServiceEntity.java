@@ -45,6 +45,7 @@ public class ExpressServiceEntity implements java.io.Serializable {
 	private String service1;//7551234567
 	private String service2;//顺丰服务代码
 	private String sender_station;//中通网点信息
+	private String bpcode;
 	
 	public String getSender_station() {
 		return sender_station;
@@ -58,7 +59,6 @@ public class ExpressServiceEntity implements java.io.Serializable {
 	public void setService2(String service2) {
 		this.service2 = service2;
 	}
-	private String bpcode;
 	
 	public String getClientcode() {
 		return clientcode;
