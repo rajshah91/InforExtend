@@ -90,8 +90,8 @@
 		</el-row>
 		<!--列表-->
 		<el-table :data="apilogs" border stripe size="mini" highlight-current-row v-loading="listLoading" @sort-change="handleSortChange"  @selection-change="selsChange" style="width: 100%;">
-			<!-- <el-table-column type="selection" width="55"></el-table-column>
-			<el-table-column type="index" width="60"></el-table-column> -->
+			<el-table-column type="selection" width="55"></el-table-column>
+			<el-table-column type="index" width="60"></el-table-column>
 			<el-table-column prop="createDate" label="创建时间" v-if="columnshow.createName" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="createName" label="创建人名称" v-if="columnshow.createName" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<!-- <el-table-column prop="bpmStatus" label="流程状态" v-if="columnshow.bpmStatus" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column> -->
@@ -101,7 +101,7 @@
 			<el-table-column prop="result" label="结果" v-if="columnshow.result" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="partner" label="交互的对象" v-if="columnshow.partner" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column prop="servicename" label="接口名称" v-if="columnshow.servicename" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
-			<el-table-column prop="operator" label="操作人" v-if="columnshow.operator" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
+			<el-table-column prop="operator" label="KEY" v-if="columnshow.operator" min-width="120" sortable="custom" show-overflow-tooltip></el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -112,7 +112,7 @@
 		
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
-			<!--<el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>-->
+			<el-button type="danger" size="mini" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
 			 <el-pagination small background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10, 20, 50, 100]"
       			:page-size="pageSize" :total="total" layout="sizes, prev, pager, next"  style="float:right;"></el-pagination>
 		</el-col>
@@ -373,10 +373,10 @@
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {
 					type: 'warning'
-				}).then(function()  {
+				}).then(() =>  {
 					this.listLoading = true;
 					let para = { id: row.id };
-					this.$http.post(this.url.del,para,{emulateJSON: true}).then(function(res)  {
+					this.$http.post(this.url.del,para,{emulateJSON: true}).then((res) =>  {
 						this.listLoading = false;
 						this.$message({
 							message: '删除成功',
@@ -385,7 +385,7 @@
 						});
 						this.getApilogs();
 					});
-				}).catch(function()  {
+				}).catch(() => {
 
 				});
 			},
@@ -439,13 +439,14 @@
 			},
 			//批量删除
 			batchRemove: function () {
-				var ids = '';
+				var ids = this.sels.map(item => item.id).toString();
+				console.log(ids);
 				this.$confirm('确认删除选中记录吗？', '提示', {
 					type: 'warning'
-				}).then(function()  {
+				}).then(() => {
 					this.listLoading = true;
 					let para = { ids: ids };
-					this.$http.post(this.url.batchDel,para,{emulateJSON: true}).then(function(res)  {
+					this.$http.post(this.url.batchDel,para,{emulateJSON: true}).then((res) => {
 						this.listLoading = false;
 						this.$message({
 							message: '删除成功',
@@ -454,7 +455,7 @@
 						});
 						this.getApilogs();
 					});
-				}).catch(function()  {
+				}).catch(() => {
 				});
 			},
 			//导出
