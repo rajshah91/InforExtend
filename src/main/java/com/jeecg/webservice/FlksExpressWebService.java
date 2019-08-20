@@ -173,11 +173,11 @@ public class FlksExpressWebService {
 				}
 				receiveMessage = result.toString();
 				System.out.println("dai"+receiveMessage);
-			    saveLog(sendMessage.toString(), changeStringLength(receiveMessage), true, "FLKSExpress", "createOrder", "");	
+			    saveLog(sendMessage.toString(), changeStringLength(receiveMessage), true, "FLKSExpress", "delOrder", "");	
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			saveLog(sendMessage.toString(), changeStringLength(receiveMessage), false, "FLKSExpress", "createOrder", "");
+			saveLog(sendMessage.toString(), changeStringLength(receiveMessage), false, "FLKSExpress", "delOrder", "");
 		} finally {
 			try {
 				reader.close();
