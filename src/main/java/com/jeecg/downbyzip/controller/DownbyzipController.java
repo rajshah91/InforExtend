@@ -299,7 +299,7 @@ public class DownbyzipController extends BaseController {
         	sqlwhere=" and t.asn='"+asn+"' ";
         }
         if(lpn!=null&&lpn!="") {
-        	sqlwhere=" and t.lpn='"+lpn+"'";
+        	sqlwhere=" and t.lpn='"+lpn+"' and t.asn='"+asn+"' and (t.pack_level='STUFF' or t.pack_level='BAG' or t.pack_level='SOP')";
         	List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from "+wh+"_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
         	String zipName = asn+".zip";
              
@@ -328,9 +328,10 @@ public class DownbyzipController extends BaseController {
              }
         }else {
         	List<String> lpnlist=downbyzipService.findListbySql("select distinct t.lpn from "+wh+"_Receiptfeedback t where t.asn='"+asn+"'");
-        	 String zipName =asn+".zip";
+        	String zipName =asn+".zip";
         	for (String l : lpnlist) {
-        		sqlwhere=" and t.lpn='"+l+"'";
+        		
+        		sqlwhere=" and t.lpn='"+l+"' and t.asn='"+asn+"' and (t.pack_level='STUFF' or t.pack_level='BAG' or t.pack_level='SOP')";
         	        
         	        String sql ="select 'http://' || " + 
         	        		"       (select t.long_value from "+wh+"_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
@@ -338,9 +339,8 @@ public class DownbyzipController extends BaseController {
         	        		" from "+wh+"_receiptfeedback t where 1=1 "+sqlwhere;
         	        
         	        fileList = getfile(sql,asn,l, fileList);//查询数据库中记录
-        	        
-			}
-        	response.setContentType("APPLICATION/OCTET-STREAM");  
+        	}
+        	response.setContentType("APPLICATION/OCTET-STREAM");
 	        response.setHeader("Content-Disposition","attachment; filename="+zipName);
 	        ZipOutputStream out = new ZipOutputStream(response.getOutputStream());
 	        try {
@@ -359,7 +359,7 @@ public class DownbyzipController extends BaseController {
         }
     }
 	
-    // 导出执行sql
+    // 
  	private List<FileBean> getfile(String sql,String asn,String lpn,List<FileBean> fileList) {
  		BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
     	String wh=basicDataEntity.getData();
@@ -379,9 +379,42 @@ public class DownbyzipController extends BaseController {
  			fileList.add(entity);
  			i++;
  		}
+ 		 //找到外箱号
+        List<String> wxlist=downbyzipService.findListbySql("select distinct t.case_code from "+wh+"_Receiptfeedback t where t.asn='"+asn+"'  and t.lpn='"+lpn+"'");
+        //根据外箱号和asn循环找到绑外箱的图片
+        for (String wx : wxlist) {
+			String sql1="select 'http://' || " + 
+	        		"       (select t.long_value from "+wh+"_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
+	        		"       t.photo_file,t.photo_file " + 
+	        		" from "+wh+"_receiptfeedback t where t.asn='"+asn+"' and t.case_code='"+wx+"' and (t.pack_level='CASE' or t.pack_level='BOX')";
+			fileList = getfileByPackCode(sql1,asn,lpn, fileList,i);//查询数据库中记录
+		}
+ 		
  		return fileList;
  	}
  	
+ 	
+ 	 // 
+ 	private List<FileBean> getfileByPackCode(String sql,String asn,String lpn,List<FileBean> fileList,int i) {
+ 		BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
+    	String wh=basicDataEntity.getData();
+ 		List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from "+wh+"_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
+ 		List<Object[]> resultList = downbyzipService.findListbySql(sql);
+ 		for (Object[] result : resultList) {
+ 			FileBean entity = new FileBean();
+ 			entity.setFilePath(String.valueOf(result[0]));
+ 			if(strlist!=null&&strlist.size()>0) {
+ 				String fileName = strlist.get(0)+"_"+lpn+"_"+i+".jpg"; 				
+ 				entity.setFileName(fileName);
+ 			}else {
+ 				String fileName = lpn+"_"+i+".jpg"; 				
+ 				entity.setFileName(fileName);
+ 			}
+ 			fileList.add(entity);
+ 			i++;
+ 		}
+ 		return fileList;
+ 	}
  	/**
  	 * 获取收货异常app下载Url
  	 * @param request
