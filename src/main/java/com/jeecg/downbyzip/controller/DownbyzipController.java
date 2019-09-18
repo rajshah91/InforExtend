@@ -69,6 +69,8 @@ public class DownbyzipController extends BaseController {
 	@Autowired
 	private SystemService systemService;
 	
+	private List<FileBean> fileList=new ArrayList<>();
+
 
 
 	/**
@@ -294,7 +296,7 @@ public class DownbyzipController extends BaseController {
         String sqlwhere="";
         BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
     	String wh=basicDataEntity.getData();
-        List<FileBean> fileList=new ArrayList<>();
+        //List<FileBean> fileList=new ArrayList<>();
         if(asn!=null&&asn!="") {
         	sqlwhere=" and t.asn='"+asn+"' ";
         }
@@ -303,7 +305,7 @@ public class DownbyzipController extends BaseController {
         	List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from "+wh+"_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
         	String zipName = asn+".zip";
              
-             String sql ="select 'http://' || " + 
+             String sql ="select  'http://' || " + 
              		"       (select t.long_value from "+wh+"_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
              		"       t.photo_file,t.photo_file " + 
              		" from "+wh+"_receiptfeedback t where 1=1 "+sqlwhere;
@@ -333,7 +335,7 @@ public class DownbyzipController extends BaseController {
         		
         		sqlwhere=" and t.lpn='"+l+"' and t.asn='"+asn+"' and (t.pack_level='STUFF' or t.pack_level='BAG' or t.pack_level='SOP')";
         	        
-        	        String sql ="select 'http://' || " + 
+        	        String sql ="select  'http://' || " + 
         	        		"       (select t.long_value from "+wh+"_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
         	        		"       t.photo_file,t.photo_file " + 
         	        		" from "+wh+"_receiptfeedback t where 1=1 "+sqlwhere;
@@ -372,6 +374,7 @@ public class DownbyzipController extends BaseController {
  			if(strlist!=null&&strlist.size()>0) {
  				String fileName = strlist.get(0)+"_"+lpn+"_"+i+".jpg"; 				
  				entity.setFileName(fileName);
+ 				System.out.println("bag"+fileName);
  			}else {
  				String fileName = lpn+"_"+i+".jpg"; 				
  				entity.setFileName(fileName);
@@ -383,19 +386,18 @@ public class DownbyzipController extends BaseController {
         List<String> wxlist=downbyzipService.findListbySql("select distinct t.case_code from "+wh+"_Receiptfeedback t where t.asn='"+asn+"'  and t.lpn='"+lpn+"'");
         //根据外箱号和asn循环找到绑外箱的图片
         for (String wx : wxlist) {
-			String sql1="select 'http://' || " + 
+			String sql1="select distinct 'http://' || " + 
 	        		"       (select t.long_value from "+wh+"_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
 	        		"       t.photo_file,t.photo_file " + 
-	        		" from "+wh+"_receiptfeedback t where t.asn='"+asn+"' and t.case_code='"+wx+"' and (t.pack_level='CASE' or t.pack_level='BOX')";
-			fileList = getfileByPackCode(sql1,asn,lpn, fileList,i);//查询数据库中记录
+	        		" from "+wh+"_receiptfeedback t where t.asn='"+asn+"' and t.case_code='"+wx+"' and (t.pack_level='CASE')";
+			i = getfileByCaseCode(sql1,asn,lpn, fileList,i);//查询数据库中记录
 		}
- 		
  		return fileList;
  	}
  	
  	
  	 // 
- 	private List<FileBean> getfileByPackCode(String sql,String asn,String lpn,List<FileBean> fileList,int i) {
+ 	private int getfileByCaseCode(String sql,String asn,String lpn,List<FileBean> fileList,int i) {
  		BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
     	String wh=basicDataEntity.getData();
  		List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from "+wh+"_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
@@ -404,7 +406,8 @@ public class DownbyzipController extends BaseController {
  			FileBean entity = new FileBean();
  			entity.setFilePath(String.valueOf(result[0]));
  			if(strlist!=null&&strlist.size()>0) {
- 				String fileName = strlist.get(0)+"_"+lpn+"_"+i+".jpg"; 				
+ 				String fileName = strlist.get(0)+"_"+lpn+"_"+i+".jpg"; 	
+ 				System.out.println("case"+fileName);
  				entity.setFileName(fileName);
  			}else {
  				String fileName = lpn+"_"+i+".jpg"; 				
@@ -413,7 +416,39 @@ public class DownbyzipController extends BaseController {
  			fileList.add(entity);
  			i++;
  		}
- 		return fileList;
+ 		 List<String> boxlist=downbyzipService.findListbySql("select distinct t.pack_code from "+wh+"_Receiptfeedback t where t.asn='"+asn+"'  and t.lpn='"+lpn+"' and t.pack_level='BOX' ");
+         //根据外箱号和asn循环找到绑外箱的图片
+         for (String wx : boxlist) {
+ 			String sql1="select distinct 'http://' || " + 
+ 	        		"       (select t.long_value from "+wh+"_codelkup t where t.code = 'FTP_HOST') ||':80/'|| " + 
+ 	        		"       t.photo_file,t.photo_file " + 
+ 	        		" from "+wh+"_receiptfeedback t where t.asn='"+asn+"' and t.pack_code='"+wx+"' and (t.pack_level='BOX')";
+ 			i = getfileByPackCode(sql1,asn,lpn, fileList,i);//查询数据库中记录
+ 		}
+ 		return i;
+ 	}
+ 	
+ 	 // 
+ 	private int getfileByPackCode(String sql,String asn,String lpn,List<FileBean> fileList,int i) {
+ 		BasicDataEntity basicDataEntity=downbyzipService.findUniqueByProperty(BasicDataEntity.class, "code", "AB_PHOTO_WH");
+    	String wh=basicDataEntity.getData();
+ 		List<String> strlist=downbyzipService.findListbySql("select r.lottable02 from "+wh+"_Receiptdetail r where r.receiptkey='"+asn+"' and r.toid='"+lpn+"' ");
+ 		List<Object[]> resultList = downbyzipService.findListbySql(sql);
+ 		for (Object[] result : resultList) {
+ 			FileBean entity = new FileBean();
+ 			entity.setFilePath(String.valueOf(result[0]));
+ 			if(strlist!=null&&strlist.size()>0) {
+ 				String fileName = strlist.get(0)+"_"+lpn+"_"+i+".jpg";
+ 				System.out.println("box"+fileName);
+ 				entity.setFileName(fileName);
+ 			}else {
+ 				String fileName = lpn+"_"+i+".jpg"; 				
+ 				entity.setFileName(fileName);
+ 			}
+ 			fileList.add(entity);
+ 			i++;
+ 		}	
+ 		return i;
  	}
  	/**
  	 * 获取收货异常app下载Url
